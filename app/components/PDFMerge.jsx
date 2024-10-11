@@ -114,9 +114,9 @@ const PdfMerge = () => {
       <div className="w-1/3 pr-4">
         <div className=" min-h-[200px] shadow-xl rounded-lg p-4 ">
         <div
-        className={`border-4 bg-sky-200 border-dashed p-5 rounded-lg w-full max-w-md bg-wheat flex items-center justify-center cursor-pointer transition-colors  ease-in-out duration-1000  transform hover:scale-105 border-sky-500`}
-        onClick={() => document.getElementById('fileInput').click()}
-      >
+  className={`border-4 border-dashed p-5 rounded-lg w-full max-w-md bg-sky-200 flex items-center justify-center cursor-pointer transition-transform duration-1000 ease-in-out hover:scale-105 border-sky-500`}
+  onClick={() => document.getElementById('fileInput').click()}
+>
         <input
           id="fileInput"
           type="file"
@@ -162,7 +162,7 @@ const PdfMerge = () => {
               />
               <button
                 onClick={downloadPdf}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition shadow-lg"
+                className="px-6 py-4 w-full bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
               >
                 Download Merged PDF
               </button>

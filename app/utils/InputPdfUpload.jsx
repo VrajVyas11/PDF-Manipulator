@@ -60,7 +60,7 @@ const InputPdfUpload = ({ setPdfData, setCurrentPage }) => {
       </div>
       <button
         onClick={handleUpload}
-        className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+        className="px-6 py-4 w-1/2 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
       >
         Upload PDF
       </button>
