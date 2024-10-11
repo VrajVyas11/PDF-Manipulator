@@ -16,9 +16,15 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: blue; /* Fallback color */
+  background-image: url('/4.svg'); /* Reference the image */
+  background-size: cover; /* Make the background cover the whole viewport */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  background-position: center; /* Center the background image */
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
 
 @layer utilities {
   .text-balance {
