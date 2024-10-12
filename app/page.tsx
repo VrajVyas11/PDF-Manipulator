@@ -4,7 +4,7 @@ import Image from 'next/image'; // Importing Image component from Next.js
 import PDFEditor from './components/PDFEditor';
 import PDFMerger from './components/PDFMerge';
 import ImageToPDF from './components/ImageToPDF';
-
+import CompressPDF from "./components/CompressPDF"
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
 
@@ -73,6 +73,23 @@ function Home() {
                 Convert your images to PDF format with one click.
               </p>
             </div>
+            <div
+              className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'image' ? 'ring-4 ring-red-400' : ''
+                }`}
+              onClick={() => handleButtonClick('compress')}
+            >
+              <Image
+                src="https://img.icons8.com/48/000000/image.png"
+                alt="Image to PDF"
+                width={48}
+                height={48}
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-2xl font-semibold text-center mb-2">Compress PDF</h3>
+              <p className="text-gray-600 text-center">
+                compress PDF to Smaller Size.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -89,10 +106,10 @@ function Home() {
         )}
         {activeSection === 'image' && (
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-700 mb-8">Image to PDF Converter</h2>
             <ImageToPDF />
           </div>
         )}
+        {activeSection === 'compress' && <CompressPDF />}
       </div>
     </div>
   );

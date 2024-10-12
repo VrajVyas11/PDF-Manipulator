@@ -2,6 +2,7 @@
   "name": "pdf-editor",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,6 +21,7 @@
     "cors": "^2.8.5",
     "decode-uri-component": "^0.4.1",
     "express": "^4.21.1",
+    "file-saver": "^2.0.5",
     "formidable": "^3.5.1",
     "grapesjs": "^0.21.13",
     "html2canvas": "^1.4.1",

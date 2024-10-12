@@ -12,6 +12,7 @@ const ImageToPDF = () => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
+      setPdfUrl(null)
     } else {
       alert('Please upload a valid image file');
     }
@@ -90,9 +91,24 @@ const ImageToPDF = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-fit p-6 space-y-6 md:space-y-8">
-      {/* Drag & Drop Area */}
+      <div className={`${pdfUrl?"w-full":"w-fit"} p-8`}>
+  <div className="flex w-full justify-center items-center">
+    {/* Upload Section */}
+    <div className={`flex flex-col justify-center items-center ${pdfUrl?"w-5/6":"w-full"}  bg-sky-100 rounded-lg shadow-lg`}>
+    <div className="text-3xl bg-gray-800 px-8 py-2 pt-6 w-full placeholder:text-center text-white rounded-lg rounded-b-none font-bold">
+    <h3 className="text-3xl flex justify-center items-center font-semibold text-white mb-6">
+    PDF Preview,
+    <span className="flex items-center mx-2 bg-opacity-60 px-2 bg-yellow-300 rounded-md shadow-sm">
+      Annotation <Image className="mx-2 h-5 w-5" src="/annotate.png" alt="Annotate" width={20} height={20} />
+    </span>
+    and
+    <span className="flex items-center mx-2 bg-opacity-60 px-2 bg-blue-300 rounded-md shadow-sm">
+      Download <Image className="mx-2 h-6 w-6" src="/save.png" alt="Download" width={24} height={24} />
+    </span>
+  </h3>
+  </div>
       <div
- className={`border-4 border-dashed p-10 rounded-lg w-full max-w-md bg-sky-200 flex items-center justify-center cursor-pointer transition-transform duration-1000 ease-in-out hover:scale-105 border-sky-500`}
+        className={`border-4 border-dashed p-8  rounded-lg w-4/5 mt-8 bg-sky-200 flex items-center justify-center cursor-pointer transition-transform duration-500 hover:scale-x-105 border-sky-500`}
         onDragOver={handleDrag}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -105,49 +121,43 @@ const ImageToPDF = () => {
           className="hidden"
           onChange={handleFileChange}
         />
-        <p className="text-center text-gray-800">
-          {imageFile ? imageFile.name : 'Drag & Drop an image or click to upload'}
+        <p className="text-center text-blue-700 font-semibold">
+          {imageFile ? imageFile.name : 'Drag & Drop or Click to Upload Image'}
         </p>
       </div>
 
-      {/* Convert Button */}
+    {/* PDF Preview Section */}
+    {pdfUrl && (
+      <div className="h-fit flex justify-center flex-col items-center w-full overflow-hidden">
+  <iframe
+    src={pdfUrl}
+    title="Preview PDF"
+    className="border border-sky-400 rounded-lg shadow-md transform scale-75 "
+    style={{ width: '100%', height: '667px' }} // Compensating for the scale(0.75) factor
+  />
+  <button
+        onClick={downloadPdf}
+        className=" w-4/5 mb-10 py-3 bg-emerald-500 text-white font-semibold rounded-lg shadow-lg hover:bg-emerald-600 transition duration-300 ease-in-out disabled:opacity-50"
+        disabled={!imageFile}
+      >
+        Download PDF
+      </button>
+</div>
+
+    )}
       <button
         onClick={convertToPDF}
-        className="px-6 py-4 bg-blue-500 text-white font-mono tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out disabled:opacity-50"
+        className={` w-5/6 ${pdfUrl?"hidden":""} py-3 my-5 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out disabled:opacity-50`}
         disabled={!imageFile}
       >
         Convert to PDF
       </button>
+    </div>
 
-      {/* PDF Preview Section */}
-      {pdfUrl && (
-        <div className="mt-8 w-full tracking-widest bg-gray-800 rounded-lg p-2 py-1 flex flex-col items-center">
-          <h3 className="text-3xl flex justify-center items-center font-semibold text-white my-2">
-            PDF Preview,
-            <span className="flex items-center mx-1 bg-opacity-50 px-1 bg-yellow-200">
-              Annotation <Image className="mx-1 h-5 w-5" src="/annotate.png" alt="Annotate" width={20} height={20} />
-            </span>
-            and
-            <span className="flex items-center mx-1 bg-opacity-50 px-1 bg-blue-200">
-              Download <Image className="mx-1 h-6 w-6" src="/save.png" alt="Download" width={24} height={24} />
-            </span>
-          </h3>
-          <div className=' w-full h-screen'>
-          <iframe
-            src={pdfUrl}
-            title="PDF Preview"
-            className="border-2 border-gray-300 rounded-lg w-full h-full"
+  </div>
+</div>
 
-          />
-          </div>
-          {/* <button
-            onClick={downloadPdf}
-            className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out"
-          >
-            Download PDF
-          </button> */}
-        </div>
-      )}
+
     </div>
   );
 };

@@ -42,20 +42,40 @@ const PdfMerge = () => {
     }
   };
 
+  const handleDrop = (event, targetIndex) => {
+    event.preventDefault();
+    const sourceIndex = event.dataTransfer.getData('text/plain');
+  
+    if (sourceIndex === targetIndex.toString() || !pages[sourceIndex] || !pages[targetIndex]) return;
+  
+    setPages((prevPages) => {
+      const updatedPages = [...prevPages];
+      const [movedPage] = updatedPages.splice(sourceIndex, 1);
+      updatedPages.splice(targetIndex, 0, movedPage);
+      return updatedPages;
+    });
+  };
+  
+  useEffect(() => {
+    if (pages.length > 0) {
+      mergePdfs();
+    }
+  }, [pages]);
+  
   const mergePdfs = async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
-
+  
     try {
       const mergedPdf = await PDFDocument.create();
-
+  
       for (const page of pages) {
         const { pdfIndex, index } = page;
         const pdfDoc = await PDFDocument.load(pdfs[page.pdfIndex]);
-
+  
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
       }
-
+  
       const pdfBytes = await mergedPdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       setPreviewPdf(URL.createObjectURL(blob));
@@ -64,6 +84,7 @@ const PdfMerge = () => {
       console.error("Error merging PDFs:", error);
     }
   };
+  
 
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
@@ -71,20 +92,6 @@ const PdfMerge = () => {
 
   const handleDragOver = (event) => {
     event.preventDefault();
-  };
-
-  const handleDrop = (event, targetIndex) => {
-    const sourceIndex = event.dataTransfer.getData('text/plain');
-
-    if (sourceIndex === targetIndex.toString() || !pages[sourceIndex] || !pages[targetIndex]) return;
-
-    setPages((prevPages) => {
-      const updatedPages = [...prevPages];
-      const [movedPage] = updatedPages.splice(sourceIndex, 1);
-      updatedPages.splice(targetIndex, 0, movedPage);
-      return updatedPages;
-    });
-    mergePdfs();
   };
 
   const downloadPdf = () => {
