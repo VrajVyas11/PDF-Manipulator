@@ -241,7 +241,7 @@ console.log(pdfIndex, index )
                 onClick={downloadPdf}
                 className="px-6 py-4 w-full bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
               >
-                Download Merged PDF
+                Download Page Added PDF
               </button>
             </>
           )}
@@ -252,7 +252,7 @@ console.log(pdfIndex, index )
    
       {isDialogOpen && (
        <div className="fixed w-screen h-screen inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-       <div className="bg-white w-full h-fit rounded-lg p-6 shadow-lg border border-emerald-400">
+       <div className="bg-white w-fit h-fit rounded-lg p-6 shadow-lg border border-emerald-400">
          <h2 className="text-xl text-center font-bold mb-4 text-emerald-500">Add Page from Editor</h2>
          <QuillEditor value={editorContent} onChange={setEditorContent} placeholder={"hehe"} />
          <div className="flex justify-end mt-4">

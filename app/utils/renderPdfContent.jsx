@@ -5,7 +5,7 @@ export default function renderPdfContent(pdfData=null,editorRef,currentPage) {
     }
 
     const page = pdfData.Pages[currentPage];
-    const canvasDimensions = { width: 595.276, height: 841.890 }; // Adjust this based on your PDF data
+    const canvasDimensions = { width: 595.276*1.1, height: 841.890 }; // Adjust this based on your PDF data
 
     const contentStyle = {
       width: `${canvasDimensions.width}px`,
@@ -22,7 +22,7 @@ export default function renderPdfContent(pdfData=null,editorRef,currentPage) {
     // Process and render text with individual styles
     const combinedText = page.Texts?.map((textItem, index) => {
         // const text = decodeURIComponent(textItem.R[0].T);
-        const fontSize = textItem.R[0].TS[1]-(textItem.R[0].TS[1]/10) || 16;
+        const fontSize = textItem.R[0].TS[1]-(textItem.R[0].TS[1]/1.5) || 16;
         const fontFamily = textItem.R[0].TS[3] || 'Arial';
         const color = textItem.oc || 'black';
         const fontWeight = textItem.R[0].TS[2] ? 'bold' : 'normal';

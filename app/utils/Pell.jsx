@@ -198,7 +198,8 @@ function PellComponent() {
             padding: '10px',
             background: "white",
             minHeight: '50px',
-            minWidth: "500px",
+            minWidth: "700px",
+            // maxWidth:"900px",
             whiteSpace: 'pre-wrap',
           }}
           contentEditable={true}

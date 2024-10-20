@@ -1,3 +1,4 @@
+import React from "react";
 export default function processCombinedText(text) {
     let result = [];
     let i = 0;
