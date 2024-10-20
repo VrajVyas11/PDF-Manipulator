@@ -5,6 +5,7 @@ import PDFEditor from './components/PDFEditor';
 import PDFMerger from './components/PDFMerge';
 import ImageToPDF from './components/ImageToPDF';
 import CompressPDF from "./components/CompressPDF"
+import AddPages from "./components/AddPages"
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
 
@@ -90,6 +91,23 @@ function Home() {
                 compress PDF to Smaller Size.
               </p>
             </div>
+            <div
+              className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'image' ? 'ring-4 ring-red-400' : ''
+                }`}
+              onClick={() => handleButtonClick('addpages')}
+            >
+              <Image
+                src="https://img.icons8.com/48/000000/image.png"
+                alt="Image to PDF"
+                width={48}
+                height={48}
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-2xl font-semibold text-center mb-2">Add Pages PDF</h3>
+              <p className="text-gray-600 text-center">
+                Add more pages to pdf
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -110,6 +128,7 @@ function Home() {
           </div>
         )}
         {activeSection === 'compress' && <CompressPDF />}
+        {activeSection==="addpages" && <AddPages/>}
       </div>
     </div>
   );
