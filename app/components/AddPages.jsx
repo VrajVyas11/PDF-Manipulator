@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import QuillEditor from "../utils/QuillEditor";
-import html2pdf from 'html2pdf.js';
+import dynamic from 'next/dynamic';
+
+const QuillEditor = dynamic(() => import('../utils/QuillEditor'), { ssr: false });
+const html2pdf = dynamic(() => import('html2pdf.js'), { ssr: false });
 
 const AddPages = () => {
   const [pdfs, setPdfs] = useState([]);
