@@ -1,13 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/upload',
-  //       destination: 'http://localhost:3000/upload',
-  //     },
-  //   ];
-  // },
+  experimental: {
+    serverComponentsExternalPackages: ["pdf-parse"],
+  },
   images: {
     domains: ['img.icons8.com'],
   },

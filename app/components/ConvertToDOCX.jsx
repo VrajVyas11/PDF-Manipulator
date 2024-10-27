@@ -34,7 +34,10 @@ const ConvertToDOCX = () => {
         throw new Error('Failed to convert PDF.');
       }
 
-      const blob = await response.blob();
+      const responseData = await response.json();
+      console.log('Success:', responseData.message);
+      const docxfile= await fetch(responseData.url) ; 
+      const blob = await docxfile.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -48,6 +51,8 @@ const ConvertToDOCX = () => {
       setMessage('Error occurred while converting PDF.');
     }
   };
+
+
 
   return (
     <div className="p-4">
