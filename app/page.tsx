@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import PDFEditor from './components/PDFEditor';
+import PDFEditor from './components/PDFEditor/PDFEditor';
 import PDFMerger from './components/PDFMerge';
 import ImageToPDF from './components/ImageToPDF';
 import CompressPDF from "./components/CompressPDF";
