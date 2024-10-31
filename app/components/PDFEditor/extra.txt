@@ -1,0 +1,59 @@
+
+  // const extractContent = async (url) => {
+  //   try {
+  //     const pdf = await pdfjsLib.getDocument({ url }).promise;
+  //     setNumPages(pdf.numPages);
+  //     let fullHtmlContent = [];
+
+  //     for (let i = 1; i <= pdf.numPages; i++) {
+  //       const page = await pdf.getPage(i);
+  //       setHeight(page.view[3])
+  //       setWidth(page.view[2])
+  //       const textContent = await page.getTextContent();
+  //       const pageHtml = generatePageHtml(textContent);
+  //       fullHtmlContent.push(pageHtml);
+  //     }
+
+  //     setHtmlContent(fullHtmlContent);
+  //   } catch (err) {
+  //     alert(`Failed to load PDF: ${err.message}`);
+  //   }
+  // };
+
+
+  // const generatePageHtml = (textContent) => {
+  //   const currentPageHtml = [];
+  //   const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
+  //   const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
+
+  //   textContent.items.forEach((item) => {
+  //     const text = item.str || '';
+  //     if (!text.trim()) return;
+
+  //     const [left, top] = item.transform.slice(4, 6);
+  //     const fontSize = item.height || 12;
+  //     const dir = item.dir || 'ltr';
+  //     const fontName = item.fontName || 'sans-serif';
+  //     const color = 'black';
+
+  //     const reversedTop = maxTop - top;
+  //     const adjustedTop = Math.max(reversedTop + minTop * 0.2 - fontSize * 1.2, 0);
+
+  //     currentPageHtml.unshift(`
+  //             <span style="
+  //                 font-size: ${fontSize}px; 
+  //                 position: absolute; 
+  //                 left: ${left}px; 
+  //                 top: ${adjustedTop}px;  
+  //                 direction: ${dir}; 
+  //                 font-family: ${fontName}; 
+  //                 color: ${color}; 
+  //             ">
+  //                 ${text}
+  //             </span>
+  //         `);
+  //   });
+
+  //   return currentPageHtml.join('');
+  // };
+

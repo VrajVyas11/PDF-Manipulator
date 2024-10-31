@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import Pagination from '../../utils/Pagination.jsx';
 import PellComponent from "../../utils/Pell.jsx";
-// import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
+import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
 import PDFImageExtractor from "./temp.jsx"
 function PDFEditor() {
   const [pdfData, setPdfData] = useState(null);
@@ -54,13 +54,13 @@ function PDFEditor() {
                 />
             </div>
         ) : (
-            // <PDFEditorWorkerBased
-            //     pdfData={pdfData}
-            //     currentPage={currentPage}
-            //     editorRef={editorRef}
-            //     setCurrentPage={setCurrentPage}
-            // />
-            <PDFImageExtractor/>
+            <PDFEditorWorkerBased
+                pdfData={pdfData}
+                currentPage={currentPage}
+                editorRef={editorRef}
+                setCurrentPage={setCurrentPage}
+            />
+            // <PDFImageExtractor/>
         )}
     </div>
 </div>
