@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,6 +16,7 @@
     "@react-pdf-viewer/default-layout": "^3.12.0",
     "@tiptap/react": "^2.8.0",
     "@tiptap/starter-kit": "^2.8.0",
+    "canvas": "^2.11.2",
     "chardet": "^2.0.0",
     "ckeditor5": "^43.2.0",
     "cors": "^2.8.5",
@@ -34,7 +35,9 @@
     "next": "14.2.15",
     "next-connect": "^1.0.0",
     "officegen": "^0.6.5",
-    "pdf-lib": "^1.17.1",
+    "pdf-export-images": "^1.2.0",
+    "pdf-img-convert": "^2.0.0",
+    "pdf-lib": "^0.6.0",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^3.1.4",
     "pell": "^1.0.6",

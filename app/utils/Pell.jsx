@@ -172,8 +172,6 @@ function PellComponent() {
 
   return (
     <div className="container flex flex-col items-center mx-auto p-6 font-sans">
-      <h1 className="text-4xl font-semibold mb-4 text-blue-600">PDF Editor</h1>
-
       <InputPdfUpload setPdfData={setPdfData} setCurrentPage={setCurrentPage} />
       <div className='bg-gray-300 mt-10 p-4 pt-2 flex flex-col gap-4 rounded-2xl'>
       <Toolbar 

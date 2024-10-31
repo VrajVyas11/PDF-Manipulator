@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import JoditEditor from 'jodit-react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
-
+import pdfImgConvert from 'pdf-img-convert';
 const PDFEditorWorkerBased = () => {
   const [htmlContent, setHtmlContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -12,6 +12,7 @@ const PDFEditorWorkerBased = () => {
   const [imageFile, setImageFile] = useState(null);
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
+  const [isFileReady, setIsFileReady] = useState(false); // New state to control when to process file
 
   useEffect(() => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
@@ -21,7 +22,7 @@ const PDFEditorWorkerBased = () => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
-      extractContent(URL.createObjectURL(file));
+      setIsFileReady(true); // Enable "Continue" button when file is uploaded
     } else {
       alert('Please upload a valid PDF file');
     }
@@ -40,7 +41,7 @@ const PDFEditorWorkerBased = () => {
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
-      extractContent(URL.createObjectURL(file));
+      setIsFileReady(true); // Enable "Continue" button when file is dropped
     } else {
       alert('Please upload a valid PDF file');
     }
@@ -51,6 +52,67 @@ const PDFEditorWorkerBased = () => {
   };
 
 
+  const generatePageHtml = (graphicOperators, textContent) => {
+    const currentPageHtml = [];
+    const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
+    const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
+    const colorMap = {};
+
+    graphicOperators.forEach(op => {
+      if (op.type === 'color') {
+        colorMap.currentColor = op.value; // Store the last defined color
+      }
+    });
+    // console.log(graphicOperators)
+    // console.log(textContent);
+
+    textContent.items.forEach((item) => {
+      const text = item.str || '';
+      if (!text.trim()) return;
+
+      const [left, top] = item.transform.slice(4, 6);
+      const fontSize = item.height || 12;
+      const dir = item.dir || 'ltr';
+      const fontName = item.fontName || 'sans-serif';
+      let color = colorMap.currentColor || 'black'; // Use the last defined color or default to black
+
+      for (let i = 0; i < graphicOperators.length; i++) {
+        if (graphicOperators[i].type === "graphicState" && item.fontName === graphicOperators[i].flag) {
+          // Move backwards to find the previous color
+          for (let j = i - 1; j >= 0; j--) {
+            if (graphicOperators[j].type === "color") {
+              color = graphicOperators[j].value; // Set the color
+              break; // Exit once the color is found
+            }
+          }
+          break; // Exit the outer loop after processing the graphicState
+        }
+      }
+
+
+      const reversedTop = maxTop - top;
+      const adjustedTop = Math.max(reversedTop + minTop * 0.2 - fontSize * 1.2, 0);
+
+      currentPageHtml.unshift(`
+            <span style="
+                font-size: ${fontSize}px; 
+                position: absolute; 
+                left: ${left}px; 
+                top: ${adjustedTop}px;  
+                direction: ${dir}; 
+                font-family: ${fontName}; 
+                width: auto;
+                height: auto; 
+                color: ${color}; 
+            ">
+                ${text}
+            </span>
+        `);
+    });
+
+    return currentPageHtml.join('');
+  };
+
   // const extractContent = async (url) => {
   //   try {
   //     const pdf = await pdfjsLib.getDocument({ url }).promise;
@@ -59,13 +121,13 @@ const PDFEditorWorkerBased = () => {
 
   //     for (let i = 1; i <= pdf.numPages; i++) {
   //       const page = await pdf.getPage(i);
-  //       setHeight(page.view[3])
-  //       setWidth(page.view[2])
+  //       setHeight(page.view[3]);
+  //       setWidth(page.view[2]);
+  //       const graphicOperators = await extractGraphicOperators(page); // Extract graphic operators here
   //       const textContent = await page.getTextContent();
-  //       const pageHtml = generatePageHtml(textContent);
+  //       const pageHtml = generatePageHtml(graphicOperators, textContent); // Pass graphicOperators to generatePageHtml
   //       fullHtmlContent.push(pageHtml);
   //     }
-
   //     setHtmlContent(fullHtmlContent);
   //   } catch (err) {
   //     alert(`Failed to load PDF: ${err.message}`);
@@ -73,155 +135,36 @@ const PDFEditorWorkerBased = () => {
   // };
 
 
-  // const generatePageHtml = (content,textContent) => {
-  //   const currentPageHtml = [];
-  //   const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
-  //   const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
-  //   const colorMap = {};
-
-  //   // Build a color map from graphic operators
-  //   graphicOperators.forEach(op => {
-  //     if (op.type === 'color') {
-  //       colorMap.currentColor = op.value; // Use the last color defined
-  //     } else if (op.type === 'graphicState') {
-  //       // Handle any additional states if necessary
-  //     }
-  //   });
-
-  //   textContent.items.forEach((item) => {
-  //     const text = item.str || '';
-  //     if (!text.trim()) return;
-
-  //     const [left, top] = item.transform.slice(4, 6);
-  //     const fontSize = item.height || 12;
-  //     const dir = item.dir || 'ltr';
-  //     const fontName = item.fontName || 'sans-serif';
-  //     const color = colorMap.currentColor || 'black'; // Use the last color defined or default to black
-
-  //     const reversedTop = maxTop - top;
-  //     const adjustedTop = Math.max(reversedTop + minTop * 0.2 - fontSize * 1.2, 0);
-
-  //     currentPageHtml.unshift(`
-  //       <span style="
-  //           font-size: ${fontSize}px; 
-  //           position: absolute; 
-  //           left: ${left}px; 
-  //           top: ${adjustedTop}px;  
-  //           direction: ${dir}; 
-  //           font-family: ${fontName}; 
-  //           color: ${color}; 
-  //       ">
-  //           ${text}
-  //       </span>
-  //     `);
-  //   });
-
-  //   return currentPageHtml.join('');
-  // };
-
-  const generatePageHtml = (graphicOperators, textContent) => {
-    const currentPageHtml = [];
-    const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
-    const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
-    const colorMap = {};
-
-    graphicOperators.forEach(op => {
-        if (op.type === 'color') {
-            colorMap.currentColor = op.value; // Store the last defined color
-        }
-    });
-console.log(graphicOperators)
-console.log(textContent);
-
-    textContent.items.forEach((item) => {
-        const text = item.str || '';
-        if (!text.trim()) return;
-
-        const [left, top] = item.transform.slice(4, 6);
-        const fontSize = item.height || 12;
-        const dir = item.dir || 'ltr';
-        const fontName = item.fontName || 'sans-serif';
-        let color = colorMap.currentColor || 'black'; // Use the last defined color or default to black
-
-        for (let i = 0; i < graphicOperators.length; i++) {
-          if (graphicOperators[i].type === "graphicState" && item.fontName === graphicOperators[i].flag) {
-              // Move backwards to find the previous color
-              for (let j = i - 1; j >= 0; j--) {
-                  if (graphicOperators[j].type === "color") {
-                      color = graphicOperators[j].value; // Set the color
-                      break; // Exit once the color is found
-                  }
-              }
-              break; // Exit the outer loop after processing the graphicState
-          }
+  const handleContinue = async () => {
+    if (imageFile) {
+      try {
+        const images = await extractImages(imageFile);
+        images.forEach((imgSrc) => {
+          const imgElement = document.createElement("img");
+          imgElement.src = imgSrc; // Use the data URL returned by pdf-img-convert
+          imgElement.alt = "Extracted Image";
+          document.body.appendChild(imgElement); // Append each image to the DOM
+        });
+      } catch (err) {
+        alert(`Failed to load PDF: ${err.message}`);
       }
-      
+    }
+  };
 
-        const reversedTop = maxTop - top;
-        const adjustedTop = Math.max(reversedTop + minTop * 0.2 - fontSize * 1.2, 0);
-
-        currentPageHtml.unshift(`
-            <span style="
-                font-size: ${fontSize}px; 
-                position: absolute; 
-                left: ${left}px; 
-                top: ${adjustedTop}px;  
-                direction: ${dir}; 
-                font-family: ${fontName}; 
-                color: ${color}; /* This will now use the RGB color directly */
-            ">
-                ${text}
-            </span>
-        `);
-    });
-
-    return currentPageHtml.join('');
-};
-
-
-
-
-  //   function generatePageHtml(content,textContent) {
-  //     let currentColor = '';
-  //     let Temp=''
-  //     let currentLeft = 0;
-  //     let currentTop = 0;
-  //     const htmlParts = [];
-  // console.log(content)
-  // console.log(textContent)
-  //     content.forEach(item => {
-  //       Temp=''
-  //         switch (item.type) {
-  //             case 'color':
-  //                 currentColor = item.value;
-  //                 break;
-  //             case 'coordinates':
-  //                 currentLeft = item.left;
-  //                 currentTop = item.top;
-  //                 break;
-  //             case 'graphicState':
-  //                 // htmlParts.push(`<div>Graphic State: ${item.value.unicode}</div>`);
-  //                 break;
-  //             case 'array':
-  //                 item.value.forEach(subItem => {
-  //                   Temp+=subItem.unicode
-  //                 });
-  //                 htmlParts.push(`<div style="color: ${currentColor}; position: absolute; left: ${currentLeft}px; top: ${currentTop}px;">
-  //                   ${Temp||"hello"}
-  //              </div>`);
-  //                 break;
-  //             default:
-  //                 break;
-  //         }
-  //     });
-
-  //     return htmlParts.join('');
-  // }
-
-
+  const extractImages = async (file) => {
+    try {
+      const imageData = await pdfImgConvert(file);
+      return imageData; // Returns an array of image data URLs
+    } catch (error) {
+      console.error('Error extracting images:', error);
+      throw error; // Rethrow to handle in handleContinue
+    }
+  };
+  
   const extractGraphicOperators = async (page) => {
     try {
       const operatorList = await page.getOperatorList();
+      console.log(operatorList)
       const graphicsStateMap = {};
       const processedOperators = [];
       // console.log(operatorList)
@@ -279,40 +222,38 @@ console.log(textContent);
     }
   };
 
-
-
-  const extractContent = async (url) => {
-    try {
-      const pdf = await pdfjsLib.getDocument({ url }).promise;
-      setNumPages(pdf.numPages);
-      let fullHtmlContent = [];
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        setHeight(page.view[3]);
-        setWidth(page.view[2]);
-        const graphicOperators = await extractGraphicOperators(page); // Extract graphic operators here
-        const textContent = await page.getTextContent();
-        const pageHtml = generatePageHtml(graphicOperators, textContent); // Pass graphicOperators to generatePageHtml
-        fullHtmlContent.push(pageHtml);
-      }
-      setHtmlContent(fullHtmlContent);
-    } catch (err) {
-      alert(`Failed to load PDF: ${err.message}`);
+  
+const handleNextPage = () => {
+    if (currentPage < numPages - 1) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
-  // Example usage within your PDF extraction process
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+
   // const extractContent = async (url) => {
   //   try {
-  //     const fullHtmlContent = []
   //     const pdf = await pdfjsLib.getDocument({ url }).promise;
-  //     const page = await pdf.getPage(1); // Extract from the first page as an example
-  //     const pageHtml = await extractGraphicOperators(page);
-  //     fullHtmlContent.push(pageHtml);
+  //     setNumPages(pdf.numPages);
+  //     let fullHtmlContent = [];
+
+  //     for (let i = 1; i <= pdf.numPages; i++) {
+  //       const page = await pdf.getPage(i);
+  //       setHeight(page.view[3])
+  //       setWidth(page.view[2])
+  //       const textContent = await page.getTextContent();
+  //       const pageHtml = generatePageHtml(textContent);
+  //       fullHtmlContent.push(pageHtml);
+  //     }
+
   //     setHtmlContent(fullHtmlContent);
   //   } catch (err) {
-  //     console.error("Failed to load PDF:", err);
+  //     alert(`Failed to load PDF: ${err.message}`);
   //   }
   // };
 
@@ -353,21 +294,8 @@ console.log(textContent);
   //   return currentPageHtml.join('');
   // };
 
-  const handleNextPage = () => {
-    if (currentPage < numPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
   return (
-    <div className="PDFEditorWorkerBased p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">PDF Content Extractor</h1>
+    <div className="flex justify-center items-center flex-col p-6 bg-white shadow-md rounded-lg">
       <div
         className={`border-4 border-dashed bg-gray-100 p-10 rounded-lg w-full max-w-md flex items-center justify-center cursor-pointer transition-colors duration-300 ease-in-out ${dragActive ? 'border-blue-400' : 'border-gray-300'}`}
         onDragOver={handleDrag}
@@ -385,6 +313,15 @@ console.log(textContent);
         <p className="text-center text-gray-500">{imageFile ? imageFile.name : 'Drag & Drop a PDF or click to upload'}</p>
       </div>
 
+      {isFileReady && (
+        <button
+          onClick={handleContinue}
+          className="mt-4 px-4 py-2 text-xl font-mono font-bold bg-green-500 w-fit text-white rounded-lg hover:bg-green-600 transition duration-300"
+        >
+          Continue
+        </button>
+      )}
+
       {htmlContent.length > 0 && (
         <div className="mt-6 h-full">
           <JoditEditor
@@ -397,21 +334,20 @@ console.log(textContent);
               width: width,
             }}
             style={{
-              minHeight: '400px', // Set a minimum height
-              width: '100%', // Make width 100% to fit the container
+              minHeight: '400px',
+              width: '100%',
               padding: '10px',
               background: 'white',
             }}
             className="bg-black border rounded"
           />
 
-
           <div className="flex justify-between items-center mt-4">
-            <button onClick={handlePreviousPage} disabled={currentPage === 0} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
+            <button onClick={handlePreviousPage} disabled={currentPage === 0} className="px-4 py-2 bg-blue-500 w-24 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
               Previous
             </button>
             <span className="text-lg">{`Page ${currentPage + 1} of ${numPages}`}</span>
-            <button onClick={handleNextPage} disabled={currentPage === numPages - 1} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
+            <button onClick={handleNextPage} disabled={currentPage === numPages - 1} className="px-4 py-2 bg-blue-500 w-24 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
               Next
             </button>
           </div>
