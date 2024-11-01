@@ -22,7 +22,8 @@ export default function renderPdfContent(pdfData=null,editorRef,currentPage) {
     // Process and render text with individual styles
     const combinedText = page.Texts?.map((textItem, index) => {
         // const text = decodeURIComponent(textItem.R[0].T);
-        const fontSize = textItem.R[0].TS[1]-(textItem.R[0].TS[1]/1.5) || 16;
+        // const fontSize = textItem.R[0].TS[1]-(textItem.R[0].TS[1]/1.5) || 16;
+        const fontSize = textItem.R[0].TS[1] || 16;
         const fontFamily = textItem.R[0].TS[3] || 'Arial';
         const color = textItem.oc || 'black';
         const fontWeight = textItem.R[0].TS[2] ? 'bold' : 'normal';

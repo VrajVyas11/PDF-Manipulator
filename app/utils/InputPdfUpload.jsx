@@ -41,7 +41,11 @@ const InputPdfUpload = ({ setPdfData, setCurrentPage }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-fit space-y-6">
+    <div className="flex flex-col items-center justify-center h-fit">
+      
+      <h1 className="text-2xl text-sky-500 border-4 px-7 py-3 border-double rounded-full font-extrabold tracking-wide mb-6 text-center max-w-lg">
+  Optimized for PDFs with only text 
+</h1>
       <div
         className={`border-4 border-dashed bg-gray-100 p-10 rounded-lg w-full max-w-md bg-wheat flex items-center justify-center cursor-pointer transition-colors duration-300 ease-in-out ${dragActive ? 'border-blue-400' : 'border-gray-300'}`}
         onDragOver={handleDrag}
@@ -60,7 +64,7 @@ const InputPdfUpload = ({ setPdfData, setCurrentPage }) => {
       </div>
       <button
         onClick={handleUpload}
-        className="px-6 py-4 w-1/2 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
       >
         Upload PDF
       </button>

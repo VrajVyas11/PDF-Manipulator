@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import JoditEditor from 'jodit-react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
+// import downloadPdf from '@/app/utils/downloadPdf';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
+  
 const PDFEditorWorkerBased = () => {
   const [htmlContent, setHtmlContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -55,6 +59,7 @@ const PDFEditorWorkerBased = () => {
 
   const handleContinue = () => {
     setIsContinueClicked(true);
+    setCurrentPage(0)
     const formData = new FormData();
     formData.append('pdf', imageFile);
 
@@ -302,9 +307,59 @@ console.log(reversedTop,h);
       setCurrentPage(currentPage - 1);
     }
   };
+
+
+  const downloadPdf = async () => {
+    const doc = new jsPDF();
+    const totalPages = htmlContent.length;
+  
+    for (let i = 0; i < totalPages; i++) {
+      const pageHtml = htmlContent[i];
+  
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '0';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '560px'; // Set width for rendering
+      tempDiv.style.height = '1000px'; // Set height for rendering
+      tempDiv.style.overflow = 'hidden';
+      tempDiv.style.zIndex = '-1'; // Place it behind other elements
+      tempDiv.style.backgroundColor = 'white'; // Ensure a white background for the PDF
+      tempDiv.innerHTML = pageHtml;
+  
+      document.body.appendChild(tempDiv);
+  
+      console.log('Temporary Div Content:', tempDiv.innerHTML); // Log the content
+  
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+  
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+  
+      if (i > 0) {
+        doc.addPage();
+      }
+  
+      doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+  
+      document.body.removeChild(tempDiv);
+    }
+  
+    doc.save('document.pdf');
+  };
+  
+  
+
+
   return (
-    <div className="PDFEditorWorkerBased p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">PDF Content Extractor</h1>
+    <div className="flex flex-col justify-center items-center p-6 pt-0  rounded-lg">
+    <h1 className="text-2xl text-sky-500 border-4 px-7 py-3 border-double rounded-full font-extrabold tracking-wide mb-6 text-center max-w-lg">
+  Optimized for Complex PDFs 
+</h1>
+
+
       <div
         className={`border-4 border-dashed bg-gray-100 p-10 rounded-lg w-full max-w-md flex items-center justify-center cursor-pointer transition-colors duration-300 ease-in-out ${dragActive ? 'border-blue-400' : 'border-gray-300'}`}
         onDragOver={handleDrag}
@@ -325,41 +380,55 @@ console.log(reversedTop,h);
       {imageFile && !isContinueClicked && (
         <button
           onClick={handleContinue}
-          className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
+           className="px-6 py-4 w-fit mt-4 bg-green-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
         >
           Continue
         </button>
       )}
+{isContinueClicked && htmlContent.length === 0 && (
+  <div className="w-8 h-8 mt-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+)}
 
       {isContinueClicked && htmlContent.length > 0 && (
         <div className="mt-6 h-full">
           <JoditEditor
-            ref={editorRef}
-            value={htmlContent[currentPage]}
-            config={{
-              readonly: false,
-              toolbar: true,
-              height: height,
-              width: width,
-            }}
-            style={{
-              minHeight: '400px',
-              width: '100%',
-              padding: '10px',
-              background: 'white',
-            }}
-            className="bg-black border rounded"
-          />
+    ref={editorRef}
+    value={htmlContent[currentPage]}
+    config={{
+        toolbar: true,
+        height: height,
+        width: width,
+        editHTMLDocumentMode: true,
+    }}
+    style={{
+        display: 'block', // Ensure the editor is block-level
+        minHeight: '400px',
+        width: '100%',
+        padding: '10px',
+        background: 'white',
+    }}
+    className="bg-black border rounded"
+    onChange={newContent=>{}}
+/>
+
 
           <div className="flex justify-between items-center mt-4">
-            <button onClick={handlePreviousPage} disabled={currentPage === 0} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
+            <button onClick={handlePreviousPage} disabled={currentPage === 0} className="px-6 py-3 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50">
               Previous
             </button>
             <span className="text-lg">{`Page ${currentPage + 1} of ${numPages}`}</span>
-            <button onClick={handleNextPage} disabled={currentPage === numPages - 1} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400">
+            <button onClick={handleNextPage} disabled={currentPage === numPages - 1} className="px-10 py-3 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50">
               Next
             </button>
           </div>
+
+        <button
+          onClick={downloadPdf}
+           className="px-6 py-4 w-full mt-4 bg-green-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        >
+          Download
+        </button>
+
         </div>
       )}
     </div>

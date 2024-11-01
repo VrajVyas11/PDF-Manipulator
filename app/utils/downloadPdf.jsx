@@ -1,14 +1,30 @@
-import  jsPDF  from 'jspdf';
+import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-export default async function downloadPdf(editorRef) {
-    const editorContainer = editorRef.current; // Use the ref directly
+const downloadPdf = async (editorRef) => {
+    const editorInstance = editorRef.current;
 
-    if (editorContainer) {
+    if (editorInstance) {
         try {
-            await new Promise(resolve => setTimeout(resolve, 100)); // Short delay to ensure rendering
-            
-            const canvas = await html2canvas(editorContainer, { scale: 2 });
+            const content = editorInstance.getEditorValue(); // Get the content of the Jodit editor
+
+            if (!content) {
+                throw new Error('Editor content is empty.');
+            }
+
+            // Create a temporary container to render the content
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            document.body.appendChild(tempDiv);
+
+            // Wait for the content to render
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(tempDiv, {
+                scale: 2,
+                useCORS: true,
+            });
+
             const imgData = canvas.toDataURL('image/png');
 
             const pdf = new jsPDF({
@@ -19,10 +35,15 @@ export default async function downloadPdf(editorRef) {
 
             pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
             pdf.save('document.pdf');
+
+            // Clean up the temporary div
+            document.body.removeChild(tempDiv);
         } catch (error) {
             console.error('Error generating PDF:', error);
         }
     } else {
-        console.error('Editor content is not available or not a valid DOM element.');
+        console.error('Editor instance is not available.');
     }
-}
+};
+
+export default downloadPdf;

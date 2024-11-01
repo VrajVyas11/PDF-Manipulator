@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import PDFEditor from './components/PDFEditor/PDFEditor';
+import dynamic from 'next/dynamic';
+const PDFEditor = dynamic(() => import('./components/PDFEditor/PDFEditor'), { ssr: false });
 import PDFMerger from './components/PDFMerge';
 import ImageToPDF from './components/ImageToPDF';
 import CompressPDF from "./components/CompressPDF";

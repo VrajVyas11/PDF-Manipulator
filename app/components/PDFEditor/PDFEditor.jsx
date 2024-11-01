@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import Pagination from '../../utils/Pagination.jsx';
 import PellComponent from "../../utils/Pell.jsx";
 import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
-import PDFImageExtractor from "./temp.jsx"
+import PdfGenerator from "./temp.jsx"
 function PDFEditor() {
   const [pdfData, setPdfData] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isBackendBased, setIsBackendBased] = useState(false); // Toggle state for backend vs worker
+  const [isBackendBased, setIsBackendBased] = useState(true); // Toggle state for backend vs worker
 
   const editorRef = useRef(null);
 
@@ -15,14 +15,14 @@ function PDFEditor() {
   };
 
   return (
-    <div className="container w-fit flex flex-col items-center mx-auto p-10 font-sans bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 shadow-xl rounded-xl border border-gray-200">
+    <div className="bg-opacity-20 backdrop-blur-xl w-fit flex flex-col items-center mx-auto p-10 font-sans bg-gray-200  shadow-xl rounded-xl border border-gray-200">
     <h1 className="text-5xl font-bold font-mono mb-6 tracking-wide text-blue-700 drop-shadow-lg">PDF Editor</h1>
 
     <div className="flex mb-8">
 
         <button
             onClick={() => toggleImplementation(false)}
-            className={`w-40 py-3 font-semibold text-lg transition-all duration-300 ease-in-out rounded-full rounded-r-none transform  shadow-md ${
+            className={`w-40 py-3  font-semibold text-lg transition-all duration-300 ease-in-out rounded-full rounded-r-none transform  shadow-md ${
                 !isBackendBased
                     ? 'bg-gradient-to-r from-sky-400 to-sky-500 text-white hover:from-sky-500 hover:to-sky-600'
                     : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
@@ -54,13 +54,8 @@ function PDFEditor() {
                 />
             </div>
         ) : (
-            <PDFEditorWorkerBased
-                pdfData={pdfData}
-                currentPage={currentPage}
-                editorRef={editorRef}
-                setCurrentPage={setCurrentPage}
-            />
-            // <PDFImageExtractor/>
+            <PDFEditorWorkerBased/>
+            // <PdfGenerator/>
         )}
     </div>
 </div>

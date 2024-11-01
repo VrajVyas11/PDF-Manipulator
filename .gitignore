@@ -1,4 +1,7 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Custom ignores
+/app/components/PDFEditor/extra.txt
+/app/components/PDFEditor/temp.jsx
+/public/uploads/extractedData.json
 
 # dependencies
 /node_modules
@@ -11,7 +14,7 @@
 inspiration.html
 # next.js
 /.next/
-/out/
+out/
 
 # production
 /build
