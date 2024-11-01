@@ -7,7 +7,7 @@ import {
   PDFDocumentWriter,
   PDFName,
   PDFRawStream,
-} from 'pdf-lib';
+} from '@/legacy-pdf-lib/node_modules/pdf-lib';
 
 export async function POST(request: Request) {
   try {

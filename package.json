@@ -36,7 +36,7 @@
     "next-connect": "^1.0.0",
     "pdf-export-images": "^1.2.0",
     "pdf-img-convert": "^2.0.0",
-    "pdf-lib": "^0.6.0",
+    "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^3.1.4",
     "pell": "^1.0.6",

@@ -1,17 +1,18 @@
-# Custom ignores
-/app/components/PDFEditor/extra.txt
-/app/components/PDFEditor/temp.jsx
-/public/uploads/extractedData.json
-
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+legacy-pdf-lib/
+
 
 # testing
 /coverage
 inspiration.html
+extra.txt
+temp.jsx
+app/components/PDFEditor/test/
+public/uploads
 # next.js
 /.next/
 out/
