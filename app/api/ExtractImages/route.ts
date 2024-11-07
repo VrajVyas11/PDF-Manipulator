@@ -11,7 +11,7 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const originalPdfPath = './public/uploads/drylab.pdf';
+    // const originalPdfPath = './public/uploads/drylab.pdf';
     // const pdfBytes = fs.readFileSync(originalPdfPath); // Read the PDF file directly
     // console.log('PDF Bytes:', pdfBytes.slice(0, 20)); // Log first 20 bytes
     const data = await request.formData();
