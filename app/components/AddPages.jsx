@@ -256,7 +256,7 @@ console.log(pdfIndex, index )
        <div className="fixed w-screen h-screen inset-0 bg-black bg-opacity-50 flex justify-center items-center">
        <div className="bg-white w-fit h-fit rounded-lg p-6 shadow-lg border border-emerald-400">
          <h2 className="text-xl text-center font-bold mb-4 text-emerald-500">Add Page from Editor</h2>
-         <QuillEditor value={editorContent} onChange={setEditorContent} placeholder={"hehe"} />
+         <QuillEditor value={editorContent} onChange={setEditorContent} placeholder={"Start Writing..."} />
          <div className="flex justify-end mt-4">
            <button
              onClick={closeDialog}
