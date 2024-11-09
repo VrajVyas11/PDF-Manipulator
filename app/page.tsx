@@ -20,14 +20,15 @@ function Home() {
 
   return (
     <body className="m-0 text-[#8A94A7] text-base leading-[1.15] box-border -moz-osx-font-smoothing: grayscale -webkit-font-smoothing: antialiased">
-      <div className={`body-wrap overflow-hidden flex flex-col min-h-screen ${getStarted?"bg-[#234891]  bg-opacity-80":"bg-[#152442]"} bg-[#3b7dff]`}>
-        <header className={`site-header px-0 py-6 relative before:content-[''] before:absolute before:w-full before:h-[700px] before:origin-[0] before:-skew-y-12 before:left-0 before:top-0 before:bg-[#2e497e] before:bg-opacity-30 before:bg-[linear-gradient(80deg,rgba(36,40,48,0.5)_0%,rgba(36,40,48,0)_100%)]`}>
+      <div className={`body-wrap overflow-hidden flex flex-col min-h-screen bg-[url('/bg3.png')] bg-cover bg-center bg-no-repeat  bg-opacity-80 bg-fixed `}>
+        <header className={`site-header px-0 py-6 relative before:content-['']  before:w-full before:top-0 before:left-0 before:bg-opacity-60 before:fixed before:bg-black before:h-screen  `}
+        >
           <div className="container mx-auto px-4 py-2 max-w-[1128px] sm:px-6">
             <div className="site-header-inner relative flex justify-between items-center">
               <div className="brand header-brand">
                 <h1 className="m-0">
                   <a href="#">
-                    <img className="header-logo-image h-16 border-none max-w-full align-middle block" src="images/logo.svg" alt="Logo" />
+                    <img className="header-logo-image h-16 mt-4 border-none max-w-full align-middle block" src="images/logo.svg" alt="Logo" />
                   </a>
                 </h1>
               </div>
@@ -70,7 +71,6 @@ function Home() {
     <rect width="528" height="396" fill="transparent" />
   </svg>
 
-  {/* Animated Boxes for Background */}
   <style jsx>{`
     @keyframes slideIn {
       0% {
@@ -83,13 +83,13 @@ function Home() {
       }
     }
 
-    @keyframes slideIn2 {
+    @keyframes slideInReverse {
       0% {
-        transform: translateX(100%) rotateZ(-45deg);
+        transform: translateX(-100%) rotateZ(-20deg);
         opacity: 0;
       }
       100% {
-        transform: translateX(0) rotateZ(45deg);
+        transform: translateX(0) rotateZ(-20deg);
         opacity: 1;
       }
     }
@@ -116,7 +116,59 @@ function Home() {
       }
     }
 
-    @keyframes backgroundMove {
+    @keyframes hoverFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes DifAnimation {
+      0% {
+        transform: scale(1) rotate(0deg) rotateZ(-22deg);
+        opacity: 0.9;
+      }
+      50% {
+        transform: scale(1.2) rotate(180deg) rotateZ(-22deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(360deg) rotateZ(-22deg);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes DifAnimation1 {
+      0% {
+        transform: scale(0.7) rotate(0deg) translateX(0) translateY(0);
+        z-index: 0;
+        opacity: 1;
+      }
+      25% {
+        transform: scale(0.85) rotate(90deg) translateX(-2%) translateY(2%);
+        z-index: 5;
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1) rotate(180deg) translateX(0) translateY(-2%);
+        z-index: 10;
+        opacity: 1;
+      }
+      75% {
+        transform: scale(0.85) rotate(270deg) translateX(2%) translateY(2%);
+        z-index: 5;
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.7) rotate(360deg) translateX(0) translateY(0);
+        z-index: 0;
+        opacity: 1;
+      }
+    }
+
+      @keyframes backgroundMove {
       0% {
         transform: scale(1) translateY(0);
         opacity: 0.5;
@@ -131,12 +183,14 @@ function Home() {
       }
     }
 
+
+
     .hero-figure-box-01 {
       animation: slideIn 2s ease-in-out forwards;
     }
 
     .hero-figure-box-02 {
-      animation: slideIn2 2s ease-in-out forwards;
+      animation: slideInReverse 2s ease-in-out forwards;
     }
 
     .hero-figure-box-03 {
@@ -152,26 +206,25 @@ function Home() {
     }
 
     .hero-figure-box-06 {
-      animation: slideIn 2s ease-in-out forwards;
+      animation: slideIn 2s ease-in-out forwards, DifAnimation1 6s ease-in-out infinite;
     }
 
     .hero-figure-box-07 {
-      animation: rotateUp 2s ease-in-out forwards;
+      animation: rotateUp 2s ease-in-out forwards, hoverFloat 4s ease-in-out infinite;
     }
 
     .hero-figure-box-08 {
-      animation: rotateUp 2s ease-in-out forwards;
+      animation: rotateUp 2s ease-in-out forwards, DifAnimation 5s ease-in-out infinite;
     }
 
     .hero-figure-box-09 {
-      animation: slideIn2 2s ease-in-out forwards;
+      animation: slideInReverse 2s ease-in-out forwards, hoverFloat 6s ease-in-out infinite;
     }
 
     .hero-figure-box-10 {
-      animation: scaleUp 2s ease-in-out forwards;
+      animation: scaleUp 2s ease-in-out forwards, hoverFloat 3s ease-in-out infinite;
     }
 
-    /* New animation for background pseudo-elements */
     .anime-element:before,
     .anime-element:after {
       animation: backgroundMove 10s ease-in-out infinite;
@@ -228,14 +281,14 @@ style={{ transform: 'rotateZ(-22deg)' }}></div>
               </div>
             </div>
        {getStarted &&(
-            <div className="min-h-screen mt-20 text-black bg-gradient-to-b ">
+            <div className="min-h-screen relative z-40 mt-20 text-white bg-gradient-to-b ">
             <div className="bg-transparent w-full py-12 px-4">
               <div className="max-w-7xl mx-auto text-center">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">PDF Manipulator Suite</h1>
-                <p className="text-lg text-gray-600 mb-6">Edit, compress, merge, convert, and more—all in one tool!</p>
+                <div className="text-4xl font-bold text-white mb-2">PDF Manipulator Suite</div>
+                <p className="text-lg text-gray-500 mb-6">Edit, compress, merge, convert, and more—all in one tool!</p>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'merge' ? 'ring-4 ring-blue-400' : ''}`}
+                <div
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
                     onClick={() => handleButtonClick('merge')}
                   >
                     <Image
@@ -245,84 +298,85 @@ style={{ transform: 'rotateZ(-22deg)' }}></div>
                       height={48}
                       className="mx-auto mb-4"
                     />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Merge PDF</h3>
-                    <p className="text-gray-600 text-center">Combine PDFs effortlessly.</p>
+                    <h3 className="text-2xl font-semibold text-white text-center mb-2">Merge PDF</h3>
+                    <p className="text-gray-300 text-center">Combine PDFs effortlessly.</p>
                   </div>
           
                   <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'edit' ? 'ring-4 ring-blue-400' : ''}`}
-                    onClick={() => handleButtonClick('edit')}
-                  >
-                    <Image
-                      src="https://img.icons8.com/doodle/48/000000/edit.png"
-                      alt="Edit PDF"
-                      width={48}
-                      height={48}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Edit PDF</h3>
-                    <p className="text-gray-600 text-center">Modify PDFs quickly and easily.</p>
-                  </div>
-          
-                  <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'image' ? 'ring-4 ring-blue-400' : ''}`}
-                    onClick={() => handleButtonClick('image')}
-                  >
-                    <Image
-                      src="https://img.icons8.com/?size=100&id=67369&format=png&color=000000"
-                      alt="Image to PDF"
-                      width={48}
-                      height={48}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Image to PDF</h3>
-                    <p className="text-gray-600 text-center">Convert images to PDF effortlessly.</p>
-                  </div>
-          
-                  <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'compress' ? 'ring-4 ring-blue-400' : ''}`}
-                    onClick={() => handleButtonClick('compress')}
-                  >
-                    <Image
-                      src="https://img.icons8.com/48/000000/compress.png"
-                      alt="Compress PDF"
-                      width={48}
-                      height={48}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Compress PDF</h3>
-                    <p className="text-gray-600 text-center">Shrink PDFs for easy sharing.</p>
-                  </div>
-          
-                  <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'addpages' ? 'ring-4 ring-blue-400' : ''}`}
-                    onClick={() => handleButtonClick('addpages')}
-                  >
-                    <Image
-                      src="/addpages.png"
-                      alt="Add Pages to PDF"
-                      width={48}
-                      height={48}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Add Pages to PDF</h3>
-                    <p className="text-gray-600 text-center">Insert new pages to your PDF.</p>
-                  </div>
-          
-                  <div
-                    className={`p-6 bg-white rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer ${activeSection === 'extract' ? 'ring-4 ring-blue-400' : ''}`}
-                    onClick={() => handleButtonClick('extract')}
-                  >
-                    <Image
-                      src="https://img.icons8.com/?size=100&id=wUqJRyU3Sxwa&format=png&color=000000"
-                      alt="Extract Images from PDF"
-                      width={48}
-                      height={48}
-                      className="mx-auto mb-4"
-                    />
-                    <h3 className="text-2xl font-semibold text-gray-800 text-center mb-2">Extract Images</h3>
-                    <p className="text-gray-600 text-center">Easily extract images from PDFs.</p>
-                  </div>
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
+  onClick={() => handleButtonClick('edit')}
+>
+  <Image
+    src="https://img.icons8.com/doodle/48/000000/edit.png"
+    alt="Edit PDF"
+    width={48}
+    height={48}
+    className="mx-auto mb-4"
+  />
+  <h3 className="text-2xl font-semibold text-white text-center mb-2">Edit PDF</h3>
+  <p className="text-gray-300 text-center">Modify PDFs quickly and easily.</p>
+</div>
+
+<div
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
+  onClick={() => handleButtonClick('image')}
+>
+  <Image
+    src="https://img.icons8.com/?size=100&id=67369&format=png&color=000000"
+    alt="Image to PDF"
+    width={48}
+    height={48}
+    className="mx-auto mb-4"
+  />
+  <h3 className="text-2xl font-semibold text-white text-center mb-2">Image to PDF</h3>
+  <p className="text-gray-300 text-center">Convert images to PDF effortlessly.</p>
+</div>
+
+<div
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
+  onClick={() => handleButtonClick('compress')}
+>
+  <Image
+    src="https://img.icons8.com/48/000000/compress.png"
+    alt="Compress PDF"
+    width={48}
+    height={48}
+    className="mx-auto mb-4"
+  />
+  <h3 className="text-2xl font-semibold text-white text-center mb-2">Compress PDF</h3>
+  <p className="text-gray-300 text-center">Shrink PDFs for easy sharing.</p>
+</div>
+
+<div
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
+  onClick={() => handleButtonClick('addpages')}
+>
+  <Image
+    src="/addpages.png"
+    alt="Add Pages to PDF"
+    width={48}
+    height={48}
+    className="mx-auto mb-4"
+  />
+  <h3 className="text-2xl font-semibold text-white text-center mb-2">Add Pages to PDF</h3>
+  <p className="text-gray-300 text-center">Insert new pages to your PDF.</p>
+</div>
+
+<div
+                  className={`relative overflow-hidden rounded-lg py-12 flex-col flex justify-center items-center text-center font-extrabold  mb-10  transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider hover:shadow-[inset_0_0_30px_rgba(0,0,155,1)] shadow-[inset_0_0_15px_rgba(0,0,155,0.7)] `}
+  onClick={() => handleButtonClick('extract')}
+>
+  <Image
+    src="https://img.icons8.com/?size=100&id=wUqJRyU3Sxwa&format=png&color=000000"
+    alt="Extract Images from PDF"
+    width={48}
+    height={48}
+    className="mx-auto mb-4"
+  />
+  <h3 className="text-2xl font-semibold text-white text-center mb-2">Extract Images</h3>
+  <p className="text-gray-300 text-center">Easily extract images from PDFs.</p>
+</div>
+
                 </div>
               </div>
             </div>
