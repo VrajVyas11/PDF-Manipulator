@@ -110,31 +110,33 @@ const PdfMerge = () => {
     mergePdfs();
   };
 
-
-
   useEffect(() => {
     mergePdfs();
   }, [count]);
 
   return (
-    <div className="flex p-6 bg-sky-100 min-h-fit">
+    <div className=" flex w-full h-fit justify-center items-center flex-col">
+    <h2 className="text-white text-3xl h-fit w-full backdrop-blur-lg shadow-black bg-opacity-90 rounded-3xl rounded-b-none p-5  bg-[#292828]  cursor-pointer overflow-hidden   text-center font-extrabold  tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">Merge PDF</h2>
+
+    <div className="flex p-6 text-white h-fit w-full backdrop-blur-lg shadow-black bg-opacity-90 rounded-3xl rounded-t-none  bg-[#1a1a1a]  cursor-pointer overflow-hidden  font-extrabold  tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)] ">
+   
       <div className="w-1/3 pr-4">
-        <div className=" min-h-[200px] shadow-xl rounded-lg p-4 ">
-        <div
-  className={`border-4 border-dashed p-5 rounded-lg w-full max-w-md bg-sky-200 flex items-center justify-center cursor-pointer transition-transform duration-1000 ease-in-out hover:scale-105 border-sky-500`}
-  onClick={() => document.getElementById('fileInput').click()}
->
-        <input
-          id="fileInput"
-          type="file"
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-          multiple
-        />
-        <p className="text-center text-gray-800"> Click to upload</p>
-      </div>
-          <h2 className="text-lg font-bold text-gray-800 mb-2 mt-10">Uploaded Pages</h2>
+        <div className="min-h-[200px] shadow-xl rounded-lg p-4 bg-gray-900 border border-gray-800">
+          <div
+            className="border-4 border-dashed p-5 rounded-lg w-full max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700"
+            onClick={() => document.getElementById('fileInput').click()}
+          >
+            <input
+              id="fileInput"
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+              multiple
+            />
+            <p className="text-center text-gray-400">Click to upload</p>
+          </div>
+          <h2 className="text-lg font-bold text-gray-400 mb-2 mt-10">Uploaded Pages</h2>
           <div className="grid grid-cols-1 gap-4">
             {pages.map((page, index) => (
               <div
@@ -143,12 +145,9 @@ const PdfMerge = () => {
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
-                className="bg-sky-300 border border-sky-400 rounded-md p-3 hover:bg-sky-200 cursor-move flex justify-between items-center shadow transition duration-150 ease-in-out"
+                className="bg-gray-800 border border-gray-700 rounded-md p-3 hover:bg-gray-700 cursor-move flex justify-between items-center shadow transition duration-150 ease-in-out"
               >
-                <span className="text-gray-800">{page.name}</span>
-                {/* <button onClick={() => handleRemovePage(index)} className="text-red-400 hover:text-red-300 transition">
-                  &times;
-                </button> */}
+                <span className="text-gray-400">{page.name}</span>
               </div>
             ))}
           </div>
@@ -156,20 +155,20 @@ const PdfMerge = () => {
       </div>
 
       <div className="w-2/3">
-        <div className="bg-sky-300 bg-opacity-50  border-double border-sky-500 border-2 min-h-[200px] shadow-xl rounded-lg p-4 ">
+        <div className="bg-gray-800 bg-opacity-50 border-double border-gray-700 min-h-[200px] shadow-xl rounded-lg p-4">
           {pages.length > 0 && (
             <>
-              <h2 className="text-lg font-bold text-gray-800 mb-2">PDF Preview</h2>
+              <h2 className="text-lg font-bold text-gray-400 mb-2">PDF Preview</h2>
               <iframe
                 src={previewPdf}
                 width="100%"
                 height="500px"
                 title="Preview PDF"
-                className="border border-sky-400 rounded mb-4 shadow-lg"
+                className="border border-gray-700 rounded mb-4 shadow-lg"
               />
               <button
                 onClick={downloadPdf}
-                className="px-6 py-4 w-full bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+                className="px-6 py-4 w-full bg-blue-700 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-800 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
               >
                 Download Merged PDF
               </button>
@@ -177,6 +176,7 @@ const PdfMerge = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };
