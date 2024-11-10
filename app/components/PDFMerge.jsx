@@ -116,7 +116,7 @@ const PdfMerge = () => {
 
   return (
     <div className=" flex w-full h-fit justify-center items-center flex-col">
-    <h2 className="text-white text-3xl h-fit w-full backdrop-blur-lg shadow-black bg-opacity-90 rounded-3xl rounded-b-none p-5  bg-[#292828]  cursor-pointer overflow-hidden   text-center font-extrabold  tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">Merge PDF</h2>
+    <h2 className="text-white text-3xl h-fit w-full backdrop-blur-lg shadow-black bg-opacity-90 rounded-3xl rounded-b-none p-5  bg-[#292828]  cursor-pointer overflow-hidden   text-center font-extrabold  tracking-wider shadow-[inset_0_0_10px_rgba(0,0,0,1)]">Merge PDF</h2>
 
     <div className="flex p-6 text-white h-fit w-full backdrop-blur-lg shadow-black bg-opacity-90 rounded-3xl rounded-t-none  bg-[#1a1a1a]  cursor-pointer overflow-hidden  font-extrabold  tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)] ">
    

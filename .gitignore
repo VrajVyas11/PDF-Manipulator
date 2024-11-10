@@ -17,6 +17,10 @@ public/uploads
 /.next/
 out/
 
+old*.png
+
+pages.css
+
 # production
 /build
 

@@ -7,7 +7,7 @@ const PDFEditor = dynamic(() => import('./components/PDFEditor/PDFEditor'), { ss
 import PDFMerger from './components/PDFMerge';
 import ImageToPDF from './components/ImageToPDF';
 import CompressPDF from "./components/CompressPDF";
-import AddPages from "./components/AddPages";
+const AddPages = dynamic(() => import('./components/AddPages'), { ssr: false });
 import GetPDFImages from "./components/GetPDFImages";
 
 function Home() {
@@ -19,7 +19,7 @@ function Home() {
   };
 
   return (
-    <body className="m-0 text-[#8A94A7] text-base leading-[1.15] box-border -moz-osx-font-smoothing: grayscale -webkit-font-smoothing: antialiased">
+    <body className="m-0  text-base leading-[1.15] box-border -moz-osx-font-smoothing: grayscale -webkit-font-smoothing: antialiased">
       <div className={`body-wrap overflow-hidden flex flex-col min-h-screen bg-[url('/bg3.png')] bg-cover bg-center bg-no-repeat  bg-opacity-80 bg-fixed `}>
         <header className={`site-header px-0 py-6 relative before:content-['']  before:w-full before:top-0 before:left-0 before:bg-opacity-60 before:fixed before:bg-black before:h-screen  `}
         >
@@ -281,7 +281,7 @@ function Home() {
               </div>
             </div>
             {getStarted && (
-              <div className="min-h-screen relative z-40 mt-20 text-white bg-gradient-to-b ">
+              <div className="min-h-screen relative z-40 mt-20 bg-gradient-to-b ">
                 <div className="bg-transparent w-full py-12 px-4">
                   <div className="max-w-7xl mx-auto text-center">
                     <div className="text-4xl font-bold text-white mb-2">PDF Manipulator Suite</div>
@@ -381,7 +381,7 @@ function Home() {
                   </div>
                 </div>
 
-                <div className=" text-white h-fit w-full backdrop-blur-lg shadow-black bg-opacity-35 rounded-lg  bg-[#1a1a1a]   font-extrabold shadow-[inset_0_0_30px_rgba(0,0,0,1)]  ">
+                <div className="text-black  h-fit w-full backdrop-blur-lg shadow-black bg-opacity-35 rounded-lg  bg-[#1a1a1a] shadow-[inset_0_0_30px_rgba(0,0,0,1)]  ">
                   {activeSection === 'edit' && <PDFEditor />}
                   {activeSection === 'merge' && (<PDFMerger />)}
                   {activeSection === 'image' && <ImageToPDF />}
