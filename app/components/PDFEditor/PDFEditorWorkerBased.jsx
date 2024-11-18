@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import JoditEditor from 'jodit-react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
-// import downloadPdf from '@/app/utils/downloadPdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-  
+
 const PDFEditorWorkerBased = () => {
   const [htmlContent, setHtmlContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -95,7 +94,7 @@ const PDFEditorWorkerBased = () => {
       });
   };
 
-  const generatePageHtml = (graphicOperators, textContent, base64Images,H,W) => {
+  const generatePageHtml = (graphicOperators, textContent, base64Images, H, W) => {
     const currentPageHtml = [];
     const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
     const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
@@ -127,13 +126,13 @@ const PDFEditorWorkerBased = () => {
             const left = op.position[4];
             const top = op.position[5];
             const reversedTop = H - top;
-            const adjustedTop = Math.max(reversedTop - h*1.25, 0);
+            const adjustedTop = Math.max(reversedTop - h * 1.25, 0);
             // console.log(minTop)
             // console.log(H)
             // console.log(maxTop)
             // console.log(top)
             // console.log(adjustedTop);
-console.log(reversedTop,h);
+            console.log(reversedTop, h);
 
             currentPageHtml.unshift(`
                         <img src="${currentImage.url}" style="
@@ -141,7 +140,7 @@ console.log(reversedTop,h);
                             left: ${left}px;
                             top: ${adjustedTop}px;
                             width: ${w}px;
-                            height: ${h*0.8}px;
+                            height: ${h * 0.8}px;
                         " alt="Extracted Image"/>
                     `);
 
@@ -279,7 +278,7 @@ console.log(reversedTop,h);
         setWidth(page.view[2]);
         const graphicOperators = await extractGraphicOperators(page); // Extract graphic operators here
         const textContent = await page.getTextContent();
-        const pageHtml = generatePageHtml(graphicOperators, textContent, base64Images,page.view[3],page.view[2]); // Pass graphicOperators to generatePageHtml
+        const pageHtml = generatePageHtml(graphicOperators, textContent, base64Images, page.view[3], page.view[2]); // Pass graphicOperators to generatePageHtml
         fullHtmlContent.push(pageHtml);
       }
       setHtmlContent(fullHtmlContent);
@@ -312,10 +311,10 @@ console.log(reversedTop,h);
   const downloadPdf = async () => {
     const doc = new jsPDF();
     const totalPages = htmlContent.length;
-  
+
     for (let i = 0; i < totalPages; i++) {
       const pageHtml = htmlContent[i];
-  
+
       const tempDiv = document.createElement('div');
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '0';
@@ -326,112 +325,119 @@ console.log(reversedTop,h);
       tempDiv.style.zIndex = '-1'; // Place it behind other elements
       tempDiv.style.backgroundColor = 'white'; // Ensure a white background for the PDF
       tempDiv.innerHTML = pageHtml;
-  
+
       document.body.appendChild(tempDiv);
-  
+
       console.log('Temporary Div Content:', tempDiv.innerHTML); // Log the content
-  
+
       const canvas = await html2canvas(tempDiv, {
         scale: 2,
         backgroundColor: '#ffffff',
       });
-  
+
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
-  
+
       if (i > 0) {
         doc.addPage();
       }
-  
+
       doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-  
+
       document.body.removeChild(tempDiv);
     }
-  
+
     doc.save('document.pdf');
   };
-  
-  
+
+
 
 
   return (
-    <div className="flex flex-col justify-center items-center p-6 pt-0  rounded-lg">
-    <h1 className="text-2xl text-sky-500 border-4 px-7 py-3 border-double rounded-full font-extrabold tracking-wide mb-6 text-center max-w-lg">
-  Optimized for Complex PDFs 
-</h1>
+    <div className="flex flex-col justify-center items-center text-white text-center  p-5  h-fit w-full backdrop-blur-lg  bg-opacity-40  bg-[#1a1a1a]  overflow-hidden  shadow-[inset_0_0_30px_rgba(0,0,0,1)]  rounded-lg ">
+  <h1 className="text-lg text-sky-500 justify-self-center   border-y-2  w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center ">
+    Optimized for Complex PDFs
+  </h1>
 
+  <div
+    className={`border-4 border-dashed bg-gray-800 p-10 rounded-lg w-full min-w-96 max-w-2xl flex items-center justify-center cursor-pointer transition-colors duration-300 ease-in-out ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
+    onDragOver={handleDrag}
+    onDragLeave={handleDragLeave}
+    onDrop={handleDrop}
+    onClick={() => pdfInputRef.current.click()}
+  >
+    <input
+      type="file"
+      ref={pdfInputRef}
+      accept="application/pdf"
+      className="hidden"
+      onChange={handleFileChange}
+    />
+    <p className="text-center text-gray-400">{imageFile ? imageFile.name : 'Drag & Drop a PDF or click to upload'}</p>
+  </div>
 
-      <div
-        className={`border-4 border-dashed bg-gray-100 p-10 rounded-lg w-full max-w-md flex items-center justify-center cursor-pointer transition-colors duration-300 ease-in-out ${dragActive ? 'border-blue-400' : 'border-gray-300'}`}
-        onDragOver={handleDrag}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => pdfInputRef.current.click()}
-      >
-        <input
-          type="file"
-          ref={pdfInputRef}
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <p className="text-center text-gray-500">{imageFile ? imageFile.name : 'Drag & Drop a PDF or click to upload'}</p>
+  {imageFile && !isContinueClicked && (
+    <button
+      onClick={handleContinue}
+      className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+    >
+      Continue
+    </button>
+  )}
+  {isContinueClicked && htmlContent.length === 0 && (
+    <div className="w-8 h-8 mt-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+  )}
+
+  {isContinueClicked && htmlContent.length > 0 && (
+    <div className="mt-6 h-full">
+      <JoditEditor
+        ref={editorRef}
+        value={htmlContent[currentPage]}
+        config={{
+          toolbar: true,
+          height: height,
+          width: width,
+          editHTMLDocumentMode: true,
+        }}
+        style={{
+          display: 'block',
+          minHeight: '400px',
+          width: '100%',
+          padding: '10px',
+          background: 'white', // Jodit's background stays white
+          color: 'black', // Jodit's font color is black
+        }}
+        className="border border-gray-700 rounded-lg"
+        onChange={(newContent) => {}}
+      />
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 0}
+          className="px-6 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-lg text-gray-300">{`Page ${currentPage + 1} of ${numPages}`}</span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === numPages - 1}
+          className="px-10 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
 
-      {imageFile && !isContinueClicked && (
-        <button
-          onClick={handleContinue}
-           className="px-6 py-4 w-fit mt-4 bg-green-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-        >
-          Continue
-        </button>
-      )}
-{isContinueClicked && htmlContent.length === 0 && (
-  <div className="w-8 h-8 mt-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-)}
-
-      {isContinueClicked && htmlContent.length > 0 && (
-        <div className="mt-6 h-full">
-          <JoditEditor
-    ref={editorRef}
-    value={htmlContent[currentPage]}
-    config={{
-        toolbar: true,
-        height: height,
-        width: width,
-        editHTMLDocumentMode: true,
-    }}
-    style={{
-        display: 'block', // Ensure the editor is block-level
-        minHeight: '400px',
-        width: '100%',
-        padding: '10px',
-        background: 'white',
-    }}
-    className="bg-black border rounded"
-    onChange={newContent=>{}}
-/>
-
-
-          <div className="flex justify-between items-center mt-4">
-            <button onClick={handlePreviousPage} disabled={currentPage === 0} className="px-6 py-3 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50">
-              Previous
-            </button>
-            <span className="text-lg">{`Page ${currentPage + 1} of ${numPages}`}</span>
-            <button onClick={handleNextPage} disabled={currentPage === numPages - 1} className="px-10 py-3 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50">
-              Next
-            </button>
-          </div>
-
-        <button
-          onClick={downloadPdf}
-           className="px-6 py-4 w-full mt-4 bg-green-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-        >
-          Download
-        </button>
-
-        </div>
-      )}
+      <button
+        onClick={downloadPdf}
+        className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+      >
+        Download
+      </button>
     </div>
+  )}
+</div>
+
   );
 };
 

@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Pell from 'pell';
+dynamic
+// import Pell from 'pell';
+const Pell = dynamic(() => import('pell'), { ssr: false });
 import renderPdfContent from './renderPdfContent.jsx';
 import InputPdfUpload from './InputPdfUpload.jsx';
 import Pagination from './Pagination.jsx';
 import ReactDOMServer from 'react-dom/server';
 import Toolbar from '../utils/ToolbarPell.jsx';
 import 'pell/dist/pell.css';
+import dynamic from 'next/dynamic.js';
 
 function PellComponent() {
   const [pdfData, setPdfData] = useState(null);
@@ -64,25 +67,28 @@ function PellComponent() {
   };
 
   useEffect(() => {
-    // Initialize Pell editor
-    Pell.init({
-      element: editorRef.current,
-      onChange: handleEditorChange,
-      defaultParagraphSeparator: 'p',
-      styleWithCSS: true,
-    });
-
-    // Load initial content
-    editorRef.current.innerHTML = content;
-
-    // Attach keydown event listener for Enter key
-    editorRef.current.addEventListener('keydown', handleKeyDown);
-
-    // Cleanup the event listener on component unmount
-    // return () => {
-    //   editorRef.current.removeEventListener('keydown', handleKeyDown);
-    // };
+    if (editorRef.current) {
+      const editorElement = document.createElement('div');
+      editorElement.contentEditable = true;
+      editorElement.innerHTML = content;
+      editorRef.current.innerHTML = content;
+    }
   }, [content]);
+  
+  // useEffect(() => {
+
+  //   Pell.init({
+  //     element: editorRef.current,
+  //     onChange: handleEditorChange,
+  //     defaultParagraphSeparator: 'p',
+  //     styleWithCSS: true,
+  //   });
+
+  //   editorRef.current.innerHTML = content;
+
+  //   editorRef.current.addEventListener('keydown', handleKeyDown);
+
+  // }, [content]);
 
   const execCommand = (command) => {
     document.execCommand(command, false, null);
@@ -171,9 +177,10 @@ function PellComponent() {
   // Other methods like undo, redo, apply styles, etc. would go here...
 
   return (
-    <div className="container flex flex-col items-center mx-auto p-6 font-sans">
+    <div className="container flex flex-col justify-center items-center text-white text-center   h-fit w-full backdrop-blur-lg  bg-opacity-40  bg-[#1a1a1a]  overflow-hidden  shadow-[inset_0_0_30px_rgba(0,0,0,1)]  rounded-lg mx-auto font-sans">
       <InputPdfUpload setPdfData={setPdfData} setCurrentPage={setCurrentPage} />
-      <div className='bg-gray-300 mt-10 p-4 pt-2 flex flex-col gap-4 rounded-2xl'>
+      {pdfData&&
+      <div className='bg-gray-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.7)]  bg-opacity-20 mt-10 p-4 mx-6 pt-2 flex flex-col gap-4 rounded-2xl'>
       <Toolbar 
         applyStyle={applyStyle}
         setFontSize={setFontSize}
@@ -204,6 +211,7 @@ function PellComponent() {
           suppressContentEditableWarning={true}
         />
       </div>
+      }
       <Pagination pdfData={pdfData} currentPage={currentPage} editorRef={editorRef} setCurrentPage={setCurrentPage} />
     </div>
   );

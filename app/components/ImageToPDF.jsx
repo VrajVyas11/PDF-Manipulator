@@ -1,118 +1,106 @@
 import React, { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import Image from 'next/image'; // Importing the Image component
+import Image from 'next/image';
 
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Handle file input change
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
-      setPdfUrl(null)
+      setPdfUrl(null);
     } else {
       alert('Please upload a valid image file');
     }
   };
 
-  // Handle drag and drop functionality
-  const handleDrag = (e) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
-    e.stopPropagation();
     setDragActive(true);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-    } else {
-      alert('Please upload a valid image file');
-    }
   };
 
   const handleDragLeave = () => {
     setDragActive(false);
   };
 
-  // Convert the image to a PDF and display preview
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file);
+      setPdfUrl(null);
+    } else {
+      alert('Please upload a valid image file');
+    }
+  };
+
   const convertToPDF = async () => {
     if (!imageFile) return;
 
-    const fileReader = new FileReader();
-    fileReader.onload = async (e) => {
-      const imageBytes = e.target.result;
+    setIsProcessing(true);
 
-      // Create a new PDF Document
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage();
-
-      let img;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
       try {
-        img = await pdfDoc.embedJpg(imageBytes);
-      } catch (error) {
-        try {
-          img = await pdfDoc.embedPng(imageBytes);
-        } catch (pngError) {
-          alert('Error: Image format not supported.');
-          return;
-        }
+        const imageBytes = e.target?.result ;
+        const pdfDoc = await PDFDocument.create();
+        const page = pdfDoc.addPage();
+
+        const embeddedImage =
+          imageFile.type === 'image/png'
+            ? await pdfDoc.embedPng(imageBytes)
+            : await pdfDoc.embedJpg(imageBytes);
+
+        const { width, height } = embeddedImage.scale(1);
+        page.setSize(width, height);
+        page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        setPdfUrl(URL.createObjectURL(blob));
+      } catch (err) {
+        alert('Failed to convert image to PDF.');
+      } finally {
+        setIsProcessing(false);
       }
-
-      const { width, height } = img.scale(1);
-      page.setSize(width, height);
-      page.drawImage(img, { x: 0, y: 0, width, height });
-
-      const pdfBytes = await pdfDoc.save();
-
-      // Create a blob URL for preview in iframe
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const pdfBlobUrl = URL.createObjectURL(blob);
-      setPdfUrl(pdfBlobUrl);
     };
 
-    fileReader.readAsArrayBuffer(imageFile);
+    reader.readAsArrayBuffer(imageFile);
   };
 
-  // Download the PDF
   const downloadPdf = () => {
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.download = 'image-to-pdf.pdf';
-    link.click();
+    if (pdfUrl) {
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = 'image-to-pdf.pdf';
+      link.click();
+    }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-fit p-6 space-y-6 md:space-y-8">
-      <div className={`${pdfUrl?"w-full":"w-fit"} p-8`}>
-  <div className="flex w-full justify-center items-center">
-    {/* Upload Section */}
-    <div className={`flex flex-col justify-center items-center ${pdfUrl?"w-5/6":"w-full"}  bg-sky-100 rounded-lg shadow-lg`}>
-    <div className="text-3xl bg-gray-800 px-8 py-2 pt-6 w-full placeholder:text-center text-white rounded-lg rounded-b-none font-bold">
-    <h3 className="text-3xl flex justify-center items-center font-semibold text-white mb-6">
-    PDF Preview,
-    <span className="flex items-center mx-2 bg-opacity-60 px-2 bg-yellow-300 rounded-md shadow-sm">
-      Annotation <Image className="mx-2 h-5 w-5" src="/annotate.png" alt="Annotate" width={20} height={20} />
-    </span>
-    and
-    <span className="flex items-center mx-2 bg-opacity-60 px-2 bg-blue-300 rounded-md shadow-sm">
-      Download <Image className="mx-2 h-6 w-6" src="/save.png" alt="Download" width={24} height={24} />
-    </span>
-  </h3>
-  </div>
+    <div className="flex flex-col items-center w-fit mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16 ">
+       <div className="text-white mb-10 text-3xl   rounded-b-none border-[1px] border-gray-200   text-center  h-fit w-full backdrop-blur-lg  bg-opacity-90  rounded-3xl bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+      <h3 className="text-3xl font-extrabold  px-16 w-full p-5 text-center rounded-t-3xl">
+        PDF Preview,{' '}
+        <span className="bg-yellow-400 text-black px-2 rounded-md">Annotation</span>{' '}
+        and{' '}
+        <span className="bg-blue-400 text-black px-2 rounded-md">Download</span>
+      </h3>
+</div>
       <div
-        className={`border-4 border-dashed p-8  rounded-lg w-4/5 mt-8 bg-sky-200 flex items-center justify-center cursor-pointer transition-transform duration-500 hover:scale-x-105 border-sky-500`}
-        onDragOver={handleDrag}
+        className={`border-4 border-dashed mb-8 p-10 rounded-lg w-full max-w-2xl flex items-center justify-center cursor-pointer transition-colors ${
+          dragActive ? 'border-blue-400' : 'border-gray-600'
+        }`}
+        onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => document.getElementById('fileInput').click()}
+        onClick={() => document.getElementById('fileInput')?.click()}
       >
         <input
           id="fileInput"
@@ -121,43 +109,37 @@ const ImageToPDF = () => {
           className="hidden"
           onChange={handleFileChange}
         />
-        <p className="text-center text-blue-700 font-semibold">
-          {imageFile ? imageFile.name : 'Drag & Drop or Click to Upload Image'}
-        </p>
+        <p className="text-gray-400">{imageFile ? imageFile.name : 'Drag & Drop or click to upload an image'}</p>
       </div>
 
-    {/* PDF Preview Section */}
-    {pdfUrl && (
-      <div className="h-fit flex justify-center flex-col items-center w-full overflow-hidden">
-  <iframe
-    src={pdfUrl}
-    title="Preview PDF"
-    className="border border-sky-400 rounded-lg shadow-md transform scale-75 "
-    style={{ width: '100%', height: '667px' }} // Compensating for the scale(0.75) factor
-  />
-  <button
-        onClick={downloadPdf}
-        className=" w-4/5 mb-10 py-3 bg-emerald-500 text-white font-semibold rounded-lg shadow-lg hover:bg-emerald-600 transition duration-300 ease-in-out disabled:opacity-50"
-        disabled={!imageFile}
-      >
-        Download PDF
-      </button>
-</div>
+      {imageFile && !isProcessing && (
+        <button
+          onClick={convertToPDF}
+          className="px-6 py-4 w-fit mb-9 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+          >
+            Continue
+          </button>
+      )}
 
-    )}
-      <button
-        onClick={convertToPDF}
-        className={` w-5/6 ${pdfUrl?"hidden":""} py-3 my-5 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out disabled:opacity-50`}
-        disabled={!imageFile}
-      >
-        Convert to PDF
-      </button>
-    </div>
+      {isProcessing && (
+        <div className="w-8 h-8  mb-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      )}
 
-  </div>
-</div>
-
-
+      {pdfUrl && (
+        <div className=" px-6 w-full flex flex-col items-center">
+          <iframe
+            src={pdfUrl}
+            title="PDF Preview"
+            className="w-full  h-96 border border-gray-600 rounded-lg shadow-md"
+          />
+          <button
+            onClick={downloadPdf}
+            className="mt-4 px-6 w-full mb-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition"
+          >
+            Download
+          </button>
+        </div>
+      )}
     </div>
   );
 };

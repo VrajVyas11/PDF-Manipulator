@@ -3,26 +3,30 @@ const Pagination = ({ pdfData, currentPage, setCurrentPage, editorRef }) => {
     return (
       <>
         {pdfData && pdfData.Pages && (
-          <div className="flex justify-between w-full mt-4">
+          <div className="flex flex-col w-full px-6 justify-between items-center mt-4">
+            <div className="flex w-full justify-between items-center mt-4">
             <button
               disabled={currentPage === 0}
               onClick={() => setCurrentPage(currentPage - 1)}
-              className="px-4 py-2 bg-gray-300 rounded-lg shadow-md hover:bg-gray-400 disabled:opacity-50"
-            >
+              className="px-6 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              >
               Previous Page
             </button>
-            <button
-              onClick={() => { downloadPdf(editorRef) }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700"
-            >
-              Download PDF
-            </button>
+            <span className="text-lg text-gray-300">{`Page ${currentPage + 1} `}</span>
+
             <button
               disabled={currentPage === pdfData.Pages.length - 1}
               onClick={() => setCurrentPage(currentPage + 1)}
-              className="px-4 py-2 bg-gray-300 rounded-lg shadow-md hover:bg-gray-400 disabled:opacity-50"
-            >
+              className="px-10 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              >
               Next Page
+            </button>
+            </div>
+            <button
+              onClick={() => { downloadPdf(editorRef) }}
+              className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              >
+              Download PDF
             </button>
           </div>
         )}
