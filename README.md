@@ -23,7 +23,6 @@ This project allows users to efficiently edit and merge PDF files, as well as co
 
 #Images
 ![Laptop View](./livedemoimages/1.png)
-
 ![Laptop View](./livedemoimages/2.png)
 ![Laptop View](./livedemoimages/3.png)
 ![Laptop View](./livedemoimages/4.png)
