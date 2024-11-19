@@ -31,7 +31,8 @@ This project allows users to efficiently edit and merge PDF files, as well as co
 ![Laptop View](./livedemoimages/7.png)
 ![Laptop View](./livedemoimages/8.png)
 ![Laptop View](./livedemoimages/9.png)
-
+![Laptop View](./livedemoimages/10.png)
+![Laptop View](./livedemoimages/11.png)
 ## Contributing
 
 1. **Fork the Repository:** Click on "Fork" at the top right of this GitHub page.
