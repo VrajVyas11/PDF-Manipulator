@@ -10,6 +10,7 @@ const AddPages = () => {
   const [mergedPdfBytes, setMergedPdfBytes] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editorContent, setEditorContent] = useState('');
+  const [isContinueClicked, setIsContinueClicked] = useState(false);
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const newPdfs = [];
@@ -23,6 +24,7 @@ const AddPages = () => {
       reader.readAsArrayBuffer(file);
     }
     setPdfs(newPdfs);
+    setIsContinueClicked(true);
   };
   const extractPages = async (pdfData, pdfIndex) => {
     try {
@@ -63,14 +65,14 @@ const AddPages = () => {
     try {
       for (const page of pages) {
         const { pdfIndex, index } = page;
-console.log(pdfIndex, index )
+        console.log(pdfIndex, index)
         if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
           console.error(`Invalid pdfIndex: ${pdfIndex}`);
           continue;
         }
         const pdfDoc = await PDFDocument.load(pdfs[pdfIndex]);
         const pageCount = pdfDoc.getPageCount();
-        
+
         if (index < 0 || index >= pageCount) {
           console.error(`Invalid page index: ${index} for pdfIndex: ${pdfIndex} (total pages: ${pageCount})`);
           continue;
@@ -127,124 +129,139 @@ console.log(pdfIndex, index )
     element.style.margin = '20px'; // Optional margin to ensure content isn't too close to the edges
     console.log(editorContent);
     var opt = {
-        margin: 1,
-        filename: 'myfile.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      margin: 1,
+      filename: 'myfile.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
     };
     try {
-        const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-        if (pdfBlob instanceof Blob) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const arrayBuffer = reader.result;
-                setPages((prevPages) => [
-                    ...prevPages,
-                    { index: 0, pdfIndex: pdfs.length, name: 'Newly Created Page' },
-                ]);
-                setPdfs((prev) => [...prev, arrayBuffer]);
-                mergePdfs(null, arrayBuffer);
-                closeDialog();
-            };
-            reader.readAsArrayBuffer(pdfBlob);
-        } else {
-            console.error('Generated PDF is not a valid Blob:', pdfBlob);
-        }
+      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      if (pdfBlob instanceof Blob) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const arrayBuffer = reader.result;
+          setPages((prevPages) => [
+            ...prevPages,
+            { index: 0, pdfIndex: pdfs.length, name: 'Newly Created Page' },
+          ]);
+          setPdfs((prev) => [...prev, arrayBuffer]);
+          mergePdfs(null, arrayBuffer);
+          closeDialog();
+        };
+        reader.readAsArrayBuffer(pdfBlob);
+      } else {
+        console.error('Generated PDF is not a valid Blob:', pdfBlob);
+      }
     } catch (error) {
-        console.error('Error adding page from editor:', error);
+      console.error('Error adding page from editor:', error);
     }
-};
+  };
   return (
-    <div className="flex p-6 bg-emerald-100 bg-opacity-50 min-h-fit">
-      <div className="w-1/3 pr-4">
-        <div className="min-h-[200px] shadow-xl rounded-lg p-4">
-          <div
-            className={`border-4 border-dashed p-5 rounded-lg w-full max-w-md bg-emerald-200 flex items-center justify-center cursor-pointer transition-transform duration-1000 ease-in-out hover:scale-105 border-emerald-500`}
-            onClick={() => document.getElementById('fileInput').click()}
-          >
-            <input
-              id="fileInput"
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <p className="text-center text-gray-800"> Click to upload</p>
-          </div>
-          <h2 className="text-lg font-bold text-gray-800 mb-2 mt-10">Uploaded Pages</h2>
-          <div className="grid grid-cols-1 gap-4">
-            {pages.map((page, index) => (
-              <div
-                key={index}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                className="bg-emerald-300 border border-emerald-400 rounded-md p-3 hover:bg-emerald-200 cursor-move flex justify-between items-center shadow transition duration-150 ease-in-out"
-              >
-                <span className="text-gray-800">{page.name}</span>
-                <button onClick={() => handleRemovePage(index)} className="text-red-400 hover:text-red-300 transition">
-                  &times;
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={openDialog}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-          >
-            Add Page
-          </button>
-        </div>
-      </div>
-      
-      <div className="w-2/3">
-        <div className="bg-emerald-300 bg-opacity-50 border-double border-emerald-500 border-2 min-h-[200px] shadow-xl rounded-lg p-4 ">
-          {pages.length > 0 && (
-            <>
-              <h2 className="text-lg font-bold text-gray-800 mb-2">PDF Preview</h2>
-              <iframe
-                src={previewPdf}
-                width="100%"
-                height="500px"
-                title="Preview PDF"
-                className="border border-emerald-400 rounded mb-4 shadow-lg"
+    <div className=" flex justify-self-center mb-16 w-[95%] h-fit justify-center items-center flex-col">
+      <h2 className="text-white text-3xl  rounded-b-none border-[1px] border-gray-200   text-center  p-5  h-fit w-full backdrop-blur-lg  bg-opacity-90  rounded-3xl bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">Add New Pages</h2>
+
+      <div className="flex border-[1px] border-t-0 border-gray-200  backdrop-blur-lg shadow-black bg-opacity-40 rounded-3xl  p-5  bg-[#292828]   overflow-hidden   text-center font-extrabold  tracking-wider shadow-[inset_0_0_10px_rgba(0,0,0,1)] text-white h-fit w-full  rounded-t-none     ">
+
+        <div className="w-1/3 pr-4">
+          <div className="min-h-[200px] shadow-xl rounded-lg p-4 bg-gray-900 border border-gray-800">
+            <div
+              className={`border-4 border-dashed p-5 ${pages.length < 0 ? "h-fit" : "h-[175px]"} rounded-lg w-full max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700`}
+              onClick={() => document.getElementById('fileInput').click()}
+            >
+              <input
+                id="fileInput"
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={handleFileChange}
+                multiple
               />
-              <button
-                onClick={downloadPdf}
-                className="px-6 py-4 w-full bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-              >
-                Download Page Added PDF
-              </button>
-            </>
-          )}
+              <p className="text-center text-gray-400">Click to upload</p>
+            </div>
+            {pages.length > 0 && <h2 className="text-lg font-bold text-gray-400 mb-2 mt-10">Uploaded Pages</h2>}
+            <div className="grid grid-cols-1 gap-4">
+              {pages.map((page, index) => (
+                <div
+                  key={index}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className="bg-gray-800 border border-gray-700 rounded-md p-3 hover:bg-gray-700 cursor-move flex justify-between items-center shadow transition duration-150 ease-in-out"
+                >
+                  <span className="text-gray-400">{page.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {isContinueClicked && pdfs.length>0 && (<button
+              onClick={openDialog}
+              className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+            >
+              Add Page
+            </button>)
+}
+          </div>
+        </div>
+
+
+        <div className="w-full md:w-2/3">
+          <div className="bg-gray-900 bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-6">
+            {pages.length > 0 ? (
+              <>
+                <h2 className="text-lg font-bold text-gray-300 mb-4">PDF Preview</h2>
+                <iframe
+                  src={previewPdf}
+                  width="100%"
+                  height="400px"
+                  title="Preview PDF"
+                  className="border border-gray-700 rounded-lg mb-6 shadow-lg"
+                />
+                <button
+                  onClick={downloadPdf}
+                  className="px-6 py-3 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+                >
+                  Download PDF with added pages
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center justify-center text-gray-400 text-center h-full">
+                No files uploaded. Upload files to preview and merge.
+              </div>
+            )}
+          </div>
         </div>
       </div>
-   
       {isDialogOpen && (
-       <div className="fixed w-screen h-screen inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-       <div className="bg-white w-fit h-fit rounded-lg p-6 shadow-lg border border-emerald-400">
-         <h2 className="text-xl text-center font-bold mb-4 text-emerald-500">Add Page from Editor</h2>
-         <QuillEditor value={editorContent} onChange={setEditorContent} placeholder={"Start Writing..."} />
-         <div className="flex justify-end mt-4">
-           <button
-             onClick={closeDialog}
-             className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
-           >
-             Cancel
-           </button>
-           <button
-             onClick={addPageFromEditor}
-             className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition shadow"
-           >
-             Add Page
-           </button>
-         </div>
-       </div>
-     </div>
-     
-      )}
+  <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-80">
+  <div className="text-white  border-[1px] border-gray-200 text-center h-fit w-fit backdrop-blur-lg bg-opacity-90 rounded-3xl bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+    <h1 className="text-lg  text-sky-500 justify-self-center border-b-2 w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center">
+      Add Content to Page
+    </h1>
+    <QuillEditor
+      value={editorContent}
+      onChange={setEditorContent}
+      placeholder={"Start Writing..."}
+    />
+    <div className="flex justify-between items-center px-20 mb-4">
+      <button
+        onClick={closeDialog}
+        className="px-6 py-4 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={addPageFromEditor}
+        className="px-6 py-4 w-fit bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+      >
+        Add Page
+      </button>
+    </div>
+  </div>
+</div>
+
+)}
     </div>
   );
 };

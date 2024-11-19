@@ -22,8 +22,8 @@ function PDFEditor() {
     onClick={() => toggleImplementation(false)}
     className={`w-2/3  py-3 font-semibold text-lg transition-all duration-300 ease-in-out rounded-xl rounded-r-none transform shadow-md ${
       !isBackendBased
-        ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700 shadow-inner shadow-blue-500'
-        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300 shadow-inner'
+        ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700 '
+        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300 '
     }`}
   >
     Worker Based
@@ -32,8 +32,8 @@ function PDFEditor() {
     onClick={() => toggleImplementation(true)}
     className={`w-2/3  py-3 font-semibold text-lg transition-all duration-300 ease-in-out rounded-xl rounded-l-none transform shadow-md ${
       isBackendBased
-      ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700 shadow-inner shadow-blue-500'
-      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300 shadow-inner'
+      ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700 '
+      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300 '
   }`}
   >
     Backend Based

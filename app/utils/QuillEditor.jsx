@@ -28,7 +28,7 @@ const Editor = ({ value, onChange, placeholder }) => {
     }
   }, []);
   return (
-    <div className="container mx-auto p-6 font-sans">
+    <div className="container mx-auto font-sans">
       <div className="flex justify-center">
         <div className="w-full max-w-3xl shadow-sm">
           <ReactQuill

@@ -1,12 +1,42 @@
 import React, { useState, useRef } from 'react';
-import { PDFDocument } from 'pdf-lib'; 
-import { saveAs } from 'file-saver'; 
+import { PDFDocument } from 'pdf-lib';
+import { saveAs } from 'file-saver';
 
 const PDFCompressor = () => {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [compressionQuality, setCompressionQuality] = useState(0.5);
   const [compressedPdfBlob, setCompressedPdfBlob] = useState(null);
   const pdfInputRef = useRef(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [images, setImages] = useState([]);
+  const [error, setError] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      setImageFile(file);
+    } else {
+      setError('Please upload a PDF file.');
+    }
+  };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -27,17 +57,11 @@ const PDFCompressor = () => {
     const pdfDoc = await PDFDocument.create();
 
     for (const file of pdfFiles) {
-      const reader = new FileReader();
+      const arrayBuffer = await file.arrayBuffer();
+      const existingPdfDoc = await PDFDocument.load(arrayBuffer);
 
-      reader.onload = async (event) => {
-        const existingPdfBytes = new Uint8Array(event.target.result);
-        const existingPdfDoc = await PDFDocument.load(existingPdfBytes);
-
-        const pages = await pdfDoc.copyPages(existingPdfDoc, existingPdfDoc.getPageIndices());
-        pages.forEach((page) => pdfDoc.addPage(page));
-      };
-
-      reader.readAsArrayBuffer(file);
+      const pages = await pdfDoc.copyPages(existingPdfDoc, existingPdfDoc.getPageIndices());
+      pages.forEach((page) => pdfDoc.addPage(page));
     }
 
     const compressedPdfBytes = await pdfDoc.save();
@@ -65,22 +89,31 @@ const PDFCompressor = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', backgroundColor: '#fefefe', padding: '20px' }}>
-      <h1>Compress PDF - Smaller PDFs in your browser!</h1>
-      <input
-        type="file"
-        ref={pdfInputRef}
-        accept="application/pdf"
-        multiple
-        onChange={handleFileChange}
-        style={{
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '10px',
-          border: '1px solid rgba(255, 99, 71, 0.5)',
-        }}
-      />
-      <div>
+    <div className="flex w-fit flex-col items-center border-t-0 border-[1px] border-gray-200 mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16 ">
+    <div className="text-white mb-10 text-3xl border-0 rounded-3xl rounded-b-none border-y-[1px] border-gray-200   text-center  h-fit w-full backdrop-blur-lg  bg-opacity-90  bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+      <h3 className="text-3xl font-extrabold  px-16 w-full p-5 text-center rounded-t-3xl">
+        Compress PDF
+      </h3>
+    </div>
+    <div className=' px-12 pb-7 w-full flex flex-col justify-center items-center'>
+      <div
+        className={`border-4 border-dashed p-5 h-36 rounded-lg w-full max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
+        onDragOver={handleDrag}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => document.getElementById('fileInput')?.click()}
+      >
+        <input
+          id="fileInput"
+          type="file"
+          ref={pdfInputRef}
+          accept="application/pdf"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <p className="text-gray-400">{imageFile ? imageFile.name : 'Drag & Drop or click to upload an image'}</p>
+      </div>
+      <div className=' justify-center flex items-end gap-2 text-2xl'>
         <input
           type="range"
           min="0"
@@ -88,54 +121,40 @@ const PDFCompressor = () => {
           step="0.1"
           value={compressionQuality}
           onChange={handleCompressionQualityChange}
+          className="w-96 mt-4 h-8 font-extrabold bg-gradient-to-r from-gray-600 via-gray-500 to-gray-600 rounded-full cursor-pointer appearance-none"
         />
+
         <span>{compressionQuality}</span>
       </div>
-      <button
-        onClick={compressPDF}
-        style={{
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '15px',
-          background: 'rgba(255, 99, 71, 0.2)',
-          border: '1px solid rgba(255, 99, 71, 0.5)',
-          cursor: 'pointer',
-        }}
-      >
-        Compress PDF
-      </button>
-      <button
-        onClick={previewPDF}
-        style={{
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '15px',
-          background: 'rgba(100, 149, 237, 0.2)',
-          border: '1px solid rgba(100, 149, 237, 0.5)',
-          cursor: 'pointer',
-        }}
-        disabled={!compressedPdfBlob}
-      >
-        Preview PDF
-      </button>
-      <button
-        onClick={downloadPDF}
-        style={{
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '15px',
-          background: 'rgba(34, 139, 34, 0.2)',
-          border: '1px solid rgba(34, 139, 34, 0.5)',
-          cursor: 'pointer',
-        }}
-        disabled={!compressedPdfBlob}
-      >
-        Download PDF
-      </button>
-      <div>
+      <div className='flex gap-7'>
+        <button
+          onClick={compressPDF}
+          className="px-6 mt-10 py-4 w-fit bg-[#1e90ff] text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        >
+          Compress PDF
+        </button>
+        <button
+          onClick={previewPDF}
+          className="px-6 mt-10 py-4 w-fit bg-[#ff4500] text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-red-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+          disabled={!compressedPdfBlob}
+        >
+          Preview PDF
+        </button>
+        <button
+          onClick={downloadPDF}
+          className="px-6 mt-10 py-4 w-fit bg-[#32cd32] text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+          disabled={!compressedPdfBlob}
+        >
+          Download PDF
+        </button>
+      </div>
+      <div style={{ marginTop: '20px' }}>
         {pdfFiles.map((file, index) => (
-          <p key={index}>{file.name}</p>
+          <p key={index} style={{ color: '#aaa' }}>
+            {file.name}
+          </p>
         ))}
+      </div>
       </div>
     </div>
   );

@@ -84,8 +84,8 @@ const ImageToPDF = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-fit mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16 ">
-       <div className="text-white mb-10 text-3xl   rounded-b-none border-[1px] border-gray-200   text-center  h-fit w-full backdrop-blur-lg  bg-opacity-90  rounded-3xl bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+    <div className="flex flex-col items-center border-t-0 border-[1px] border-gray-200  w-fit mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16 ">
+       <div className="text-white mb-10 text-3xl border-0 rounded-3xl rounded-b-none border-y-[1px] border-gray-200   text-center  h-fit w-full backdrop-blur-lg  bg-opacity-90  bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
       <h3 className="text-3xl font-extrabold  px-16 w-full p-5 text-center rounded-t-3xl">
         PDF Preview,{' '}
         <span className="bg-yellow-400 text-black px-2 rounded-md">Annotation</span>{' '}
@@ -94,9 +94,7 @@ const ImageToPDF = () => {
       </h3>
 </div>
       <div
-        className={`border-4 border-dashed mb-8 p-10 rounded-lg w-full max-w-2xl flex items-center justify-center cursor-pointer transition-colors ${
-          dragActive ? 'border-blue-400' : 'border-gray-600'
-        }`}
+       className={`border-4 mb-10 border-dashed p-5 h-36 rounded-lg w-full max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
