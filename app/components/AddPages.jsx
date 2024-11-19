@@ -235,8 +235,8 @@ const AddPages = () => {
       </div>
       {isDialogOpen && (
   <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-80">
-  <div className="text-white  border-[1px] border-gray-200 text-center h-fit w-fit backdrop-blur-lg bg-opacity-90 rounded-3xl bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
-    <h1 className="text-lg  text-sky-500 justify-self-center border-b-2 w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center">
+  <div className="text-white border-[1px] border-gray-200 text-center h-fit w-fit backdrop-blur-lg bg-opacity-90 rounded-xl bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+    <h1 className="text-2xl  text-sky-500 justify-self-center border-b-2 w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center">
       Add Content to Page
     </h1>
     <QuillEditor
@@ -244,7 +244,7 @@ const AddPages = () => {
       onChange={setEditorContent}
       placeholder={"Start Writing..."}
     />
-    <div className="flex justify-between items-center px-20 mb-4">
+    <div className="flex justify-between items-center px-20 mb-4 mt-6">
       <button
         onClick={closeDialog}
         className="px-6 py-4 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
