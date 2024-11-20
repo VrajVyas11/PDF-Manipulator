@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
-
+import * as pdfjsLib from 'pdfjs-dist/webpack';
 const PDFCompressor = () => {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [compressionQuality, setCompressionQuality] = useState(0.5);
@@ -12,6 +12,10 @@ const PDFCompressor = () => {
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+  }, []);
 
 
   const handleDrag = (e) => {
@@ -50,26 +54,59 @@ const PDFCompressor = () => {
 
   const compressPDF = async () => {
     if (pdfFiles.length === 0) {
-      alert('Please select PDF files to compress.');
+      alert("Please select PDF files to compress.");
       return;
     }
-
+  
     const pdfDoc = await PDFDocument.create();
-
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+  
     for (const file of pdfFiles) {
       const arrayBuffer = await file.arrayBuffer();
-      const existingPdfDoc = await PDFDocument.load(arrayBuffer);
-
-      const pages = await pdfDoc.copyPages(existingPdfDoc, existingPdfDoc.getPageIndices());
-      pages.forEach((page) => pdfDoc.addPage(page));
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  
+      try {
+        const pdf = await loadingTask.promise;
+        const numPages = pdf.numPages;
+  
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 1 });
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+  
+          await page.render({
+            canvasContext: ctx,
+            viewport,
+          }).promise;
+  
+          const imageData = canvas.toDataURL("image/jpeg", compressionQuality); 
+          const imageBytes = await fetch(imageData).then((res) => res.arrayBuffer());
+          const img = await pdfDoc.embedJpg(imageBytes);
+  
+          const pageWidth = img.width;
+          const pageHeight = img.height;
+          const newPage = pdfDoc.addPage([pageWidth, pageHeight]);
+          newPage.drawImage(img, {
+            x: 0,
+            y: 0,
+            width: pageWidth,
+            height: pageHeight,
+          });
+        }
+      } catch (err) {
+        console.error(`Error processing file: ${file.name}`, err);
+        alert(`Failed to process ${file.name}`);
+      }
     }
-
+  
     const compressedPdfBytes = await pdfDoc.save();
-    const compressedPdfBlob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+    const compressedPdfBlob = new Blob([compressedPdfBytes], { type: "application/pdf" });
     setCompressedPdfBlob(compressedPdfBlob);
     resetInput();
   };
-
+  
   const resetInput = () => {
     pdfInputRef.current.value = '';
     setPdfFiles([]);

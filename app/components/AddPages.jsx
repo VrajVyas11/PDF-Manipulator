@@ -195,13 +195,15 @@ const AddPages = () => {
               ))}
             </div>
 
-            {isContinueClicked && pdfs.length>0 && (<button
+            {/* {isContinueClicked && pdfs.length>0 && ( */}
+              <button
               onClick={openDialog}
               className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
             >
               Add Page
-            </button>)
-}
+            </button>
+            {/* )
+} */}
           </div>
         </div>
 
@@ -234,32 +236,36 @@ const AddPages = () => {
         </div>
       </div>
       {isDialogOpen && (
-  <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-80">
-  <div className="text-white border-[1px] border-gray-200 text-center h-fit w-fit backdrop-blur-lg bg-opacity-90 rounded-xl bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
-    <h1 className="text-2xl  text-sky-500 justify-self-center border-b-2 w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center">
+  <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-90">
+  <div className="text-white border-[1px] px-6 py-8 border-gray-800 text-center h-fit w-[90%] md:w-[60%] backdrop-blur-xl bg-opacity-95 rounded-2xl bg-[#121212] overflow-hidden shadow-[0px_8px_30px_rgba(0,0,0,0.8)]">
+    <h1 className="text-3xl text-blue-400 border-b-[1px] border-gray-700 w-full pb-4 font-bold uppercase tracking-widest mb-8 text-center">
       Add Content to Page
     </h1>
-    <QuillEditor
-      value={editorContent}
-      onChange={setEditorContent}
-      placeholder={"Start Writing..."}
-    />
-    <div className="flex justify-between items-center px-20 mb-4 mt-6">
+    <div className="px-4">
+      <QuillEditor
+        value={editorContent}
+        onChange={setEditorContent}
+        placeholder={"Start writing..."}
+        className="bg-[#1f1f1f] text-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+      />
+    </div>
+    <div className="flex justify-between items-center px-6 mt-8">
       <button
         onClick={closeDialog}
-        className="px-6 py-4 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        className="px-10 py-5 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-gray-500 hover:text-black hover:border-black transition duration-300 font-bold ease-in-out disabled:opacity-50"
       >
         Cancel
       </button>
       <button
         onClick={addPageFromEditor}
-        className="px-6 py-4 w-fit bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        className="px-8 py-5 w-fit bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-bold ease-in-out disabled:opacity-50"
       >
         Add Page
       </button>
     </div>
   </div>
 </div>
+
 
 )}
     </div>
