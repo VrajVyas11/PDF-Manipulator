@@ -3,6 +3,7 @@ import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
 const QuillEditor = dynamic(() => import('../utils/QuillEditor'), { ssr: false });
 import html2pdf from 'html2pdf.js';
+import PDFViewer from "./PDFViewer"
 const AddPages = () => {
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
@@ -195,15 +196,15 @@ const AddPages = () => {
               ))}
             </div>
 
-            {/* {isContinueClicked && pdfs.length>0 && ( */}
+            {isContinueClicked && pdfs.length > 0 && (
               <button
-              onClick={openDialog}
-              className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-            >
-              Add Page
-            </button>
-            {/* )
-} */}
+                onClick={openDialog}
+                className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              >
+                Add Page
+              </button>
+            )
+            }
           </div>
         </div>
 
@@ -213,16 +214,10 @@ const AddPages = () => {
             {pages.length > 0 ? (
               <>
                 <h2 className="text-lg font-bold text-gray-300 mb-4">PDF Preview</h2>
-                <iframe
-                  src={previewPdf}
-                  width="100%"
-                  height="400px"
-                  title="Preview PDF"
-                  className="border border-gray-700 rounded-lg mb-6 shadow-lg"
-                />
+                <PDFViewer file={previewPdf} />
                 <button
                   onClick={downloadPdf}
-                  className="px-6 py-3 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+                  className="px-6 py-3 mt-4 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
                 >
                   Download PDF with added pages
                 </button>
@@ -236,38 +231,38 @@ const AddPages = () => {
         </div>
       </div>
       {isDialogOpen && (
-  <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-90">
-  <div className="text-white border-[1px] px-6 py-8 border-gray-800 text-center h-fit w-[90%] md:w-[60%] backdrop-blur-xl bg-opacity-95 rounded-2xl bg-[#121212] overflow-hidden shadow-[0px_8px_30px_rgba(0,0,0,0.8)]">
-    <h1 className="text-3xl text-blue-400 border-b-[1px] border-gray-700 w-full pb-4 font-bold uppercase tracking-widest mb-8 text-center">
-      Add Content to Page
-    </h1>
-    <div className="px-4">
-      <QuillEditor
-        value={editorContent}
-        onChange={setEditorContent}
-        placeholder={"Start writing..."}
-        className="bg-[#1f1f1f] text-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.5)]"
-      />
-    </div>
-    <div className="flex justify-between items-center px-6 mt-8">
-      <button
-        onClick={closeDialog}
-        className="px-10 py-5 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-gray-500 hover:text-black hover:border-black transition duration-300 font-bold ease-in-out disabled:opacity-50"
-      >
-        Cancel
-      </button>
-      <button
-        onClick={addPageFromEditor}
-        className="px-8 py-5 w-fit bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-bold ease-in-out disabled:opacity-50"
-      >
-        Add Page
-      </button>
-    </div>
-  </div>
-</div>
+        <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-90">
+          <div className="text-white border-[1px] px-6 py-8 border-gray-800 text-center h-fit w-[90%] md:w-[60%] backdrop-blur-xl bg-opacity-95 rounded-2xl bg-[#121212] overflow-hidden shadow-[0px_8px_30px_rgba(0,0,0,0.8)]">
+            <h1 className="text-3xl text-blue-400 border-b-[1px] border-gray-700 w-full pb-4 font-bold uppercase tracking-widest mb-8 text-center">
+              Add Content to Page
+            </h1>
+            <div className="px-4">
+              <QuillEditor
+                value={editorContent}
+                onChange={setEditorContent}
+                placeholder={"Start writing..."}
+                className="bg-[#1f1f1f] text-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+              />
+            </div>
+            <div className="flex justify-between items-center px-6 mt-8">
+              <button
+                onClick={closeDialog}
+                className="px-10 py-5 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-gray-500 hover:text-black hover:border-black transition duration-300 font-bold ease-in-out disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addPageFromEditor}
+                className="px-8 py-5 w-fit bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-bold ease-in-out disabled:opacity-50"
+              >
+                Add Page
+              </button>
+            </div>
+          </div>
+        </div>
 
 
-)}
+      )}
     </div>
   );
 };

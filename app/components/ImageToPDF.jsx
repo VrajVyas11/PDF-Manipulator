@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import Image from 'next/image';
-
+import PDFViewer from "./PDFViewer"
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
@@ -125,11 +125,13 @@ const ImageToPDF = () => {
 
       {pdfUrl && (
         <div className=" px-6 w-full flex flex-col items-center">
-          <iframe
+          <div
             src={pdfUrl}
             title="PDF Preview"
-            className="w-full  h-96 border border-gray-600 rounded-lg shadow-md"
-          />
+            className="w-full  h-fit border border-gray-600 rounded-lg shadow-md"
+          >
+ <PDFViewer file={pdfUrl}/>
+            </div>
           <button
             onClick={downloadPdf}
             className="mt-4 px-6 w-full mb-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition"

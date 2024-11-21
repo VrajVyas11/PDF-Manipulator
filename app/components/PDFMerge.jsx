@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-
+import PDFViewer from "./PDFViewer"
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
@@ -155,20 +155,14 @@ const PdfMerge = () => {
       </div>
 
       <div className="w-full md:w-2/3">
-      <div className="bg-gray-900 bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-6">
+      <div className="bg-gray-900 font-normal bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-6">
         {pages.length > 0 ? (
           <>
             <h2 className="text-lg font-bold text-gray-300 mb-4">PDF Preview</h2>
-            <iframe
-              src={previewPdf}
-              width="100%"
-              height="400px"
-              title="Preview PDF"
-              className="border border-gray-700 rounded-lg mb-6 shadow-lg"
-            />
+            <PDFViewer file={previewPdf}/>
             <button
               onClick={downloadPdf}
-              className="px-6 py-3 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              className="px-6 py-3 mt-4 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
             >
               Download Merged PDF
             </button>
