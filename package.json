@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npm install pdf-lib@0.6.0 --prefix ./legacy-pdf-lib"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^43.2.0",
