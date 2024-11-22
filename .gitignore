@@ -16,7 +16,7 @@ public/uploads
 # next.js
 /.next/
 out/
-
+app/api/docx/route.ts
 old*.png
 
 pages.css
