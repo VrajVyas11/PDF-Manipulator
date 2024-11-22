@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 

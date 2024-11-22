@@ -5,6 +5,7 @@
 .yarn/install-state.gz
 legacy-pdf-lib/
 
+Extra/
 
 # testing
 /coverage

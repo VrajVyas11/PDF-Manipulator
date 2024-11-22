@@ -94,7 +94,7 @@ const PDFEditorWorkerBased = () => {
       });
   };
 
-  const generatePageHtml = (graphicOperators, textContent, base64Images, H, W) => {
+  const generatePageHtml = (graphicOperators, textContent, base64Images, H) => {
     const currentPageHtml = [];
     const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
     const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
@@ -386,7 +386,9 @@ const PDFEditorWorkerBased = () => {
       {isContinueClicked && htmlContent.length === 0 && (
         <div className="w-8 h-8 mt-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
       )}
-
+    {error && (
+        <div className="w-fit my-4 text-red-600 text-bold tracking-wide ">{error}*</div>
+      )}
       {isContinueClicked && htmlContent.length > 0 && (
         <div className=" sm-320:-mt-44 sm-374:-mt-40 md:mt-6 h-fit md:h-full">
           <div className="flex justify-center items-center sm-320:scale-[49%] sm-374:scale-[57%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
@@ -408,7 +410,7 @@ const PDFEditorWorkerBased = () => {
                 color: 'black',
               }}
               className="border  border-gray-700 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2"
-              onChange={(newContent) => { }}
+              onChange={() => { }}
             />
           </div>
 

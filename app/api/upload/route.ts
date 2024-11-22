@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     const pdfParser = new pdf2json();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       pdfParser.on('pdfParser_dataReady', pdfData => {
         const extractedDataPath = path.join(uploadsDir, 'extractedData.json');
         fs.writeFileSync(extractedDataPath, JSON.stringify(pdfData));
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         resolve(NextResponse.json({ ok: "OK", message: 'PDF extracted successfully', dataUrl: '/uploads/extractedData.json' }));
       });
 
-      pdfParser.on('pdfParser_dataError', (err: any) => {
+      pdfParser.on('pdfParser_dataError', (err) => {
         console.error('Error during PDF parsing:', err.parserError);
         resolve(NextResponse.json({ error: 'Error occurred while processing the PDF' }, { status: 500 }));
       });

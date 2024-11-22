@@ -1,14 +1,8 @@
 import React, { useState, useRef } from 'react';
-import Pagination from '../../utils/Pagination.jsx';
 import PellComponent from "../../utils/Pell.jsx";
 import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
 function PDFEditor() {
-  const [pdfData, setPdfData] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
   const [isBackendBased, setIsBackendBased] = useState(false);
-
-  const editorRef = useRef(null);
-
   const toggleImplementation = (toggle) => {
     setIsBackendBased(toggle);
   };
@@ -43,13 +37,7 @@ function PDFEditor() {
       <div className="w-full rounded-xl sm:rounded-lg transition-transform duration-300 transform">
         {isBackendBased ? (
           <div>
-            <PellComponent />
-            <Pagination
-              pdfData={pdfData}
-              currentPage={currentPage}
-              editorRef={editorRef}
-              setCurrentPage={setCurrentPage}
-            />
+            <PellComponent  />
           </div>
         ) : (
           <PDFEditorWorkerBased />

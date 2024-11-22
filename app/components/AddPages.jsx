@@ -57,7 +57,7 @@ const AddPages = () => {
     if (pages.length > 0) {
       mergePdfs();
     }
-  }, [pages]);
+  }, [pages,mergePdfs]);
   const mergePdfs = async (mergedPdf = null, newPageBlob = null) => {
     if (!mergedPdf) {
       mergedPdf = await PDFDocument.create();
@@ -111,10 +111,10 @@ const AddPages = () => {
       link.click();
     }
   };
-  const handleRemovePage = (index) => {
-    setPages((prevPages) => prevPages.filter((_, i) => i !== index));
-    mergePdfs();
-  };
+  // const handleRemovePage = (index) => {
+  //   setPages((prevPages) => prevPages.filter((_, i) => i !== index));
+  //   mergePdfs();
+  // };
   const openDialog = () => {
     setIsDialogOpen(true);
   };

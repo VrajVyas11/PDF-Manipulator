@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import fs from 'fs';
+// import fs from 'fs';
 import {
-  drawImage,
-  drawRectangle,
+  // drawImage,
+  // drawRectangle,
   PDFDocumentFactory,
-  PDFDocumentWriter,
+  // PDFDocumentWriter,
   PDFName,
   PDFRawStream,
 } from '@/legacy-pdf-lib/node_modules/pdf-lib';

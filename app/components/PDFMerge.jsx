@@ -60,7 +60,7 @@ const PdfMerge = () => {
     if (pages.length > 0) {
       mergePdfs();
     }
-  }, [pages]);
+  }, [pages,mergePdfs]);
 
   const mergePdfs = async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
@@ -69,7 +69,7 @@ const PdfMerge = () => {
       const mergedPdf = await PDFDocument.create();
 
       for (const page of pages) {
-        const { pdfIndex, index } = page;
+        const { index } = page;
         const pdfDoc = await PDFDocument.load(pdfs[page.pdfIndex]);
 
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
@@ -105,10 +105,10 @@ const PdfMerge = () => {
     }
   };
 
-  const handleRemovePage = (index) => {
-    setPages((prevPages) => prevPages.filter((_, i) => i !== index));
-    mergePdfs();
-  };
+  // const handleRemovePage = (index) => {
+  //   setPages((prevPages) => prevPages.filter((_, i) => i !== index));
+  //   mergePdfs();
+  // };
 
   useEffect(() => {
     mergePdfs();

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import Image from 'next/image';
 import PDFViewer from "./PDFViewer"
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
@@ -65,7 +64,7 @@ const ImageToPDF = () => {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         setPdfUrl(URL.createObjectURL(blob));
       } catch (err) {
-        alert('Failed to convert image to PDF.');
+        alert('Failed to convert image to PDF.',err);
       } finally {
         setIsProcessing(false);
       }

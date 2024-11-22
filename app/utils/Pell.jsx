@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-dynamic
 // import Pell from 'pell';
-const Pell = dynamic(() => import('pell'), { ssr: false });
+// const Pell = dynamic(() => import('pell'), { ssr: false });
 import renderPdfContent from './renderPdfContent.jsx';
 import InputPdfUpload from './InputPdfUpload.jsx';
 import Pagination from './Pagination.jsx';
 import ReactDOMServer from 'react-dom/server';
 import Toolbar from '../utils/ToolbarPell.jsx';
 import 'pell/dist/pell.css';
-import dynamic from 'next/dynamic.js';
+// import dynamic from 'next/dynamic.js';
 
 function PellComponent() {
   const [pdfData, setPdfData] = useState(null);
@@ -41,30 +40,30 @@ function PellComponent() {
     saveToHistory(newContent);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent the default behavior of the Enter key
+  // const handleKeyDown = (e) => {
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault(); // Prevent the default behavior of the Enter key
 
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
+  //     const selection = window.getSelection();
+  //     if (!selection.rangeCount) return;
 
-      const range = selection.getRangeAt(0);
-      const br = document.createElement('br');
+  //     const range = selection.getRangeAt(0);
+  //     const br = document.createElement('br');
 
-      // Insert the <br> at the current cursor position
-      range.insertNode(br);
+  //     // Insert the <br> at the current cursor position
+  //     range.insertNode(br);
 
-      // Move the cursor to the next position after the <br>
-      range.setStartAfter(br);
-      range.collapse(true);
+  //     // Move the cursor to the next position after the <br>
+  //     range.setStartAfter(br);
+  //     range.collapse(true);
 
-      // Update the selection with the new range
-      selection.removeAllRanges();
-      selection.addRange(range);
+  //     // Update the selection with the new range
+  //     selection.removeAllRanges();
+  //     selection.addRange(range);
 
-      handleEditorChange(); // Update content after insertion
-    }
-  };
+  //     handleEditorChange(); // Update content after insertion
+  //   }
+  // };
 
   useEffect(() => {
     if (editorRef.current) {
@@ -196,7 +195,7 @@ function PellComponent() {
             insertList={insertList}
             applyStrikethrough={applyStrikethrough}
           />
-          <div className="sm-320:-mt-56 sm-374:-mt-44 sm-320:scale-[42%] sm-374:scale-[54%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
+          <div className="sm-320:-mt-56 sm-374:-mt-44 sm:-mt-0 sm-320:scale-[42%] sm-374:scale-[54%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
             <div
               ref={editorRef}
               style={{

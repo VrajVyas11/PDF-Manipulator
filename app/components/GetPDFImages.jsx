@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 
 const GetPDFImages = () => {
@@ -7,7 +7,6 @@ const GetPDFImages = () => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const pdfInputRef = useRef(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileChange = (e) => {
