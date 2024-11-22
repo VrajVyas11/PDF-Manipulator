@@ -6,7 +6,7 @@ import {
 } from '@/legacy-pdf-lib/node_modules/pdf-lib';
 
 interface ImageInDoc {
-  ref: any;
+  ref: string;  // Use string for the reference
   name: string;
   width: number;
   height: number;
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
       if (subtype === PDFName.from('Image')) {
         imagesInDoc.push({
-          ref,
+          ref: ref.toString(),  // Convert the ref to a string
           name: name ? name.key : `Object${objectIdx}`,
           width: width.number,
           height: height.number,
