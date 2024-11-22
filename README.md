@@ -8,7 +8,7 @@ Here’s a README template tailored for your PDF Editor-Merger and Image to PDF 
 
 ## Live Demo
 
-Check out the live demo [here]([https://next-js-pdf-manipulator.onrender.com/).
+Check out the live demo [here](https://next-js-pdf-manipulator.onrender.com/).
 
 
 This project allows users to efficiently edit and merge PDF files, as well as convert images into high-quality PDF documents. Designed with a user-friendly interface, it simplifies document management for both professionals and students.
