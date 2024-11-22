@@ -353,13 +353,13 @@ const PDFEditorWorkerBased = () => {
 
 
   return (
-    <div className="flex flex-col justify-center items-center text-white text-center  p-5  h-fit w-full backdrop-blur-lg  bg-opacity-40  bg-[#1a1a1a]  overflow-hidden  shadow-[inset_0_0_30px_rgba(0,0,0,1)]  rounded-lg ">
-      <h1 className="text-lg text-sky-500 justify-self-center   border-y-2  w-full px-36 py-3 border-double rounded-2xl font-extrabold tracking-widest mb-6 text-center ">
+    <div className="flex flex-col justify-center items-center text-white text-center p-0 sm:p-6 lg:p-10 h-fit w-full backdrop-blur-lg bg-opacity-40 bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] rounded-lg">
+      <h1 className="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-widest mb-6 text-sky-500 border-y-2 w-full px-8 sm:px-16 lg:px-36 py-3 border-double rounded-2xl">
         Optimized for Complex PDFs
       </h1>
 
       <div
-        className={`border-4 w-full border-dashed p-5 h-36 rounded-lg  bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
+        className={`border-4 w-full border-dashed p-5 sm:p-6 h-36 rounded-lg bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
         onDragOver={handleDrag}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -388,41 +388,45 @@ const PDFEditorWorkerBased = () => {
       )}
 
       {isContinueClicked && htmlContent.length > 0 && (
-        <div className="mt-6 h-full">
-          <JoditEditor
-            ref={editorRef}
-            value={htmlContent[currentPage]}
-            config={{
-              toolbar: true,
-              height: height,
-              width: width,
-              editHTMLDocumentMode: true,
-            }}
-            style={{
-              display: 'block',
-              minHeight: '400px',
-              width: '100%',
-              padding: '10px',
-              background: 'white', // Jodit's background stays white
-              color: 'black', // Jodit's font color is black
-            }}
-            className="border border-gray-700 rounded-lg"
-            onChange={(newContent) => { }}
-          />
+        <div className=" sm-320:-mt-44 sm-374:-mt-40 md:mt-6 h-fit md:h-full">
+          <div className="flex justify-center items-center sm-320:scale-[49%] sm-374:scale-[57%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
+            <JoditEditor
+              ref={editorRef}
+              value={htmlContent[currentPage]}
+              config={{
+                toolbar: true,
+                height: height,
+                width: width,
+                editHTMLDocumentMode: true,
+              }}
+              style={{
+                display: 'block',
+                minHeight: '400px',
+                width: '100%',
+                padding: '10px',
+                background: 'white',
+                color: 'black',
+              }}
+              className="border  border-gray-700 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2"
+              onChange={(newContent) => { }}
+            />
+          </div>
 
-          <div className="flex justify-between items-center mt-4">
+
+
+          <div className="flex sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-4  flex-col sm:flex-row">
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 0}
-              className="px-6 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              className="px-6 py-3 w-fit mt-0 md:mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
             >
               Previous
             </button>
-            <span className="text-lg text-gray-300">{`Page ${currentPage + 1} of ${numPages}`}</span>
+            <span className="text-lg text-gray-300 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
             <button
               onClick={handleNextPage}
               disabled={currentPage === numPages - 1}
-              className="px-10 py-3 w-fit mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+              className="px-10 py-3 w-fit mt-2 md:mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
             >
               Next
             </button>
@@ -430,7 +434,7 @@ const PDFEditorWorkerBased = () => {
 
           <button
             onClick={downloadPdf}
-            className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+            className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide  hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
           >
             Download
           </button>

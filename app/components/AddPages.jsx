@@ -159,16 +159,18 @@ const AddPages = () => {
     }
   };
   return (
-    <div className=" flex justify-self-center mb-16 w-[95%] h-fit justify-center items-center flex-col">
-      <h2 className="text-white text-3xl  rounded-b-none border-[1px] border-gray-200   text-center  p-5  h-fit w-full backdrop-blur-lg  bg-opacity-90  rounded-3xl bg-[#1a1a1a]  overflow-hidden  font-extrabold  tracking-wider  shadow-[inset_0_0_30px_rgba(0,0,0,1)]">Add New Pages</h2>
+    <div className="flex justify-self-center mb-16 w-full sm:w-[95%] lg:w-[90%] h-fit justify-center items-center flex-col">
+      <h2 className="text-white text-2xl sm:text-3xl rounded-b-none border-[1px] border-gray-200 text-center p-4 sm:p-5 h-fit w-full backdrop-blur-lg bg-opacity-90 rounded-3xl bg-[#1a1a1a] overflow-hidden font-extrabold tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+        Add New Pages
+      </h2>
 
-      <div className="flex border-[1px] border-t-0 border-gray-200  backdrop-blur-lg shadow-black bg-opacity-40 rounded-3xl  p-5  bg-[#292828]   overflow-hidden   text-center font-extrabold  tracking-wider shadow-[inset_0_0_10px_rgba(0,0,0,1)] text-white h-fit w-full  rounded-t-none     ">
-
-        <div className="w-1/3 pr-4">
+      <div className="flex flex-col lg:flex-row border-[1px] border-t-0 border-gray-200 backdrop-blur-lg shadow-black bg-opacity-40 rounded-3xl p-4 sm:p-5 bg-[#292828] overflow-hidden text-center  tracking-wider shadow-[inset_0_0_10px_rgba(0,0,0,1)] text-white h-fit w-full rounded-t-none">
+        <div className="w-full lg:w-1/3 pr-0 lg:pr-4 mb-4 lg:mb-0">
           <div className="min-h-[200px] shadow-xl rounded-lg p-4 bg-gray-900 border border-gray-800">
             <div
-              className={`border-4 border-dashed p-5 ${pages.length < 0 ? "h-fit" : "h-[175px]"} rounded-lg w-full max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700`}
-              onClick={() => document.getElementById('fileInput').click()}
+              className={`border-4 border-dashed p-4 sm:p-5 ${pages.length < 0 ? "h-fit" : "h-[175px]"
+                } rounded-lg w-full bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700`}
+              onClick={() => document.getElementById("fileInput").click()}
             >
               <input
                 id="fileInput"
@@ -178,9 +180,13 @@ const AddPages = () => {
                 onChange={handleFileChange}
                 multiple
               />
-              <p className="text-center text-gray-400">Click to upload</p>
+              <p className="text-center text-gray-400 text-sm sm:text-base">Click to upload</p>
             </div>
-            {pages.length > 0 && <h2 className="text-lg font-bold text-gray-400 mb-2 mt-10">Uploaded Pages</h2>}
+            {pages.length > 0 && (
+              <h2 className="text-sm sm:text-lg font-bold text-gray-400 mb-2 mt-6 sm:mt-10">
+                Uploaded Pages
+              </h2>
+            )}
             <div className="grid grid-cols-1 gap-4">
               {pages.map((page, index) => (
                 <div
@@ -191,11 +197,10 @@ const AddPages = () => {
                   onDrop={(e) => handleDrop(e, index)}
                   className="bg-gray-800 border border-gray-700 rounded-md p-3 hover:bg-gray-700 cursor-move flex justify-between items-center shadow transition duration-150 ease-in-out"
                 >
-                  <span className="text-gray-400">{page.name}</span>
+                  <span className="text-gray-400 text-sm">{page.name}</span>
                 </div>
               ))}
             </div>
-
             {isContinueClicked && pdfs.length > 0 && (
               <button
                 onClick={openDialog}
@@ -203,57 +208,55 @@ const AddPages = () => {
               >
                 Add Page
               </button>
-            )
-            }
+            )}
           </div>
         </div>
 
-
-        <div className="w-full md:w-2/3">
-          <div className="bg-gray-900 bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-6">
+        <div className="w-full lg:w-2/3">
+          <div className="bg-gray-900 bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-4 sm:p-6">
             {pages.length > 0 ? (
               <>
-                <h2 className="text-lg font-bold text-gray-300 mb-4">PDF Preview</h2>
+                <h2 className="text-sm sm:text-lg font-bold text-gray-300 mb-4">PDF Preview</h2>
                 <PDFViewer file={previewPdf} />
                 <button
                   onClick={downloadPdf}
-                  className="px-6 py-3 mt-4 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+                  className="px-4 sm:px-6 py-2 sm:py-3 mt-4 w-full bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
                 >
                   Download PDF with added pages
                 </button>
               </>
             ) : (
-              <div className="flex items-center justify-center text-gray-400 text-center h-full">
+              <div className="flex items-center justify-center text-gray-400 text-sm sm:text-base text-center h-full">
                 No files uploaded. Upload files to preview and merge.
               </div>
             )}
           </div>
         </div>
       </div>
+
       {isDialogOpen && (
-        <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-90">
-          <div className="text-white border-[1px] px-6 py-8 border-gray-800 text-center h-fit w-[90%] md:w-[60%] backdrop-blur-xl bg-opacity-95 rounded-2xl bg-[#121212] overflow-hidden shadow-[0px_8px_30px_rgba(0,0,0,0.8)]">
-            <h1 className="text-3xl text-blue-400 border-b-[1px] border-gray-700 w-full pb-4 font-bold uppercase tracking-widest mb-8 text-center">
+        <div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen bg-black bg-opacity-90 p-4">
+          <div className="text-white border-[1px] md:px-4 px-1 py-6 sm:py-8 border-gray-800 text-center w-full sm:w-[80%] lg:w-[60%] max-h-[90%] overflow-scroll backdrop-blur-xl bg-opacity-95 rounded-2xl bg-[#121212] shadow-[0px_8px_30px_rgba(0,0,0,0.8)]">
+            <h1 className="text-lg sm:text-2xl lg:text-3xl text-blue-400 border-b-[1px] border-gray-700 w-full pb-2 sm:pb-4 font-bold uppercase tracking-widest mb-4 sm:mb-6 lg:mb-8 text-center">
               Add Content to Page
             </h1>
-            <div className="px-4">
+            <div className="overflow-auto h-[calc(100%-180px)]  lg:px-6 mb-4">
               <QuillEditor
                 value={editorContent}
                 onChange={setEditorContent}
                 placeholder={"Start writing..."}
-                className="bg-[#1f1f1f] text-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.5)]"
               />
             </div>
-            <div className="flex justify-between items-center px-6 mt-8">
+            <div className="flex justify-between items-center px-2 sm:px-4 lg:px-6 mt-4">
               <button
                 onClick={closeDialog}
-                className="px-10 py-5 w-fit border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-gray-500 hover:text-black hover:border-black transition duration-300 font-bold ease-in-out disabled:opacity-50"
+                className="px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 border-2 border-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-gray-500 hover:text-black hover:border-black transition duration-300 font-bold ease-in-out disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={addPageFromEditor}
-                className="px-8 py-5 w-fit bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-bold ease-in-out disabled:opacity-50"
+                className="px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-bold ease-in-out disabled:opacity-50"
               >
                 Add Page
               </button>
@@ -264,6 +267,7 @@ const AddPages = () => {
 
       )}
     </div>
+
   );
 };
 export default AddPages;

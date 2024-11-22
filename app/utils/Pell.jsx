@@ -24,7 +24,7 @@ function PellComponent() {
       const contentString = typeof renderedContent === 'string'
         ? renderedContent
         : ReactDOMServer.renderToStaticMarkup(renderedContent);
-        
+
       setContent(contentString);
     }
   }, [pdfData, currentPage]);
@@ -74,7 +74,7 @@ function PellComponent() {
       editorRef.current.innerHTML = content;
     }
   }, [content]);
-  
+
   // useEffect(() => {
 
   //   Pell.init({
@@ -177,43 +177,46 @@ function PellComponent() {
   // Other methods like undo, redo, apply styles, etc. would go here...
 
   return (
-    <div className="container flex flex-col justify-center items-center text-white text-center   h-fit w-full backdrop-blur-lg  bg-opacity-40  bg-[#1a1a1a]  overflow-hidden  shadow-[inset_0_0_30px_rgba(0,0,0,1)]  rounded-lg mx-auto font-sans">
+    <div className="container flex flex-col justify-center items-center text-white text-center h-fit w-full backdrop-blur-lg bg-opacity-40 bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] rounded-lg mx-auto font-sans">
       <InputPdfUpload setPdfData={setPdfData} setCurrentPage={setCurrentPage} />
-      {pdfData&&
-      <div className='bg-gray-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.7)]  bg-opacity-20 mt-10 p-4 mx-6 pt-2 flex flex-col gap-4 rounded-2xl'>
-      <Toolbar 
-        applyStyle={applyStyle}
-        setFontSize={setFontSize}
-        setFontFamily={setFontFamily}
-        undo={undo}
-        redo={redo}
-        setHighlight={setHighlight}
-        handleImageUpload={handleImageUpload}
-        setTextColor={setTextColor}
-        setBackgroundColor={setBackgroundColor}
-        applyJustify={applyJustify}
-        insertList={insertList}
-        applyStrikethrough={applyStrikethrough}
-      />
 
-        <div
-          ref={editorRef}
-          style={{
-            border: '1px solid #ccc',
-            padding: '10px',
-            background: "white",
-            minHeight: '50px',
-            minWidth: "700px",
-            // maxWidth:"900px",
-            whiteSpace: 'pre-wrap',
-          }}
-          contentEditable={true}
-          suppressContentEditableWarning={true}
-        />
-      </div>
-      }
+      {pdfData && (
+        <div className='bg-gray-300 w-full justify-center items-center shadow-[inset_0_0_30px_rgba(0,0,0,0.7)] bg-opacity-20 mt-10 p-4 mx-6 pb-0 md:pb-4 pt-2 flex flex-col gap-4 rounded-2xl'>
+          <Toolbar
+            applyStyle={applyStyle}
+            setFontSize={setFontSize}
+            setFontFamily={setFontFamily}
+            undo={undo}
+            redo={redo}
+            setHighlight={setHighlight}
+            handleImageUpload={handleImageUpload}
+            setTextColor={setTextColor}
+            setBackgroundColor={setBackgroundColor}
+            applyJustify={applyJustify}
+            insertList={insertList}
+            applyStrikethrough={applyStrikethrough}
+          />
+          <div className="sm-320:-mt-56 sm-374:-mt-44 sm-320:scale-[42%] sm-374:scale-[54%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
+            <div
+              ref={editorRef}
+              style={{
+                border: '1px solid #ccc',
+                padding: '10px',
+                background: 'white',
+                minHeight: '50px',
+                minWidth: '700px',
+                whiteSpace: 'pre-wrap',
+              }}
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              className="w-full"
+            />
+          </div>
+        </div>
+      )}
       <Pagination pdfData={pdfData} currentPage={currentPage} editorRef={editorRef} setCurrentPage={setCurrentPage} />
     </div>
+
   );
 }
 

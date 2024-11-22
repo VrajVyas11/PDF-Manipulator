@@ -28,9 +28,9 @@ const Editor = ({ value, onChange, placeholder }) => {
     }
   }, []);
   return (
-    <div className="container mx-auto font-sans">
+    <div className="container font-sans px-1">
       <div className="flex justify-center">
-        <div className="w-full max-w-3xl shadow-sm">
+        <div className="w-full max-w-md sm:max-w-full lg:max-w-3xl shadow-sm">
           <ReactQuill
             ref={quillRef}
             value={value}
@@ -38,7 +38,11 @@ const Editor = ({ value, onChange, placeholder }) => {
             modules={Editor.modules}
             formats={Editor.formats}
             placeholder={placeholder}
-            style={{ minHeight: '200px', padding: '10px' }}
+            style={{
+              minHeight: '150px',
+              borderRadius: '8px',
+            }}
+            className="text-black bg-white rounded-lg shadow-lg"
           />
         </div>
       </div>
@@ -50,7 +54,7 @@ Editor.modules = {
     [{ 'font': [] }, { 'size': [] }],
     ['bold', 'italic', 'underline', 'strike'],
     [{ 'color': ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'] },
-     { 'background': ['#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'] }],
+    { 'background': ['#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'] }],
     [{ 'script': 'super' }, { 'script': 'sub' }],
     [{ 'header': [1, 2, false] }, 'blockquote', 'code-block'],
     [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
@@ -65,7 +69,7 @@ Editor.modules = {
   blotFormatter: {},
 };
 Editor.formats = [
-  'header', 'font', 'size', 'bold', 'italic', 'underline', 'strike', 
+  'header', 'font', 'size', 'bold', 'italic', 'underline', 'strike',
   'blockquote', 'list', 'bullet', 'indent', 'link', 'image', 'video',
   'color', 'background', 'script', 'align',
 ];
