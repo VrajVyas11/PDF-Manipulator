@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react'; // import useCallback
 import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
 const QuillEditor = dynamic(() => import('../utils/QuillEditor'), { ssr: false });
 import html2pdf from 'html2pdf.js';
 import PDFViewer from "./PDFViewer"
+
 const AddPages = () => {
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
@@ -12,6 +13,7 @@ const AddPages = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editorContent, setEditorContent] = useState('');
   const [isContinueClicked, setIsContinueClicked] = useState(false);
+
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const newPdfs = [];
@@ -27,11 +29,12 @@ const AddPages = () => {
     setPdfs(newPdfs);
     setIsContinueClicked(true);
   };
+
   const extractPages = async (pdfData, pdfIndex) => {
     try {
       const pdfDoc = await PDFDocument.load(pdfData);
       const pageCount = pdfDoc.getPageCount();
-      console.log(`PDF Index: ${pdfIndex}, Page Count: ${pageCount}`); // Log page count for each PDF
+      console.log(`PDF Index: ${pdfIndex}, Page Count: ${pageCount}`);
       const extractedPages = Array.from({ length: pageCount }, (_, index) => ({
         index,
         pdfIndex,
@@ -42,6 +45,7 @@ const AddPages = () => {
       console.error("Error extracting pages:", error);
     }
   };
+
   const handleDrop = (event, targetIndex) => {
     event.preventDefault();
     const sourceIndex = event.dataTransfer.getData('text/plain');
@@ -53,12 +57,9 @@ const AddPages = () => {
       return updatedPages;
     });
   };
-  useEffect(() => {
-    if (pages.length > 0) {
-      mergePdfs();
-    }
-  }, [pages,mergePdfs]);
-  const mergePdfs = async (mergedPdf = null, newPageBlob = null) => {
+
+  // Wrap the mergePdfs function in useCallback to avoid re-creating it on every render
+  const mergePdfs = useCallback(async (mergedPdf = null, newPageBlob = null) => {
     if (!mergedPdf) {
       mergedPdf = await PDFDocument.create();
     }
@@ -66,7 +67,7 @@ const AddPages = () => {
     try {
       for (const page of pages) {
         const { pdfIndex, index } = page;
-        console.log(pdfIndex, index)
+        console.log(pdfIndex, index);
         if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
           console.error(`Invalid pdfIndex: ${pdfIndex}`);
           continue;
@@ -80,7 +81,7 @@ const AddPages = () => {
         }
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
-        console.log(copiedPages)
+        console.log(copiedPages);
       }
       if (newPageBlob) {
         const newPdfDoc = await PDFDocument.load(newPageBlob);
@@ -94,13 +95,22 @@ const AddPages = () => {
     } catch (error) {
       console.error("Error merging PDFs:", error);
     }
-  };
+  }, [pdfs, pages]); // Add pdfs and pages as dependencies
+
+  useEffect(() => {
+    if (pages.length > 0) {
+      mergePdfs();
+    }
+  }, [pages, mergePdfs]);
+
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
   };
+
   const handleDragOver = (event) => {
     event.preventDefault();
   };
+
   const downloadPdf = () => {
     if (mergedPdfBytes) {
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
@@ -118,16 +128,17 @@ const AddPages = () => {
   const openDialog = () => {
     setIsDialogOpen(true);
   };
+
   const closeDialog = () => {
     setIsDialogOpen(false);
   };
+
   const addPageFromEditor = async () => {
     const element = document.createElement('div');
     element.innerHTML = editorContent;
-    // Apply styles directly to the element
-    element.style.lineHeight = '1.5'; // Adjust this value as needed
-    element.style.fontSize = '12pt'; // Example font size, adjust as necessary
-    element.style.margin = '20px'; // Optional margin to ensure content isn't too close to the edges
+    element.style.lineHeight = '1.5';
+    element.style.fontSize = '12pt';
+    element.style.margin = '20px';
     console.log(editorContent);
     var opt = {
       margin: 1,

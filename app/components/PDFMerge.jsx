@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import PDFViewer from "./PDFViewer"
+import PDFViewer from "./PDFViewer";
+
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
@@ -56,13 +57,7 @@ const PdfMerge = () => {
     });
   };
 
-  useEffect(() => {
-    if (pages.length > 0) {
-      mergePdfs();
-    }
-  }, [pages,mergePdfs]);
-
-  const mergePdfs = async () => {
+  const mergePdfs = useCallback(async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
 
     try {
@@ -83,8 +78,7 @@ const PdfMerge = () => {
     } catch (error) {
       console.error("Error merging PDFs:", error);
     }
-  };
-
+  }, [pdfs, pages]);
 
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
@@ -105,14 +99,15 @@ const PdfMerge = () => {
     }
   };
 
-  // const handleRemovePage = (index) => {
-  //   setPages((prevPages) => prevPages.filter((_, i) => i !== index));
-  //   mergePdfs();
-  // };
+  useEffect(() => {
+    if (pages.length > 0) {
+      mergePdfs();
+    }
+  }, [pages, mergePdfs]);
 
   useEffect(() => {
     mergePdfs();
-  }, [count]);
+  }, [count, mergePdfs]);
 
   return (
     <div className="flex justify-self-center mb-16 w-full sm:w-[95%] lg:w-[90%] h-fit justify-center items-center flex-col">
@@ -186,7 +181,6 @@ const PdfMerge = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

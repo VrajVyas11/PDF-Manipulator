@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PellComponent from "../../utils/Pell.jsx";
 import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
 function PDFEditor() {
@@ -37,7 +37,7 @@ function PDFEditor() {
       <div className="w-full rounded-xl sm:rounded-lg transition-transform duration-300 transform">
         {isBackendBased ? (
           <div>
-            <PellComponent  />
+            <PellComponent />
           </div>
         ) : (
           <PDFEditorWorkerBased />
