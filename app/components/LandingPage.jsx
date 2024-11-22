@@ -28,7 +28,7 @@ function LandingPage({ setGetStarted }) {
                     width={69}
                     height={16}
                     className="absolute top-0 left-0 h-32 w-96 object-contain border-none max-w-full align-middle block"
-                    src="/logo.png"
+                    src="/Logo.png"
                     alt="Logo PNG"
                   />
                 </a>
