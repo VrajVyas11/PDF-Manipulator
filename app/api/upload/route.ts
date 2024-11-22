@@ -3,9 +3,7 @@ import fs from "fs";
 import path from "path";
 import pdf2json from "pdf2json";
 
-
 const uploadsDir = path.join(process.cwd(), 'public/uploads');
-
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -13,7 +11,6 @@ if (!fs.existsSync(uploadsDir)) {
 
 export async function POST(request: Request) {
   try {
-
     const data = await request.formData();
     const pdfFile = data.get('pdf') as File;
 
@@ -26,14 +23,18 @@ export async function POST(request: Request) {
 
     const pdfParser = new pdf2json();
 
-    return new Promise((resolve) => {
-      pdfParser.on('pdfParser_dataReady', pdfData => {
+    return new Promise<Response>((resolve, reject) => {
+      pdfParser.on('pdfParser_dataReady', (pdfData) => {
         const extractedDataPath = path.join(uploadsDir, 'extractedData.json');
         fs.writeFileSync(extractedDataPath, JSON.stringify(pdfData));
 
         fs.unlinkSync(filePath);
 
-        resolve(NextResponse.json({ ok: "OK", message: 'PDF extracted successfully', dataUrl: '/uploads/extractedData.json' }));
+        resolve(NextResponse.json({
+          ok: "OK",
+          message: 'PDF extracted successfully',
+          dataUrl: '/uploads/extractedData.json',
+        }));
       });
 
       pdfParser.on('pdfParser_dataError', (err) => {
