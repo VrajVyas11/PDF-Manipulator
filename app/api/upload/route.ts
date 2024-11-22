@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     const pdfParser = new pdf2json();
 
-    return new Promise<Response>((resolve, reject) => {
+    return new Promise<Response>((resolve) => {
       pdfParser.on('pdfParser_dataReady', (pdfData) => {
         const extractedDataPath = path.join(uploadsDir, 'extractedData.json');
         fs.writeFileSync(extractedDataPath, JSON.stringify(pdfData));
