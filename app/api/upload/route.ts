@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const buffer = await pdfFile.arrayBuffer();
     fs.writeFileSync(filePath, Buffer.from(buffer));
 
-    console.log("Received PDF file:", pdfFile.name);
+    // console.log("Received PDF file:", pdfFile.name);
 
     const pdfParser = new pdf2json();
 

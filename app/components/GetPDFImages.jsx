@@ -88,7 +88,7 @@ const GetPDFImages = () => {
     setImages((prevImages) => prevImages.filter((image) => image.id !== id));
   };
 
-  console.log(isProcessing)
+  // console.log(isProcessing)
   return (
     <div className="flex flex-col  items-center border-t-0 border-[1px] border-gray-200 w-full sm:w-fit mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16">
       <div className="text-white mb-10 text-xl sm:text-2xl lg:text-3xl border-0 rounded-3xl rounded-b-none border-y-[1px] border-gray-200 text-center h-fit w-full backdrop-blur-lg bg-opacity-90 bg-[#1a1a1a] overflow-hidden font-extrabold tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">

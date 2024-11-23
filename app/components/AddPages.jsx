@@ -34,7 +34,7 @@ const AddPages = () => {
     try {
       const pdfDoc = await PDFDocument.load(pdfData);
       const pageCount = pdfDoc.getPageCount();
-      console.log(`PDF Index: ${pdfIndex}, Page Count: ${pageCount}`);
+      // console.log(`PDF Index: ${pdfIndex}, Page Count: ${pageCount}`);
       const extractedPages = Array.from({ length: pageCount }, (_, index) => ({
         index,
         pdfIndex,
@@ -67,7 +67,7 @@ const AddPages = () => {
     try {
       for (const page of pages) {
         const { pdfIndex, index } = page;
-        console.log(pdfIndex, index);
+        // console.log(pdfIndex, index);
         if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
           console.error(`Invalid pdfIndex: ${pdfIndex}`);
           continue;
@@ -81,7 +81,7 @@ const AddPages = () => {
         }
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
-        console.log(copiedPages);
+        // console.log(copiedPages);
       }
       if (newPageBlob) {
         const newPdfDoc = await PDFDocument.load(newPageBlob);
@@ -139,7 +139,7 @@ const AddPages = () => {
     element.style.lineHeight = '1.5';
     element.style.fontSize = '12pt';
     element.style.margin = '20px';
-    console.log(editorContent);
+    // console.log(editorContent);
     var opt = {
       margin: 1,
       filename: 'myfile.pdf',

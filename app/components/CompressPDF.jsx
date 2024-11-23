@@ -10,6 +10,8 @@ const PDFCompressor = () => {
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [originalSize, setOriginalSize] = useState(null);
+  const [compressionMessage, setCompressionMessage] = useState('');
   const pdfInputRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ const PDFCompressor = () => {
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
       setError(null);
+      setOriginalSize((file.size / 1024 / 1024).toFixed(2)); // Convert to MB
     } else {
       setError('Please upload a valid PDF file.');
     }
@@ -46,6 +49,7 @@ const PDFCompressor = () => {
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
       setError(null);
+      setOriginalSize((file.size / 1024 / 1024).toFixed(2)); // Convert to MB
     } else {
       setError('Please upload a valid PDF file.');
     }
@@ -62,6 +66,7 @@ const PDFCompressor = () => {
     }
 
     setIsProcessing(true);
+    setCompressionMessage('');
 
     const pdfDoc = await PDFDocument.create();
     const canvas = document.createElement('canvas');
@@ -98,10 +103,11 @@ const PDFCompressor = () => {
           height: pageHeight,
         });
       }
-
       const compressedPdfBytes = await pdfDoc.save();
       const compressedPdfBlob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+      // console.log(compressedPdfBlob)
       setCompressedPdfBlob(compressedPdfBlob);
+      setCompressionMessage(`Compressed size ${(compressedPdfBlob.size / 1024 / 1024).toFixed(2)} MB`);
     } catch (err) {
       console.error('Error compressing PDF:', err);
       alert('Failed to compress the PDF.');
@@ -149,6 +155,7 @@ const PDFCompressor = () => {
             {imageFile ? imageFile.name : 'Drag & Drop or click to upload a PDF'}
           </p>
         </div>
+        {originalSize && <p className="text-gray-400 mt-2 text-sm">File Size: {originalSize} MB</p>}
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         <div className="justify-center flex items-end gap-2 text-lg sm:text-2xl">
           <input
@@ -185,6 +192,9 @@ const PDFCompressor = () => {
             Download PDF
           </button>
         </div>
+        {compressionMessage && (
+          <p className="text-green-400 text-center mt-4 text-lg">{compressionMessage}</p>
+        )}
       </div>
     </div>
   );

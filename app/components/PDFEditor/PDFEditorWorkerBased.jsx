@@ -132,7 +132,7 @@ const PDFEditorWorkerBased = () => {
             // console.log(maxTop)
             // console.log(top)
             // console.log(adjustedTop);
-            console.log(reversedTop, h);
+            // console.log(reversedTop, h);
 
             currentPageHtml.unshift(`
                         <img src="${currentImage.url}" style="
@@ -148,12 +148,12 @@ const PDFEditorWorkerBased = () => {
             matchFound = true;
             break;
           } else {
-            console.log("Image dimensions do not match, continuing to next image.");
+            // console.log("Image dimensions do not match, continuing to next image.");
           }
         }
 
         // Reset imgIndex to retry matching all images with the next operator if needed
-        if (!matchFound) console.log("No matching image found for this operator.");
+        // if (!matchFound) console.log("No matching image found for this operator.");
       }
     });
 
@@ -203,7 +203,7 @@ const PDFEditorWorkerBased = () => {
 
 
 
-  console.log(images)
+  // console.log(images)
 
   const extractGraphicOperators = async (page) => {
     try {
@@ -328,7 +328,7 @@ const PDFEditorWorkerBased = () => {
 
       document.body.appendChild(tempDiv);
 
-      console.log('Temporary Div Content:', tempDiv.innerHTML); // Log the content
+      // console.log('Temporary Div Content:', tempDiv.innerHTML); // Log the content
 
       const canvas = await html2canvas(tempDiv, {
         scale: 2,
