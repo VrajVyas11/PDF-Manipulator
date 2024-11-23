@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import JoditEditor from 'jodit-react';
+import dynamic from 'next/dynamic';
+const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -16,7 +17,6 @@ const PDFEditorWorkerBased = () => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const [isContinueClicked, setIsContinueClicked] = useState(false);
-  const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const PDFEditorWorkerBased = () => {
             return { image, url: `data:image/jpeg;base64,${base64String}` };
           });
 
-          setImages(base64Images);
+          // setImages(base64Images);
           setError(null);
           extractContent(URL.createObjectURL(imageFile), base64Images);
         }
@@ -110,7 +110,7 @@ const PDFEditorWorkerBased = () => {
     // Loop through graphic operators to find image operators and match with images
     graphicOperators.forEach((op) => {
       if (op.type === 'image') {
-        let matchFound = false;
+        // let matchFound = false;
 
         // Loop through all images to find a match
         for (let imgIndex = base64Images.length - 1; imgIndex >= 0; imgIndex--) {
@@ -145,7 +145,7 @@ const PDFEditorWorkerBased = () => {
                     `);
 
             // Mark match found and break inner loop
-            matchFound = true;
+            // matchFound = true;
             break;
           } else {
             // console.log("Image dimensions do not match, continuing to next image.");
