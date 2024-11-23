@@ -176,7 +176,7 @@ function PellComponent() {
   // Other methods like undo, redo, apply styles, etc. would go here...
 
   return (
-    <div className="container flex flex-col justify-center items-center text-white text-center h-fit w-full backdrop-blur-lg bg-opacity-40 bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] rounded-lg mx-auto font-sans">
+    <div className="container flex flex-col justify-center items-center text-white  h-fit w-full backdrop-blur-lg bg-opacity-40 bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] rounded-lg mx-auto font-sans">
       <InputPdfUpload setPdfData={setPdfData} setCurrentPage={setCurrentPage} />
 
       {pdfData && (
@@ -208,7 +208,7 @@ function PellComponent() {
               }}
               contentEditable={true}
               suppressContentEditableWarning={true}
-              className="w-full"
+              className="w-full text-start"
             />
           </div>
         </div>

@@ -18,8 +18,11 @@ export async function uploadPdf(file, setPdfData, setCurrentPage) {
     }
 
     const result = await response.json();
-    if (response.ok) {
-      loadExtractedData(result.dataUrl,setPdfData,setCurrentPage);
+    // console.log(result);
+
+    if (response.ok && result.data) {
+      setPdfData(result.data);
+      setCurrentPage(0); // Initialize the current page to the first page
     } else {
       console.error('Error uploading PDF:', result.error);
     }
@@ -28,21 +31,3 @@ export async function uploadPdf(file, setPdfData, setCurrentPage) {
     alert('Error occurred during PDF upload');
   }
 }
-
-
-const loadExtractedData = async (url, setPdfData, setCurrentPage) => {
-  try {
-    const response = await fetch(url); // Updated URL
-    const data = await response.json();
-
-    if (response.ok) {
-      setPdfData(data);
-      setCurrentPage(0);
-    } else {
-      console.error('Error loading extracted data');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
-

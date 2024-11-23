@@ -283,7 +283,7 @@ const PDFEditorWorkerBased = () => {
       }
       setHtmlContent(fullHtmlContent);
     } catch (err) {
-      alert(`Failed to load PDF: ${err.message}`);
+      alert("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
     }
   };
 

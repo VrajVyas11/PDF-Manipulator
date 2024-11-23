@@ -19,21 +19,16 @@ export async function POST(request: Request) {
     const buffer = await pdfFile.arrayBuffer();
     fs.writeFileSync(filePath, Buffer.from(buffer));
 
-    // console.log("Received PDF file:", pdfFile.name);
-
     const pdfParser = new pdf2json();
 
     return new Promise<Response>((resolve) => {
       pdfParser.on('pdfParser_dataReady', (pdfData) => {
-        const extractedDataPath = path.join(uploadsDir, 'extractedData.json');
-        fs.writeFileSync(extractedDataPath, JSON.stringify(pdfData));
-
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath); // Clean up uploaded file
 
         resolve(NextResponse.json({
           ok: "OK",
           message: 'PDF extracted successfully',
-          dataUrl: '/uploads/extractedData.json',
+          data: pdfData, // Return JSON directly
         }));
       });
 
