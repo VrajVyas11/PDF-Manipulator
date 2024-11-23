@@ -284,6 +284,7 @@ const PDFEditorWorkerBased = () => {
       setHtmlContent(fullHtmlContent);
     } catch (err) {
       alert("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
+      console.warn("proccess failed as",err.message)
     }
   };
 
