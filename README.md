@@ -1,59 +1,154 @@
-# PDF Editor-Merger and Image to PDF Converter
+# **Next.js PDF Manipulator**
+
+**A feature-rich PDF management tool for seamless editing, merging, compression, and more!**  
+**🚀 Live Demo:** [Explore the App](https://next-js-pdf-manipulator.onrender.com/)
+
 ---
-**This project is for learning purposes only.**
 
-## Live Demo
+## **Overview**
 
-Check out the live demo [here](https://next-js-pdf-manipulator.onrender.com/).
+Next.js PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
+
+---
+
+## **Features**
+
+- 🖊️ **Edit PDFs**: Modify content, pages, or annotations seamlessly. Fully responsive for all devices.  
+- 📂 **Merge PDFs**: Combine multiple files into a single document effortlessly. Fully responsive for all devices.  
+- 🖼️ **Image to PDF**: Convert images (JPG, PNG, etc.) into high-quality PDFs. Fully responsive for all devices.  
+- 📉 **Compress PDFs**: Reduce file size without compromising quality. Fully responsive for all devices.  
+- ➕ **Add Pages**: Insert extra pages into existing PDFs easily. Fully responsive for all devices.  
+- 📸 **Extract Images**: Save embedded images from PDFs locally. Fully responsive for all devices.  
+- 👀 **View PDFs**: Preview and navigate PDFs directly within the app. Fully responsive for all devices.  
+- 📤 **Drag-and-Drop**: Upload files with a user-friendly drag-and-drop interface. Fully responsive for all devices.  
+- 🔄 **Page Preview**: Rearrange and organize pages before saving changes. Fully responsive for all devices.  
+
+---
 
 
-This project allows users to efficiently edit and merge PDF files, as well as convert images into high-quality PDF documents. Designed with a user-friendly interface, it simplifies document management for both professionals and students.
+## **Tech Stack**
 
-### Tech Stack:
-- **Next.js**
-- **Tailwind CSS**
+### **Frontend**
+- **Next.js**: A powerful framework for building server-side rendered React applications.
+- **Tailwind CSS**: A utility-first CSS framework for designing responsive and aesthetically pleasing interfaces for all devices.
+- **React**: The core library for building the user interface.
+- **React DOM**: For rendering React components in the DOM.
 
-### Features:
-- **PDF Editing:** Modify existing PDF content seamlessly.
-- **PDF Merging:** Combine multiple PDF files into one.
-- **Image to PDF Conversion:** Convert images into PDFs effortlessly.
-- **Drag and Drop Interface:** User-friendly drag and drop for file uploads.
-- **Page Preview:** View and rearrange pages before merging.
+### **PDF Handling**
+- **pdf-lib**: To create, modify, and manipulate PDFs.
+- **pdfjs-dist**: For parsing and rendering PDF documents.
+- **pdf-parse**: To extract text and metadata from PDFs.
+- **jspdf**: For generating PDFs dynamically in the browser.
+
+### **UI Components**
+- **Jodit React**: For integrating a WYSIWYG editor.
+- **React Quill**: For rich-text editing functionality.
+- **Quill Image Resize Module**: To enable image resizing within the editor.
+- **Quill Blot Formatter**: For handling custom formatting in the editor.
+
+### **Utility Libraries**
+- **File Saver**: For saving files locally, like PDFs.
+- **Next Connect**: For simplifying API route handling in Next.js.
+---
+
+## **Images**
+
+| **Feature**                       | **Preview**                                                                                 |
+|------------------------------------|---------------------------------------------------------------------------------------------|
+| 🌐 **Landing Page**                | ![Landing Page](./livedemoimages/1.png) - Fully responsive and visually appealing home screen. |
+| 📋 **Feature Overview**            | ![Feature Overview](./livedemoimages/2.png) - Displays all the available tools and features, optimized for all devices.|
+| 📂 **Merge PDFs**                  | ![Merge PDFs](./livedemoimages/3.png) - Interface for combining multiple PDF files, fully responsive. |
+| 🖊️ **PDF Editor (Worker-Based)**   | ![Worker-Based Editor](./livedemoimages/4.png) ![Worker-Based Editor](./livedemoimages/5.png) - Modify PDFs using a worker-based editor, accessible on all devices. |
+| ⚙️ **PDF Editor (Backend-Based)**  | ![Backend Editor](./livedemoimages/6.png) ![Backend Editor](./livedemoimages/7.png) - Modify PDFs using a backend-powered editor, responsive across devices. |
+| 🖼️ **Image to PDF Conversion**     | ![Image to PDF](./livedemoimages/8.png) - Convert images into high-quality PDF documents, designed to work smoothly on all devices. |
+| ➕ **Add Pages to PDFs**            | ![Add Pages](./livedemoimages/9.png) ![Add Pages](./livedemoimages/10.png) - Add extra pages to existing PDFs with ease, responsive UI. |
+| 📸 **Extract Images from PDFs**     | ![Extract Images](./livedemoimages/11.png) - Extract embedded images from a PDF file, responsive design for mobile and desktop. |
+| 📉 **Compress PDFs**               | ![Compress PDF](./livedemoimages/12.png) - Reduce PDF file size without losing quality, optimized for all devices. |
 
 
-#Images
-![Laptop View](./livedemoimages/1.png)
-![Laptop View](./livedemoimages/2.png)
-![Laptop View](./livedemoimages/3.png)
-![Laptop View](./livedemoimages/4.png)
-![Laptop View](./livedemoimages/5.png)
-![Laptop View](./livedemoimages/6.png)
-![Laptop View](./livedemoimages/7.png)
-![Laptop View](./livedemoimages/8.png)
-![Laptop View](./livedemoimages/9.png)
-![Laptop View](./livedemoimages/10.png)
-![Laptop View](./livedemoimages/11.png)
-![Laptop View](./livedemoimages/12.png)
-## Contributing
+---
 
-1. **Fork the Repository:** Click on "Fork" at the top right of this GitHub page.
-2. **Clone the Repository:**
+## **Setup and Installation**
+
+Follow these steps to set up and run the project locally:
+
+1. **Clone the Repository**  
    ```bash
    git clone https://github.com/VrajVyas11/Next_JS_PDF_Manipulator.git
    ```
-3. **Navigate to the Project Directory:**
+
+2. **Navigate to the Project Directory**  
    ```bash
    cd Next_JS_PDF_Manipulator
    ```
-4. **Install Dependencies:**
+
+3. **Install Dependencies**  
    ```bash
    npm install
    ```
-5. **Start the Development Server:**
+
+4. **Start the Development Server**  
    ```bash
-   npm start
+   npm run dev
    ```
+
+5. **Access the App**  
+   Open your browser and visit:  
+   [http://localhost:3000](http://localhost:3000)
 
 ---
 
-Feel free to replace the placeholders, especially the live demo link and GitHub URL, with your actual links. Let me know if you need any adjustments!
+## **Contributing**
+
+Contributions are welcome! Follow these steps to contribute:
+
+1. **Fork the Repository**  
+   Click the "Fork" button in the top-right corner of the GitHub page.
+
+2. **Clone the Forked Repository**  
+   ```bash
+   git clone https://github.com/VrajVyas11/Next_JS_PDF_Manipulator.git
+   ```
+
+3. **Create a New Branch**  
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+4. **Make Your Changes**  
+   Implement the desired features or fixes.
+
+5. **Push Changes to Your Branch**  
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+6. **Submit a Pull Request**  
+   Create a pull request from your branch to the `main` branch of the original repository.
+
+---
+
+## **Roadmap**
+
+Planned improvements for future releases:
+
+- **Encrypted PDFs**: Add support for opening and editing password-protected PDFs.
+- **Light Mode**: Enhanced UI experience with Light mode support.
+
+---
+
+## License
+
+This project is for learning purposes only and is released under the MIT License. See the [`LICENSE`](./Licence) file for details.
+
+---
+
+## **Acknowledgements**
+
+- [PDF.js](https://mozilla.github.io/pdf.js/) for rendering PDF files.
+- [pdf-lib](https://pdf-lib.js.org/) for advanced PDF editing.
+- [FileSaver.js](https://github.com/eligrey/FileSaver.js/) for enabling downloads.
+
+--- 
+
+Feel free to further customize the content as per your preferences or project updates!
