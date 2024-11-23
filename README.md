@@ -1,9 +1,5 @@
-Here’s a README template tailored for your PDF Editor-Merger and Image to PDF Converter project:
-
----
-
 # PDF Editor-Merger and Image to PDF Converter
-
+---
 **This project is for learning purposes only.**
 
 ## Live Demo
