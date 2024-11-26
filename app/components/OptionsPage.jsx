@@ -10,7 +10,7 @@ const AddPages = dynamic(() => import('./AddPages'), { ssr: false });
 import GetPDFImages from "./GetPDFImages";
 const OptionsPage = ({ handleButtonClick, activeSection }) => {
   return (
-    <div className="min-h-screen relative z-40 mt-20  ">
+    <div className="min-h-screen relative z-40   ">
       <div className="bg-transparent w-full py-12 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <div className="text-4xl font-bold text-white mb-2">PDF Manipulator Suite</div>

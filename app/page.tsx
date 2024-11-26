@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
-import LandingPage from "./components/LandingPage";
+// import LandingPage from "./components/LandingPage";
 import OptionsPage from "./components/OptionsPage";
-
+import Landing from "./components/Landing"
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
   const [getStarted, setGetStarted] = useState(false);
@@ -12,8 +12,23 @@ function Home() {
   };
 
   return (
-    <div className="body-wrap m-0 text-base leading-[1.15] box-border -webkit-font-smoothing:antialiased overflow-hidden flex flex-col min-h-screen bg-[url('/bg3.png')] bg-cover bg-center bg-no-repeat bg-opacity-80 bg-fixed">
-      <LandingPage setGetStarted={setGetStarted} />
+    <div
+    style={{
+      lineHeight: '1.5',
+      WebkitTextSizeAdjust: '100%',
+      fontFamily: 'system-ui, sans-serif',
+      WebkitFontSmoothing: 'antialiased',
+      textRendering: 'optimizeLegibility',
+      MozOsxFontSmoothing: 'grayscale',
+      touchAction: 'manipulation',
+      backgroundColor: '#111',
+      backgroundImage: 'radial-gradient(#2d2d2d 1px, transparent 0), radial-gradient(#373636 1px, transparent 0)',
+      backgroundPosition: '0 0, 25px 25px',
+      backgroundSize: '50px 50px',
+    }}
+     className="body-wrap m-0 min-h-screen  text-white font-sans text-body bg-[#1A202C] transition-colors duration-200 leading-6 text-base  box-border -webkit-font-smoothing:antialiased overflow-hidden flex flex-col bg-fixed">
+      {/* <LandingPage setGetStarted={setGetStarted} /> */}
+      <Landing setGetStarted={setGetStarted} />
       {getStarted && (
         <OptionsPage handleButtonClick={handleButtonClick} activeSection={activeSection} />
       )}
