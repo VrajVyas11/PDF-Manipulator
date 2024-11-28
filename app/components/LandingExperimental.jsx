@@ -6,7 +6,7 @@ function LandingExperimental({ setGetStarted }) {
         <main className="">
             <section className="hero sm:text-left md:pb-8 mt-2 sm:pt-16">
                 <div className="hero-inner text-center flex pl-5 flex-col md:flex-row justify-between items-center">
-                    <div className="hero-copy relative z-10 min-w-[552px] w-full px-32 sm-374:px-28 sm:pr-16 text-center sm:text-left">
+                    <div className="hero-copy relative z-10 min-w-[552px] w-full px-32 sm-374:px-28 md:px-14 lg:px-28 sm:pr-16 text-center sm:text-left">
                         {/* Background Blur Effect 1 */}
                         <div
                             className="absolute z-0 top-0 left-0 md:left-24 w-[40%] sm:w-[30%] h-[20%] sm:h-[30%] lg:w-[234px] lg:h-[234px]"
@@ -30,7 +30,7 @@ function LandingExperimental({ setGetStarted }) {
                             <h6 className="hero-title text-[10vw] sm:text-[8vw] md:text-[50px] lg:pr-14  font-bold leading-[1.2] text-white mb-6">The Complete PDF Solution</h6>
                         </div>
 
-                        <div className="hero-paragraph w-full text-wrap text-[1rem] sm:text-[1.2rem] leading-[1.5] mt-6 mb-6 text-[#8A94A7] tracking-[0.07em]">
+                        <div className="hero-paragraph w-full text-wrap text-[1rem] sm:text-[1.2rem] leading-[1.5] mt-6 mb-6 text-[#8A94A7] tracking-[0.06em]">
                             A versatile PDF tool for editing, merging, compressing, and converting. Features include adding pages, extracting images, and viewing with drag-and-drop. Fully responsive, it simplifies document management for users across all devices.
                         </div>
 

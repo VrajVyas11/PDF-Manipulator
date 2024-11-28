@@ -26,7 +26,7 @@ function Home() {
         backgroundPosition: '0 0, 25px 25px',
         backgroundSize: '50px 50px',
       }}
-      className="body-wrap m-0 sm:min-h-screen min-h-screen h-[740px] md:h-auto text-white font-sans text-body bg-[#1A202C] transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased overflow-hidden flex flex-col bg-fixed"
+      className={`body-wrap m-0 sm:min-h-screen min-h-screen ${getStarted?"":"h-[740px]"} md:h-auto text-white font-sans text-body bg-[#1A202C] transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased overflow-hidden flex flex-col bg-fixed`}
     >
      <HeaderComponent/>
       <LandingExperimental setGetStarted={setGetStarted} />
