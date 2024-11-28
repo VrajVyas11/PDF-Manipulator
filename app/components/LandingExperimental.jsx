@@ -24,13 +24,13 @@ function LandingExperimental({ setGetStarted }) {
                             }}
                         ></div>
 
-                        <div className="hero-title text-[10vw] sm:text-[8vw] md:text-[60px] lg:pr-14  font-bold leading-[1.2] text-white mb-6">
+                        <div className="hero-title text-center text-[9vw] sm:text-[8vw] md:text-[50px] lg:text-[60px] lg:pr-14  font-bold leading-[1.2] text-white mb-6">
                             PDF Manipulator:
                             <br />
-                            <h6 className="hero-title text-[10vw] sm:text-[8vw] md:text-[50px] lg:pr-14  font-bold leading-[1.2] text-white mb-6">The Complete PDF Solution</h6>
+                            <h6 className="hero-title text-[7vw] sm:text-[8vw] md:text-[40px] lg:text-[50px] lg:pr-14  font-bold leading-[1.2] text-white mb-6">The Complete PDF Solution</h6>
                         </div>
 
-                        <div className="hero-paragraph w-full text-wrap text-[1rem] sm:text-[1.2rem] leading-[1.5] mt-6 mb-6 text-[#8A94A7] tracking-[0.06em]">
+                        <div className="hero-paragraph pr-5 md:pr-0 w-full text-wrap text-[1rem] sm:text-[1.2rem] leading-[1.5] mt-6 mb-6 text-[#8A94A7] tracking-[0.06em]">
                             A versatile PDF tool for editing, merging, compressing, and converting. Features include adding pages, extracting images, and viewing with drag-and-drop. Fully responsive, it simplifies document management for users across all devices.
                         </div>
 
