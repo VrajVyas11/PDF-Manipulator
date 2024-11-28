@@ -21,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
      <head>
         <link rel="icon" href="/favicon.svg" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Pacifico&display=swap" rel="stylesheet"/>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

@@ -16,6 +16,10 @@ const config: Config = {
         'sm-320': '320px',
         'sm-374': '374px',
       },
+      fontFamily: {
+        bebas: ['"Bebas Neue"', 'cursive'],
+        pacifico: ['"Pacifico"', 'cursive'],
+      },
     },
   },
   plugins: [],

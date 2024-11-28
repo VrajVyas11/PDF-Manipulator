@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from "next/image"
 const Landing = ({ setGetStarted }) => {
   return (
     <div className='-mt-4'>
