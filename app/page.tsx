@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import OptionsPage from "./components/OptionsPage";
-import LandingExperimental from "./components/LandingExperimental"
-import HeaderComponent from "./components/HeaderComponent"
+import Landing from "./components/Landing"
+import Header from "./components/Header"
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
   const [getStarted, setGetStarted] = useState(false);
@@ -28,8 +28,9 @@ function Home() {
       }}
       className={`body-wrap m-0 sm:min-h-screen min-h-screen ${getStarted?"":"h-[740px]"} md:h-auto text-white font-sans text-body bg-[#1A202C] transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased overflow-hidden flex flex-col bg-fixed`}
     >
-     <HeaderComponent/>
-      <LandingExperimental setGetStarted={setGetStarted} />
+     <Header/>
+     <Landing setGetStarted={setGetStarted}/>
+      {/* <LandingExperimental setGetStarted={setGetStarted} /> */}
       {getStarted && (
         <OptionsPage handleButtonClick={handleButtonClick} activeSection={activeSection} />
       )}

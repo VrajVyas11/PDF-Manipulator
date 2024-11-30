@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 
 :root {
   --background: #ffffff;
@@ -14,17 +16,6 @@
   }
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: var(--foreground);
-  background-color: azure;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
 @layer utilities {
   .text-balance {
@@ -302,3 +293,88 @@ input[type="range"]::-moz-range-thumb {
     .anime-element:after {
       animation: backgroundMove 10s ease-in-out infinite;
     }
+
+
+
+
+
+
+
+
+
+
+
+@layer base {
+  html {
+    @apply bg-s1;
+  }
+
+  body {
+    @apply font-poppins text-[16px] tracking-[-0.03em] text-p5;
+  }
+
+  a {
+    @apply no-underline;
+  }
+
+  img {
+    @apply block max-w-full;
+  }
+
+  button {
+    @apply bg-none tracking-[-0.03em];
+  }
+
+  input {
+    @apply tracking-[-0.03em];
+  }
+}
+
+
+  /* END of Typography */
+  /* START of Gradients */
+  .g1 {
+    background: linear-gradient(rgba(196, 203, 245, 0.5), transparent);
+  }
+
+  .g2 {
+    background: linear-gradient(#3062a3, #19549f);
+  }
+
+  .g3 {
+    background: linear-gradient(#3c52d9, #0c1838);
+  }
+
+  .g4 {
+    background: linear-gradient(#253575, #162561);
+  }
+
+  .g5 {
+    background: linear-gradient(#334679, #162561);
+  }
+
+  .g6 {
+    background: linear-gradient(#334679, #0c1838);
+  }
+
+  .g7 {
+    background: linear-gradient(#1b275a, #0e1434);
+  }
+
+  .g8 {
+    background: linear-gradient(to right, transparent, #2ef2ff, transparent);
+  }
+
+  .g9 {
+    background: linear-gradient(#080d27, transparent);
+  }
+
+  .scroll-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+

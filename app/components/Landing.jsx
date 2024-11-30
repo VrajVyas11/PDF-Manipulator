@@ -1,79 +1,169 @@
-import React from 'react'
+import { Element, Link as LinkScroll } from "react-scroll";
+import clsx from "clsx";
+import Image from 'next/image';
 const Landing = ({ setGetStarted }) => {
+
+
   return (
-    <div className='-mt-4'>
-      <div className="relative px-2">
-        <div
-          style={{
-            background: 'rgba(0, 123, 255, .54)',
-            filter: 'blur(150px)',
-            width: '234px',
-            height: '234px',
-          }}
-          className="absolute z-0 md:left-80 top-0 left-0"
-        ></div>
+    <>
 
-        <div
-          style={{
-            background: 'rgba(0, 123, 255, .54)',
-            filter: 'blur(150px)',
-            width: '234px',
-            height: '234px',
-          }}
-          className="absolute z-0 top-0 md:right-80 md:top-72 right-0"
-        ></div>
+      <section className="relative max-sm:pt-32 max-sm:pb-0 pt-40 pb-40 max-lg:pt-52 max-lg:pb-36 max-md:pt-36 max-md:pb-32">
+        <Element name="hero">
+          <div className="mx-auto   max-w-[1252px] pl-16 max-xl:pl-10 max-lg:pl-6 max-sm:pl-4">
+            <div className="relative sm:pr-4  md:pr-0 text-center md:text-left z-2 max-w-512 max-lg:max-w-388">
+              <div className="text-[18px] ml-3 font-bold leading-[16px] tracking-[0.3em] mb-5 uppercase text-p3 ">
+                PDF Manipulator
+              </div>
+              <h1 className="mb-6 text-[72px] font-black leading-[84px] tracking-[-0.03em] text-p4 uppercase max-lg:mb-7 max-lg:text-[64px] max-lg:font-black max-lg:leading-[64px] max-md:mb-4 max-md:text-5xl max-md:leading-12">
+                Complete PDF Solution
+              </h1>
+              <p className="max-w-440 text-gray-400 mb-14 leading-[32px] text-[18px] md:text-[22px] md:leading-[36px] max-md:mb-10">
+                A versatile PDF tool for editing, merging, compressing, and converting. Features include drag-and-drop for adding pages, extracting images, and viewing. Fully responsive, it simplifies document management.
+              </p>
+              <LinkScroll to="features" offset={-100} spy smooth>
+                <Button onClick={() => setGetStarted(true)} icon="/images/zap.svg">Get Started</Button>
+              </LinkScroll>
+            </div>
 
-        {/* <div
-          style={{
-            background: 'rgba(0, 123, 255, .54)',
-            filter: 'blur(150px)',
-            width: '234px',
-            height: '234px',
-          }}
-          className="absolute z-0 md:right-96 top-16 right-0"
-        ></div>
+            {/* <div className="absolute -top-40 md:-top-24 lg:-top-40 left-[calc(50%-320px)] w-[1230px] pointer-events-none hero-img_res max-lg:-top-40 max-lg:left-[calc(50%-280px)] max-lg:w-[1160px] max-md:bottom-[-590px] max-md:left-[calc(50%-390px)] max-md:top-auto">
+            <Image
+            width={111}
+            height={111}
+              src="/images/hero.png"
+              className="size-1230 max-lg:h-auto"
+              alt="hero"
+            />
+          </div> */}
 
-        <div
-          style={{
-            background: 'rgba(0, 123, 255, .54)',
-            filter: 'blur(150px)',
-            width: '234px',
-            height: '234px',
-          }}
-          className="absolute z-0 top-0 md:left-96 md:top-72 left-0"
-        ></div> */}
 
-        <h1 className="text-center flex-col text-white md:text-7xl text-4xl font-bold md:pt-32 pt-16 lg:w-full mx-auto -mt-6 md:-mt-0">
-          The Complete PDF Solution
-          <br />
+            <div className="hero-figure top-40 md:top-24 lg:top-40 left-[calc(50%)]  pointer-events-none hero-img_res max-lg:top-40 max-lg:left-[calc(50%)]  max-md:left-[calc(50%)] max-md:top-auto  md:mt-44  lg:mt-16 anime-element absolute text-center md:text-left md:before:absolute md:before:top-[-57.8%] md:before:left-[-1.3%] md:before:w-[152.84%] md:before:h-[178.78%] md:before:bg-[url('/images/hero-back-illustration.svg')] md:before:bg-cover md:after:absolute md:after:top-[-35.6%] md:after:w-[57.2%] md:after:h-[87.88%] md:after:left-[99.6%] md:after:bg-[url('/images/hero-top-illustration.svg')] md:after:bg-no-repeat">
+              <svg className="placeholder overflow-hidden block w-auto h-auto" width="528" height="396" viewBox="0 0 528 396">
+                <rect width="528" height="396" fill="transparent" />
+              </svg>
 
-          <div className="text-center text-white md:text-5xl text-3xl font-bold lg:mt-5 lg:w-full relative">
+              <div className="hidden md:block">
+                <div
+                  className="hero-figure-box hero-figure-box-01 absolute will-change-transform overflow-hidden w-[28.03%] h-[37.37%] left-[103.2%] top-[41.9%] bg-[linear-gradient(to_left_top,_#00bffb,_rgba(0,_191,_251,_0))] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotate-[60deg] hover:translate-x-[-10%] hover:translate-y-[-10%]"
+                  style={{ transform: 'rotateZ(45deg)' }}
+                ></div>
 
-            PDF Manipulator
+                <div
+                  className="hero-figure-box hero-figure-box-02 absolute will-change-transform overflow-hidden w-[37.87%] h-[50.50%] left-[61.3%] top-[64.1%] bg-[linear-gradient(to_left_top,_#0270d7,_rgba(2,_112,_215,_0))] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotate-[30deg] hover:translate-x-[15%]"
+                  style={{ transform: 'rotateZ(-45deg)' }}
+                ></div>
 
+                <div
+                  className="hero-figure-box hero-figure-box-03 absolute will-change-transform top-[-56.8%] w-[56.81%] h-[75.75%] left-[87.7%] bg-[linear-gradient(to_left_top,_#00bffb,_rgba(0,_191,_251,_0))] overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(to_left,_#15181d_0%,_rgba(21,_24,_29,_0)_60%)] before:transform before:rotate-45 before:scale-[1.5]"
+                  style={{ transform: 'rotateZ(45deg)' }}
+                ></div>
+
+                <div
+                  className="hero-figure-box hero-figure-box-04 absolute will-change-transform overflow-hidden w-[45.45%] h-[60.60%] left-[54.9%] top-[-8%] bg-[linear-gradient(to_left_top,_#0270d7,_rgba(2,_112,_215,_0))] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotateZ(-30deg)"
+                  style={{ transform: 'rotateZ(-135deg)' }}
+                ></div>
+
+                <div
+                  className="hero-figure-box hero-figure-box-05 absolute will-change-transform overflow-hidden w-[64%] h-[73.7%] left-[17.4%] top-[13.3%] bg-[#242830] shadow-[-20px_32px_64px_rgba(0,0,0,0.25)] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotateY(-10deg) hover:rotateX(5deg)"
+                  style={{ transform: 'perspective(500px) rotateY(-15deg) rotateX(8deg) rotateZ(-1deg)' }}
+                ></div>
+
+                <div
+                  className="hero-figure-box hero-figure-box-06 absolute will-change-transform overflow-hidden w-[30.3%] h-[40.4%] left-[65.5%] top-[6.3%] bg-[#242830] shadow-[-20px_32px_64px_rgba(0,0,0,0.25)] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotateZ(25deg)"
+                  style={{ transform: 'rotateZ(20deg)' }}
+                ></div>
+
+                <div
+                  className="hero-figure-box hero-figure-box-07 absolute will-change-transform overflow-hidden w-[12.12%] h-[16.16%] left-[1.9%] top-[42.4%] bg-[#242830] shadow-[-20px_32px_64px_rgba(0,0,0,0.25)] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotateZ(40deg)"
+                  style={{ transform: 'rotateZ(20deg)' }}
+                ></div>
+
+                <div
+                  className="hero-figure-box hero-figure-box-08 absolute will-change-transform overflow-hidden w-[19.51%] h-[26.01%] left-[27.1%] top-[81.6%] bg-[#0270d7] transform transition-all duration-700 ease-in-out hover:scale-110 hover:rotateZ(-45deg)"
+                  style={{ transform: 'rotateZ(-22deg)' }}
+                ></div>
+
+                <div className="hero-figure-box hero-figure-box-09 absolute will-change-transform overflow-hidden w-[6.63%] h-[8.63%] left-[42.6%] top-[-17.9%] bg-[#00bffb] transform rotateZ-[-52deg] before:content-[''] before:absolute before:origin-[100%_100%] before:inset-0 before:bg-[linear-gradient(to_left,_rgba(255,_255,_255,_0)_0%,_rgba(255,_255,_255,_0.64)_100%)] before:transform before:rotateZ(45deg) before:scale-[1.5]"
+                  style={{ transform: 'rotateZ(45deg)' }}></div>
+
+                <div className="hero-figure-box hero-figure-box-10 absolute will-change-transform overflow-hidden left-[-3.8%] w-[3.03%] h-[4.04%] top-[4.3%] bg-[rgba(0,_191,_251,_0.32)] transform rotateZ-[-50deg]"
+                  style={{ transform: 'rotateZ(-22deg)' }}></div>
+              </div>
+            </div>
           </div>
+        </Element>
+      </section>
+    </>
+  );
+};
+
+export default Landing;
 
 
-        </h1>
+const Button = ({
+  icon,
+  children,
+  href,
+  containerClassName,
+  onClick,
+  markerFill,
+}) => {
+  const Inner = () => (
+    <>
+      <span className="relative flex items-center min-h-[60px] px-4 g4 rounded-2xl before:g7 before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+        <span className="absolute -left-[1px]">
+          <svg
+            width="8"
+            height="22"
+            viewBox="0 0 8 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M2.5 0H0.5V4V18V22H2.5V16.25L7.63991 11.7526C8.09524 11.3542 8.09524 10.6458 7.63991 10.2474L2.5 5.75V0Z"
+              fill={markerFill || "#2EF2FF"}
+            />
+          </svg>
+        </span>
 
-        <h2 className=" text-center pt-9 text-white md:w-[700px] mx-auto ">
-          A versatile PDF tool for editing, merging, compressing, and converting. Features include adding pages, extracting images, and viewing with drag-and-drop. Fully responsive, it simplifies document management for users across all devices.
-        </h2>
-      </div>
+        {icon && (
+          <Image
+            src={icon}
+            width={111}
+            height={111}
+            alt="circle"
+            className="size-10 mr-5 object-contain z-10"
+          />
+        )}
 
-      <div className="flex flex-col md:flex-row pt-10 md:justify-center items-center md:space-x-7 space-y-7 md:space-y-0 pb-28">
-        <button onClick={() => { setGetStarted(true) }}
-          className="text-black hover:text-white relative z-10 w-fit bg-[#007BFF] border-2 border-[#007BFF] hover:bg-blue-800 transition-all hover:border-blue-800 active:scale-95 p-2 rounded-lg px-6 font-semibold">
-          Getting Started
-        </button>
-        <a href="https://github.com/VrajVyas11/Next_JS_PDF_Manipulator">
-          <button className="text-white border-2 relative z-10 border-[#007BFF] hover:border-blue-800 hover:bg-blue-800 active:scale-95 transition-all p-2 rounded-lg px-4 font-semibold">
-            Explore the Project on GitHub
-          </button>
-        </a>
-      </div>
-    </div>
-  )
-}
+        <span className="relative z-2 font-poppins text-[16px] font-bold leading-[24px] text-p1 uppercase">
+          {children}
+        </span>
+      </span>
 
-export default Landing
+      <span className="before:g8 before:absolute before:left-2/5 before:top-0 before:z-4 before:h-0.5 before:w-3/5 before:opacity-0 before:transition-all before:duration-500 before:content-[''] group-hover:before:left-4 group-hover:before:opacity-40 after:g8 after:absolute after:bottom-0 after:left-4 after:z-4 after:h-0.5 after:w-7/20 after:opacity-0 after:transition-all after:duration-500 after:content-[''] group-hover:after:left-3/5 group-hover:after:opacity-40" />
+    </>
+  );
+  return href ? (
+    <a
+      className={clsx(
+        "relative p-0.5 g5 rounded-2xl shadow-500 group",
+        containerClassName,
+      )}
+      href={href}
+    >
+      <Inner />
+    </a>
+  ) : (
+    <button
+      className={clsx(
+        "relative p-0.5 g5 rounded-2xl shadow-500 group",
+        containerClassName,
+      )}
+      onClick={onClick}
+    >
+      <Inner />
+    </button>
+  );
+};
