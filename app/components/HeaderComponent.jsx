@@ -73,7 +73,10 @@ const HeaderComponent = () => {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <img
+                    <Image
+                    width={111}
+                    height={111}
+                    alt="github"
                       className="w-[2.5rem] h-auto"
                       src="/images/github-logo.png"
                       draggable="false"
@@ -84,7 +87,9 @@ const HeaderComponent = () => {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <img
+                    <Image
+                    width={111}
+                    height={111}
                       className="w-[2.5rem] h-auto"
                       src="https://img.icons8.com/?size=100&id=xuvGCOXi8Wyg&format=png&color=000000"
                       alt="LinkedIn Icon"

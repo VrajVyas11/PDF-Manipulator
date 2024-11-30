@@ -1,7 +1,6 @@
 import React from 'react'
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { Element } from "react-scroll";
 
 const PDFEditor = dynamic(() => import('./PDFEditor/PDFEditor'), { ssr: false });
 import PDFMerger from './PDFMerge';
@@ -71,6 +70,7 @@ const OptionsPage = ({ handleButtonClick, activeSection }) => {
           <div className=" features mx-auto md:px-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-3 gap-4 md:gap-4">
             {cardData.map((card) => (
               <div
+              key={card.id}
                 className="relative z-2 border-2  border-p1 border-opacity-60 bg-s1 rounded-2xl my-7 md:my-10 before:absolute before:left-[calc(50%-160px)] before:top-[-160px] before:size-[320px] before:bg-s4/25 before:mix-blend-soft-light before:blur-[200px] before:content-['']">
                 <div className="relative z-10 mx-auto py-10 px-2 flex gap-8 max-lg:block rounded-xl shadow-lg transition-all duration-300">
                   <div className="rounded-full absolute p-2 -top-10 left-[calc(50%-35px)] md:left-[calc(50%-40px)] shadow-xl z-4 flex items-center justify-center border-4 border-s3 bg-gradient-to-r from-s1 to-s4">

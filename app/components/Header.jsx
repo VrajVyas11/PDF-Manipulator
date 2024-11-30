@@ -111,6 +111,7 @@ const Header = () => {
                                         rel="noreferrer"
                                     >
                                         <Image
+                                        alt='github'
                                             width={111}
                                             height={111}
                                             className="w-[2.5rem] hidden lg:block h-auto"
