@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback,useTransition } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import PDFViewer from "./PDFViewer";
+import Image from 'next/image';
 
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
@@ -110,7 +111,7 @@ const PdfMerge = () => {
   }, [count, mergePdfs]);
 
   return (
-    <div className="flex justify-self-center mb-16 w-full sm:w-[95%] lg:w-[90%] h-fit justify-center items-center flex-col">
+    <div className="flex justify-self-center mb-16 w-full sm:w-[95%] lg:w-[100%] h-fit justify-center items-center flex-col">
       <h2 className="text-white text-2xl sm:text-3xl rounded-b-none border-[1px] border-gray-200 text-center p-4 sm:p-5 h-fit w-full backdrop-blur-lg bg-opacity-90 rounded-3xl bg-[#1a1a1a] overflow-hidden font-extrabold tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
         Merge PDF
       </h2>
@@ -118,7 +119,7 @@ const PdfMerge = () => {
       <div className="flex flex-col lg:flex-row border-[1px] border-t-0 border-gray-200 backdrop-blur-lg shadow-black bg-opacity-40 rounded-3xl p-4 sm:p-5 bg-[#292828] overflow-hidden text-center font-extrabold tracking-wider shadow-[inset_0_0_10px_rgba(0,0,0,1)] text-white h-fit w-full rounded-t-none">
         <div className="w-full lg:w-1/3 pr-0 lg:pr-4 mb-4 lg:mb-0">
           <div className="min-h-[200px] shadow-xl rounded-lg p-4 bg-gray-900 border border-gray-800">
-            <div
+            {/* <div
               className={`border-4 border-dashed p-4 sm:p-5 ${pages.length > 0 ? 'h-fit' : 'h-[175px]'
                 } rounded-lg w-full bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700`}
               onClick={() => document.getElementById('fileInput').click()}
@@ -134,6 +135,28 @@ const PdfMerge = () => {
               <p className="text-center text-gray-400 text-sm sm:text-base">
                 Click to upload
               </p>
+            </div> */}
+                      <div 
+           onClick={() => document.getElementById('fileInput').click()}
+          className="flex-center flex h-64 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-purple-100/10 shadow-inner">
+              <div 
+              className="rounded-[16px] bg-s0/40  p-5 shadow-sm shadow-purple-200/50">
+                 <input
+                id="fileInput"
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={handleFileChange}
+                multiple
+              />
+                <Image 
+                  src="/images/add.svg"
+                  alt="Add Image"
+                  width={24}
+                  height={24}
+                />
+              </div>
+                <p className="font-normal">Click here to upload image</p>
             </div>
             {pages.length > 0 && (
               <h2 className="text-sm sm:text-lg font-bold text-gray-400 mb-2 mt-6 sm:mt-10">
@@ -155,10 +178,11 @@ const PdfMerge = () => {
               ))}
             </div>
           </div>
+
         </div>
 
         <div className="w-full lg:w-2/3">
-          <div className="bg-gray-900 font-normal bg-opacity-70 border border-gray-800 min-h-[200px] shadow-2xl rounded-xl p-4 sm:p-6">
+          <div className="bg-gray-900 min-h-72 font-normal bg-opacity-70 border border-gray-800 shadow-2xl rounded-xl p-4 sm:p-6">
             {pages.length > 0 ? (
               <>
                 <h2 className="text-sm sm:text-lg font-bold text-gray-300 mb-4">

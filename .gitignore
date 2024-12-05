@@ -12,14 +12,14 @@ Extra/
 inspiration.html
 extra.txt
 temp.jsx
-app/components/PDFEditor/test/
+/components/PDFEditor/test/
 public/uploads
 # next.js
 /.next/
 out/
 app/api/docx/route.ts
 old*.png
-
+Old.css
 pages.css
 ConvertToDOCX.jsx
 # production
