@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npm install pdf-lib@0.6.0 --prefix ./legacy-pdf-lib && npm install canvas --build-from-source=false"
+    "preinstall": "npm install canvas --build-from-source=true",
+    "postinstall": "npm install pdf-lib@0.6.0 --prefix ./legacy-pdf-lib && npm install canvas --build-from-source=true"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^43.2.0",
