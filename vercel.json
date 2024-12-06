@@ -1,0 +1,12 @@
+{
+    "build": {
+      "env": {
+        "NODE_ENV": "production",
+        "PKG_CONFIG_PATH": "/usr/lib/pkgconfig"
+      }
+    },
+    "functions": {
+      "runtime": "nodejs18.x"
+    }
+  }
+  
