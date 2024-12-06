@@ -12,7 +12,7 @@ Extra/
 inspiration.html
 extra.txt
 temp.jsx
-/components/PDFEditor/test/
+test/
 public/uploads
 # next.js
 /.next/
