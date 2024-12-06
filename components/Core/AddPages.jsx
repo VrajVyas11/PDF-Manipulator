@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'; // import useCallback
 import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
-const QuillEditor = dynamic(() => import('../app/utils/QuillEditor'), { ssr: false });
+const QuillEditor = dynamic(() => import('../../app/utils/QuillEditor'), { ssr: false });
 import html2pdf from 'html2pdf.js';
 import PDFViewer from "./PDFViewer"
 

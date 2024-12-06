@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PellComponent from "../../app/utils/Pell.jsx";
+import PellComponent from "../../../app/utils/Pell.jsx";
 import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
 function PDFEditor() {
   const [isBackendBased, setIsBackendBased] = useState(false);
