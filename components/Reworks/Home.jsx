@@ -5,7 +5,7 @@ import { Link as LinkScroll } from "react-scroll";
 import Options from "./Options"
 import Button from "../../app/utils/Button"
 const Home = () => {
-    const [getStarted, setGetStarted] = useState(false)
+    const [getStarted, setGetStarted] = useState(false);
     return (
 
         <section className="am:flex-center items-start justify-start flex h-full flex-col gap-4 w-full bg-banner bg-cover bg-no-repeat shadow-inner">

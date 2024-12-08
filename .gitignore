@@ -6,7 +6,7 @@
 legacy-pdf-lib/
 
 Extra/
-
+ConvertPageToImage/
 # testing
 /coverage
 inspiration.html
