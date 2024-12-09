@@ -5,7 +5,7 @@ import { navLinks } from "../../app/Constants/index";
 import { useActiveLink } from "../../app/context/ContextProvider";
 
 const Options = () => {
-  const { activeLink, setActiveLink } = useActiveLink();
+  const { setActiveLink } = useActiveLink();
   const handleLinkClick = (id) => {
     setActiveLink(id);
   };

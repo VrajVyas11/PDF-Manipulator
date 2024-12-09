@@ -1,6 +1,6 @@
 import "./globals.css";
-import { ActiveLinkProvider } from "./context/ContextProvider"; // Correct import path
-import Sidebar from "../components/Reworks/Sidebar"; // Correct import path
+import { ActiveLinkProvider } from "./context/ContextProvider"; 
+import Sidebar from "../components/Reworks/Sidebar"; 
 import MobileNav from "../components/Reworks/MobileNav";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";

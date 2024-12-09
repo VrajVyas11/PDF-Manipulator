@@ -4,7 +4,12 @@ const nextConfig = {
     serverComponentsExternalPackages: ["pdf-parse"],
   },
   images: {
-    domains: ['img.icons8.com'],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.icons8.com",
+      },
+    ],
   },
 };
 

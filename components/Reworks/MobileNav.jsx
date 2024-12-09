@@ -4,12 +4,12 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle
 } from "../ui/sheet"
 
 import Link from 'next/link'
 import Image from 'next/image'
 import { navLinks } from '../../app/Constants/index.ts'
-import { usePathname } from 'next/navigation'
 import { useActiveLink } from "../../app/context/ContextProvider";
 
 
@@ -41,7 +41,7 @@ const MobileNav = () => {
           </SheetTrigger>
           <SheetContent className='sheet-content min-h-screen   border-2 bg-opacity-80 border-s2 bg-black shadow-md shadow-purple-200/50  sm:w-64 '>
             <>
-
+            <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
               <div className="text-[1rem] mt-1 mb-7 flex  flex-row justify-start items-center gap-3   font-pacifico text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                 <Image src="/images/logo.svg" alt='logo' width={30} height={30} />
                 PDF Manipulator

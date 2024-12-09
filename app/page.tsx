@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import { useActiveLink } from "./context/ContextProvider";
 const PDFEditor = dynamic(() => import('../components/Core/PDFEditor/PDFEditor'), { ssr: false });
@@ -11,7 +10,7 @@ import CompressPDF from '../components/Core/CompressPDF';
 import GetPDFImages from '../components/Core/GetPDFImages';
 import Home from "../components/Reworks/Home"
 function Base() {
-  const { activeLink, setActiveLink } = useActiveLink();
+  const { activeLink } = useActiveLink();
 
   return (
     <div className=' flex justify-center items-center'>

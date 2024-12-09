@@ -35,7 +35,7 @@ const Home = () => {
                             {
                                 navLinks.slice(0, 7).map((link) => (
                                     <div
-                                        key={link.route}
+                                        key={link.id}
                                         className=" hidden overflow-hidden -ml-10 lg:-ml-12 max-lg:-mt-0 md:block "
                                     >
                                         <li className="flex-center flex-col w-20 h-20 rounded-full scale-[85%] border-p1 border-2  bg-s2 p-4">
