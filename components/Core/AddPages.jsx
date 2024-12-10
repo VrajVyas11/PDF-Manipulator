@@ -167,7 +167,7 @@ const AddPages = () => {
         },
       });
     }
-  }, [pdfs, pages]); // Add pdfs and pages as dependencies
+  }, [pdfs, pages,toast]); // Add pdfs and pages as dependencies
 
 
   useEffect(() => {

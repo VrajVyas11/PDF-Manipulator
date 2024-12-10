@@ -150,7 +150,7 @@ const PdfMerge = () => {
         },
       });
     }
-  }, [pdfs, pages]);
+  }, [pdfs, pages,toast]);
 
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
