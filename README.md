@@ -61,9 +61,9 @@ Next.js PDF Manipulator is a web-based tool designed for effortless PDF manageme
 | 🖊️ **PDF Editor (Worker-Based)**   | ![Worker-Based Editor](./livedemoimages/4.png) ![Worker-Based Editor](./livedemoimages/5.png) - Modify PDFs using a worker-based editor, accessible on all devices. |
 | ⚙️ **PDF Editor (Backend-Based)**  | ![Backend Editor](./livedemoimages/6.png) ![Backend Editor](./livedemoimages/7.png) - Modify PDFs using a backend-powered editor, responsive across devices. |
 | 🖼️ **Image to PDF Conversion**     | ![Image to PDF](./livedemoimages/8.png) - Convert images into high-quality PDF documents, designed to work smoothly on all devices. |
-| ➕ **Add Pages to PDFs**            | ![Add Pages](./livedemoimages/9.png) ![Add Pages](./livedemoimages/10.png) - Add extra pages to existing PDFs with ease, responsive UI. |
-| 📸 **Extract Images from PDFs**     | ![Extract Images](./livedemoimages/11.png) - Extract embedded images from a PDF file, responsive design for mobile and desktop. |
-| 📉 **Compress PDFs**               | ![Compress PDF](./livedemoimages/12.png) - Reduce PDF file size without losing quality, optimized for all devices. |
+| ➕ **Add Pages to PDFs**            | ![Add Pages](./livedemoimages/9.png) ![Add Pages](./livedemoimages/10.png) ![Extract Images](./livedemoimages/11.png) - Add extra pages to existing PDFs with ease, responsive UI. |
+| 📸 **Extract Images from PDFs**     | ![Extract Images](./livedemoimages/12.png) - Extract embedded images from a PDF file, responsive design for mobile and desktop. |
+| 📉 **Compress PDFs**               | ![Compress PDF](./livedemoimages/13.png) - Reduce PDF file size without losing quality, optimized for all devices. |
 
 
 ---
