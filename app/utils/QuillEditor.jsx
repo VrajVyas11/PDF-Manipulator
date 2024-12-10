@@ -19,7 +19,7 @@ Font.whitelist = [
   "lucida"
 ];
 Quill.register(Font, true);
-const Editor = ({ value, onChange, placeholder }) => {
+const Editor = ({ value, onChange, placeholder,classes,radius="" }) => {
   const quillRef = useRef(null);
   useEffect(() => {
     if (quillRef.current) {
@@ -28,9 +28,6 @@ const Editor = ({ value, onChange, placeholder }) => {
     }
   }, []);
   return (
-    <div className="container font-sans px-1">
-      <div className="flex justify-center">
-        <div className="w-full max-w-md sm:max-w-full lg:max-w-3xl shadow-sm">
           <ReactQuill
             ref={quillRef}
             value={value}
@@ -39,14 +36,13 @@ const Editor = ({ value, onChange, placeholder }) => {
             formats={Editor.formats}
             placeholder={placeholder}
             style={{
-              minHeight: '150px',
-              borderRadius: '8px',
+              minHeight: '450px',
+              borderRadius: radius,
+              color:"black",
+              width:"100%",
             }}
-            className="text-black bg-white rounded-lg shadow-lg"
+            className={`text-black bg-white bg-opacity-75 rounded-lg shadow-lg ${classes}`}
           />
-        </div>
-      </div>
-    </div>
   );
 };
 Editor.modules = {

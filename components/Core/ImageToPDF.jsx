@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import PDFViewer from "./PDFViewer"
+import Image from 'next/image';
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "../../hooks/use-toast"
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const { toast } = useToast()
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      alert('Please upload a valid image file');
+      toast({
+        title: "Please Upload A Valid Image File",
+        variant: "destructive",
+        style: {
+          color: "#C4CBF5",
+          borderRadius: "8px",
+          padding: "20px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
     }
   };
 
@@ -35,7 +49,18 @@ const ImageToPDF = () => {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      alert('Please upload a valid image file');
+      toast({
+        title: "Please Upload A Valid Image File",
+        variant: "destructive",
+        style: {
+          // background: `rgba(255, 0, 0, 0.40)`,
+          color: "#C4CBF5",
+          borderRadius: "8px",
+          padding: "20px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
     }
   };
 
@@ -63,8 +88,39 @@ const ImageToPDF = () => {
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         setPdfUrl(URL.createObjectURL(blob));
+        toast({
+          title: "Your PDF is ready to be downloaded. Click below to download it.",
+          action: (
+            <ToastAction
+              className="bg-white text-green-800 bg-opacity-45"
+              onClick={downloadPdf}
+              altText="Download PDF"
+            >
+              Download
+            </ToastAction>
+          ),
+          style: {
+            background: `rgba(0,122,0,1)`,
+            color: "#C4CBF5",
+            borderRadius: "8px",
+            padding: "20px",
+            fontSize: "16px",
+            fontWeight: "bold",
+          },
+        });
+
       } catch (err) {
-        alert('Failed to convert image to PDF.',err);
+        toast({
+          title: `Failed to convert image to PDF:- ${err}`,
+          variant: "destructive",
+          style: {
+            color: "#C4CBF5",
+            borderRadius: "8px",
+            padding: "20px",
+            fontSize: "16px",
+            fontWeight: "bold",
+          },
+        });
       } finally {
         setIsProcessing(false);
       }
@@ -83,66 +139,163 @@ const ImageToPDF = () => {
   };
 
   return (
-    <div className="flex flex-col  items-center border-t-0 border-[1px] border-gray-200 w-full sm:w-fit mx-auto bg-opacity-40 bg-[#1a1a1a] backdrop-blur-lg shadow-inner rounded-3xl text-white mb-16">
-      <div className="text-white mb-8 sm:mb-10 text-2xl sm:text-3xl border-0 rounded-3xl rounded-b-none border-y-[1px] border-gray-200 text-center h-fit w-full backdrop-blur-lg bg-opacity-90 bg-[#1a1a1a] overflow-hidden font-extrabold tracking-wider shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
-        <h3 className="text-2xl leading-10 sm:text-3xl font-extrabold px-8 sm:px-16 w-full p-3 sm:p-5 text-center rounded-t-3xl">
-          PDF Preview,{' '}
-          <span className="bg-yellow-400 text-black px-2 rounded-md">Annotation</span>{' '}
-          and{' '}
-          <span className="bg-blue-400 text-black px-2 rounded-md">Download</span>
-        </h3>
-      </div>
-      <div className="px-6 sm:px-12 pb-5 sm:pb-7 w-full flex flex-col justify-center items-center">
-        <div
-          className={`border-4  mb-8 sm:mb-10 border-dashed p-4 sm:p-5 h-28 sm:h-36 rounded-lg w-full max-w-sm sm:max-w-md bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'
-            }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById('fileInput')?.click()}
-        >
-          <input
-            id="fileInput"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <p className="text-gray-400 text-center text-sm sm:text-base">
-            {imageFile ? imageFile.name : 'Drag & Drop or click to upload an image'}
+    <div className="flex  flex-col w-full ">
+      <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
+        <div className="flex flex-col  md:pl-4 w-full text-center lg:text-left">
+          <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">Convert Image to PDF</h2>
+          <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
+            Easily convert your images to PDF with just a few clicks and a smooth interface!
           </p>
+
         </div>
-
-        {imageFile && !isProcessing && (
-          <button
-            onClick={convertToPDF}
-            className="md:px-12 px-5  sm:px-6 py-3 sm:py-4 md:w-fit sm:w-fit mb-8 sm:mb-9 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-          >
-            Continue
-          </button>
-        )}
-
-        {isProcessing && (
-          <div className="w-6 sm:w-8 h-6 sm:h-8 mb-8 sm:mb-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        )}
-
-        {pdfUrl && (
-          <div className="px-4 sm:px-6 w-full flex flex-col items-center">
-            <div
-              src={pdfUrl}
-              title="PDF Preview"
-              className="w-full h-fit border border-gray-600 rounded-lg shadow-md"
-            >
-              <PDFViewer file={pdfUrl} />
-            </div>
-            <button
-              onClick={downloadPdf}
-              className="mt-4 px-4 sm:px-6 w-full md:w-full sm:w-fit mb-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition"
-            >
+        <button
+          disabled={!imageFile || !pdfUrl || isProcessing}
+          onClick={downloadPdf}
+          className={`flex w-full md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
+        >
+          <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
+            <Image
+              src="/images/download.svg"
+              alt="logo"
+              width={28}
+              height={28}
+              className="brightness-200"
+            />
+            <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
               Download
-            </button>
+            </span>
+          </span>
+        </button>
+      </div>
+      <hr className=' border-s3 border-2' />
+      <div className="flex flex-col overflow-hidden text-white rounded-2xl h-fit w-full">
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[35%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[58%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[82%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
+        <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
+          <div className="min-h-[200px] rounded-lg p-4 pt-0">
+            <div className="flex w-full flex-col justify-center items-center text-center">
+              <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
+                <div className="flex w-full  justify-between items-center pb-4 gap-4 flex-col md:flex-row">
+                  <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
+                    Upload PDF File
+                  </h3>
+                  <div className='w-full flex  flex-row'>
+                    <button
+                      disabled={!imageFile || isProcessing || !pdfUrl}
+                      onClick={() => setPreviewOpen((prev) => !prev)}
+                      className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed  rounded-2xl group"
+                    >
+                      <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+                        <Image
+                          src={`${previewOpen ? 'images/eye1.svg' : 'images/eye2.svg'}`}
+                          alt="logo"
+                          width={28}
+                          height={28}
+                          className="brightness-200"
+                        />
+                        <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
+                          Preview
+                        </span>
+                      </span>
+                    </button>
+                    {imageFile && !isProcessing && (
+                      <button
+                        onClick={() => {
+                          convertToPDF()
+                        }}
+                        className="flex w-full disabled:opacity-40 disabled:cursor-not-allowed justify-center rounded-2xl group"
+                      >
+                        <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+                          <Image
+                            src={`images/process.svg`}
+                            alt="logo"
+                            width={28}
+                            height={28}
+                            className="brightness-200"
+                          />
+                          <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
+                            Proccess
+                          </span>
+                        </span>
+                      </button>
+                    )}
+                    <div className=' justify-center items-center flex'>
+                      {isProcessing && (
+                        <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className=' w-full md:mt-3  justify-around flex flex-col'>
+                  <div
+                    className="flex-center min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center  w-full backdrop-blur-lg  brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('fileInput')?.click()}
+                  >
+                    <div className="rounded-[16px] bg-s0/40 p-5 shadow-sm shadow-purple-200/50">
+                      <input
+                        id="fileInput"
+                        type="file"
+                        accept=".jpg, .jpeg, .png" // Limits to JPG and PNG formats
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                      <Image
+                        src="/images/add.svg"
+                        alt="Add Image"
+                        width={24}
+                        height={24}
+                        className='brightness-125 '
+                      />
+                    </div>
+                    <p className=" font-normal text-[16px] leading-[140%] brightness-75 text-p5">
+                      {imageFile ? imageFile.name : 'Click here to upload PDF'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {previewOpen && (
+                <>
+                  <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
+                    <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
+                      Full PDF Preview
+                    </h2>
+
+                    {pdfUrl ? (
+                      <PDFViewer file={pdfUrl} />
+                    ) : (
+                      <div className="font-normal text-[16px] leading-[140%] flex justify-center text-p5">
+                        No files uploaded. Upload files to preview and merge.
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

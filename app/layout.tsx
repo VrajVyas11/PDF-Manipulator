@@ -5,7 +5,7 @@ import MobileNav from "../components/Reworks/MobileNav";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import clsx, { ClassValue } from "clsx";
-
+import { Toaster } from "@/components/ui/toaster"
 const IBMPlex = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -53,6 +53,7 @@ export default function RootLayout({
           <div className="mt-16 flex-1 overflow-auto py-8 lg:mt-0 lg:max-h-screen lg:py-10">
           <div className=' max-w-5xl mx-auto md:px-2 w-full text-dark-400'>
          {children}
+         <Toaster />
          </div>
           </div>
         </ActiveLinkProvider>

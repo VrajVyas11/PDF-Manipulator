@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback, useTransition } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import PDFViewer from "./PDFViewer";
 import Image from 'next/image';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
+import { useToast } from "../../hooks/use-toast"
 
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
@@ -12,6 +13,8 @@ const PdfMerge = () => {
   const [count, setCount] = useState(0);
   const [previewPdfPages, setPreviewPdfPages] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const { toast } = useToast()
+
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const newPdfs = [...pdfs];
@@ -50,7 +53,17 @@ const PdfMerge = () => {
       }));
       setPages((prev) => [...prev, ...extractedPages]);
     } catch (error) {
-      console.error("Error extracting pages:", error);
+      toast({
+        title: `Error extracting pages ${error}`,
+        variant: "destructive",
+        style: {
+          color: "#C4CBF5",
+          borderRadius: "8px",
+          padding: "20px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
     }
   };
 
@@ -125,7 +138,17 @@ const PdfMerge = () => {
       setPreviewPdf(URL.createObjectURL(blob));
       setMergedPdfBytes(pdfBytes);
     } catch (error) {
-      console.error("Error merging PDFs:", error);
+      toast({
+        title: `Error merging PDFs: ${error}`,
+        variant: "destructive",
+        style: {
+          color: "#C4CBF5",
+          borderRadius: "8px",
+          padding: "20px",
+          fontSize: "16px",
+          fontWeight: "bold",
+        },
+      });
     }
   }, [pdfs, pages]);
 
@@ -163,7 +186,7 @@ const PdfMerge = () => {
         <div className="flex flex-col  md:pl-4 w-full text-center lg:text-left">
           <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">Merge PDF</h2>
           <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
-            Merge your PDFs into one with a dynamic drag-and-drop interface
+          Combine multiple PDFs effortlessly with a sleek drag-and-drop interface!
           </p>
         </div>
         <button
@@ -215,13 +238,13 @@ const PdfMerge = () => {
             <div className="flex w-full flex-col justify-center items-center text-center">
               <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
                 <div className="flex w-full  justify-between items-center pb-4 gap-4 flex-row">
-                  <h3 className="text-[30px] flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
+                  <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                     Upload PDF File
                   </h3>
                   <button
                     disabled={!pages.length > 0 || !previewPdfPages.length > 0}
                     onClick={() => setPreviewOpen((prev) => !prev)}
-                    className="flex w-full disabled:opacity-40 disabled:cursor-not-allowed justify-end rounded-2xl group"
+                    className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
                   >
                     <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                       <Image
@@ -237,7 +260,7 @@ const PdfMerge = () => {
                     </span>
                   </button>
                 </div>
-                <div className=' w-full md:mt-8  justify-around flex flex-row'>
+                <div className=' w-full md:mt-3  justify-around flex flex-row'>
                   {/* <Image src="/images/feather.png" className=' w-36 h-auto' width={512} height={512} alt='feather'/>  */}
                   <div
                     onClick={() => document.getElementById('fileInput').click()}
@@ -268,8 +291,8 @@ const PdfMerge = () => {
 
               {previewOpen && (
                 <>
-                  <div className="bg-purple-100/10 w-full shadow-inner min-h-72 font-normal bg-opacity-70 border border-gray-800 rounded-lg p-2">
-                    <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
+                  <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
+                  <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
                       Full PDF Preview
                     </h2>
 
