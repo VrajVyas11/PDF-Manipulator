@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'; 
+import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
 const QuillEditor = dynamic(() => import('../../app/utils/QuillEditor'), { ssr: false });
@@ -167,18 +167,18 @@ const AddPages = () => {
         },
       });
     }
-  }, [pdfs, pages,toast]); // Add pdfs and pages as dependencies
+  }, [pdfs, pages, toast]); // Add pdfs and pages as dependencies
 
 
   useEffect(() => {
     if (pages.length > 0) {
       mergePdfs();
     }
-  }, [pages, mergePdfs,previewPdfPages]);
+  }, [pages, mergePdfs, previewPdfPages]);
 
   useEffect(() => {
     mergePdfs();
-  }, [mergePdfs,previewPdfPages])
+  }, [mergePdfs, previewPdfPages])
 
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
@@ -226,7 +226,7 @@ const AddPages = () => {
     };
     try {
       const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
- 
+
       if (pdfBlob instanceof Blob) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -247,9 +247,9 @@ const AddPages = () => {
         const context = canvas.getContext("2d");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-      
+
         await page.render({ canvasContext: context, viewport }).promise;
-      
+
         const image = canvas.toDataURL("image/png");
         setPreviewPdfPages((prevPages) => [
           ...prevPages,
@@ -268,8 +268,8 @@ const AddPages = () => {
       console.error('Error adding page from editor:', error);
     }
   };
-  
-  
+
+
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
@@ -301,7 +301,7 @@ const AddPages = () => {
       </div>
       <hr className=' border-s3 border-2' />
       <div className="flex flex-col overflow-hidden text-white rounded-2xl h-fit w-full">
-      <div
+        <div
           className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[35%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
           style={{
             background: "rgba(0, 123, 255, .25)",
@@ -405,8 +405,8 @@ const AddPages = () => {
 
                   {previewOpen && (
                     <>
-                  <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
-                  <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
+                      <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
+                        <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
                           Full PDF Preview
                         </h2>
 

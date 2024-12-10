@@ -113,6 +113,7 @@ const GetPDFImages = () => {
 
         </div>
         <button
+          disabled={isProcessing || images.length <= 0 || !imageFile}
           onClick={downloadAllImages}
           className={`flex w-full md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
@@ -188,7 +189,7 @@ const GetPDFImages = () => {
                 </div>
                 <div className=' w-full md:mt-3  justify-around flex flex-row'>
                   <div
-                    className={`flex-center ${dragActive?"scale-105":""} min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center  w-full backdrop-blur-lg  brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]`}
+                    className={`flex-center ${dragActive ? "scale-105" : ""} min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center  w-full backdrop-blur-lg  brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]`}
                     onDragOver={handleDrag}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}

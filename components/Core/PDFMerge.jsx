@@ -150,7 +150,7 @@ const PdfMerge = () => {
         },
       });
     }
-  }, [pdfs, pages,toast]);
+  }, [pdfs, pages, toast]);
 
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
@@ -186,7 +186,7 @@ const PdfMerge = () => {
         <div className="flex flex-col  md:pl-4 w-full text-center lg:text-left">
           <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">Merge PDF</h2>
           <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
-          Combine multiple PDFs effortlessly with a sleek drag-and-drop interface!
+            Combine multiple PDFs effortlessly with a sleek drag-and-drop interface!
           </p>
         </div>
         <button
@@ -292,7 +292,7 @@ const PdfMerge = () => {
               {previewOpen && (
                 <>
                   <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
-                  <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
+                    <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
                       Full PDF Preview
                     </h2>
 

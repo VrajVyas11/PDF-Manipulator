@@ -25,7 +25,8 @@ const Options = () => {
             {navLinks.slice(1, 7).map((card) => (
               <div
                 key={card.id}
-                className="relative z-2 border-2  border-p1 border-opacity-60 bg-s1 rounded-2xl my-7 md:my-10 before:absolute before:left-[calc(50%-160px)] before:top-[-160px] before:size-[320px] before:bg-s4/10 before:mix-blend-soft-light before:blur-[200px] before:content-['']">
+                onClick={() => handleLinkClick(card.id)}
+                className="relative z-2 border-2 cursor-pointer  border-p1 border-opacity-60 bg-s1 rounded-2xl my-7 md:my-10 before:absolute before:left-[calc(50%-160px)] before:top-[-160px] before:size-[320px] before:bg-s4/10 before:mix-blend-soft-light before:blur-[200px] before:content-['']">
                 <div className="relative z-10 mx-auto py-10 px-2 flex gap-8 max-lg:block rounded-xl shadow-lg transition-all duration-300">
                   <div className="rounded-full absolute p-2 -top-10 left-[calc(50%-35px)] md:left-[calc(50%-40px)] shadow-xl z-4 flex items-center justify-center border-4 border-s3 bg-gradient-to-r from-s1 to-s4">
                     <div className='w-12 h-12 md:w-16 md:h-16 p-2 flex justify-center items-center bg-opacity-20  rounded-full'>
@@ -40,8 +41,7 @@ const Options = () => {
                   </div>
                   <div
                     key={card.id}
-                    className="relative w-full cursor-pointer md:pt-6 rounded-lg px-2 flex-col flex justify-center items-center text-center font-extrabold transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider  "
-                    onClick={() => handleLinkClick(card.id)}
+                    className="relative w-full  md:pt-6 rounded-lg px-2 flex-col flex justify-center items-center text-center font-extrabold transform hover:scale-[101%] transition-transform duration-200 ease-out tracking-wider  "
                   >
                     <div className="flex flex-row mb-0 md:mb-4 gap-2 justify-between items-center">
 

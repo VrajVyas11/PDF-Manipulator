@@ -56,7 +56,7 @@ const Home = () => {
                             >
                                 <li className="flex justify-center text-gray-700 items-center w-20 h-20 pb-3 rounded-full text-6xl scale-[85%] border-p1 border-2 bg-p5 ">
                                     +
-                                
+
                                 </li>
 
                             </div>
