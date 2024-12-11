@@ -10,125 +10,97 @@ const ImageToPDF = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { toast } = useToast()
+  const { toast } = useToast();
+  
+  const showToast = (message) => {
+    toast({
+      title: message,
+      variant: 'destructive',
+      className:
+        'font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md',
+    });
+  };
+
+  
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      toast({
-        title: "Please Upload A Valid Image File",
-        variant: "destructive",
-        style: {
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
+      showToast("Please Upload A Valid Image File");
     }
   };
-
+  
   const handleDragOver = (e) => {
     e.preventDefault();
     setDragActive(true);
   };
-
+  
   const handleDragLeave = () => {
     setDragActive(false);
   };
-
+  
   const handleDrop = (e) => {
     e.preventDefault();
     setDragActive(false);
-
+  
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      toast({
-        title: "Please Upload A Valid Image File",
-        variant: "destructive",
-        style: {
-          // background: `rgba(255, 0, 0, 0.40)`,
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
+      showToast("Please Upload A Valid Image File");
     }
   };
-
+  
   const convertToPDF = async () => {
     if (!imageFile) return;
-
+  
     setIsProcessing(true);
-
+  
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
         const imageBytes = e.target?.result;
         const pdfDoc = await PDFDocument.create();
         const page = pdfDoc.addPage();
-
+  
         const embeddedImage =
           imageFile.type === 'image/png'
             ? await pdfDoc.embedPng(imageBytes)
             : await pdfDoc.embedJpg(imageBytes);
-
+  
         const { width, height } = embeddedImage.scale(1);
         page.setSize(width, height);
         page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
-
+  
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         setPdfUrl(URL.createObjectURL(blob));
-        toast({
-          title: "Your PDF is ready to be downloaded. Click below to download it.",
-          action: (
-            <ToastAction
-              className="bg-white text-green-800 bg-opacity-45"
-              onClick={downloadPdf}
-              altText="Download PDF"
-            >
-              Download
-            </ToastAction>
-          ),
-          style: {
-            background: `rgba(0,122,0,1)`,
-            color: "#C4CBF5",
-            borderRadius: "8px",
-            padding: "20px",
-            fontSize: "16px",
-            fontWeight: "bold",
-          },
-        });
-
+         toast({
+        title: 'Your PDF is ready to be downloaded. Click below to download it.',
+        action: (
+          <ToastAction
+            className="bg-green-500 hover:bg-green-800 text-p5 bg-opacity-10 border-green-500"
+            onClick={downloadPdf}
+            altText="Download PDF"
+          >
+            Download
+          </ToastAction>
+        ),
+        className:"flex gap-3 font-bold text-[12px] md:text-[16px] text-green-500 w-full justify-center items-center bg-green-500 bg-opacity-20  p-2 md:p-4 py-2 rounded-lg border-2 border-green-500 backdrop-blur-md",
+      });
       } catch (err) {
-        toast({
-          title: `Failed to convert image to PDF:- ${err}`,
-          variant: "destructive",
-          style: {
-            color: "#C4CBF5",
-            borderRadius: "8px",
-            padding: "20px",
-            fontSize: "16px",
-            fontWeight: "bold",
-          },
-        });
+        showToast(`Failed to convert image to PDF: ${err}`);
       } finally {
         setIsProcessing(false);
       }
     };
-
+  
     reader.readAsArrayBuffer(imageFile);
   };
-
+  
   const downloadPdf = () => {
     if (pdfUrl) {
       const link = document.createElement('a');
@@ -137,6 +109,7 @@ const ImageToPDF = () => {
       link.click();
     }
   };
+  
 
   return (
     <div className="flex  flex-col w-full ">

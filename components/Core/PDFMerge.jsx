@@ -13,12 +13,29 @@ const PdfMerge = () => {
   const [count, setCount] = useState(0);
   const [previewPdfPages, setPreviewPdfPages] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { toast } = useToast()
-
+  const { toast } = useToast();
+  
+  const showToastError = useCallback((message) => {
+    toast({
+      title: message,
+      variant: 'destructive',
+      className:
+        'font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md',
+    });
+  },[toast]);
+  
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
+    
+    const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+    
+    if (invalidFiles.length > 0) {
+      showToastError("Invalid PDF Files. Only PDF files are allowed.");
+      return; 
+    }
+    
     const newPdfs = [...pdfs];
-
+  
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -27,21 +44,23 @@ const PdfMerge = () => {
         await extractPages(pdfData, newPdfs.length - 1);
         setCount((prevCount) => prevCount + 1);
       };
-
+  
       reader.readAsArrayBuffer(file);
     }
-
+  
     setPdfs(newPdfs);
+  
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
         const pdfData = ev.target.result;
-        await setingPreviewPages(pdfData, newPdfs.length - 1)
+        await setingPreviewPages(pdfData, newPdfs.length - 1);
       };
       reader.readAsArrayBuffer(file);
     }
   };
-
+  
+  
   const extractPages = async (pdfData, pdfIndex) => {
     try {
       const pdfDoc = await PDFDocument.load(pdfData);
@@ -53,39 +72,29 @@ const PdfMerge = () => {
       }));
       setPages((prev) => [...prev, ...extractedPages]);
     } catch (error) {
-      toast({
-        title: `Error extracting pages ${error}`,
-        variant: "destructive",
-        style: {
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
+      showToastError(`Error extracting pages: ${error.message}`);
     }
   };
-
+  
   const setingPreviewPages = async (pdfData, pdfIndex) => {
     const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
     const pageCount = pdf.numPages;
-
+  
     const pagesArray = [];
-
+  
     for (let i = 1; i <= pageCount; i++) {
       const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 1 });
-
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+  
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-
+  
       await page.render({ canvasContext: context, viewport }).promise;
-
-      const image = canvas.toDataURL("image/png");
-
+  
+      const image = canvas.toDataURL('image/png');
+  
       pagesArray.push({
         index: i,
         pdfIndex,
@@ -93,73 +102,41 @@ const PdfMerge = () => {
         preview: image,
       });
     }
-
+  
     setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
   };
-
-  console.log(previewPdfPages)
-
-  const handleDrop = (event, targetIndex) => {
-    event.preventDefault();
-    const sourceIndex = event.dataTransfer.getData('text/plain');
-
-    if (sourceIndex === targetIndex.toString() || !pages[sourceIndex] || !pages[targetIndex]) return;
-
-    setPages((prevPages) => {
-      const updatedPages = [...prevPages];
-      const [movedPage] = updatedPages.splice(sourceIndex, 1);
-      updatedPages.splice(targetIndex, 0, movedPage);
-      return updatedPages;
-    });
-    setPreviewPdfPages((prevPages) => {
-      const updatedPages = [...prevPages];
-      const [movedPage] = updatedPages.splice(sourceIndex, 1);
-      updatedPages.splice(targetIndex, 0, movedPage);
-      return updatedPages;
-    });
-  };
-
+  
   const mergePdfs = useCallback(async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
-
+  
     try {
       const mergedPdf = await PDFDocument.create();
-
+  
       for (const page of pages) {
         const { index } = page;
         const pdfDoc = await PDFDocument.load(pdfs[page.pdfIndex]);
-
+  
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
       }
-
+  
       const pdfBytes = await mergedPdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       setPreviewPdf(URL.createObjectURL(blob));
       setMergedPdfBytes(pdfBytes);
     } catch (error) {
-      toast({
-        title: `Error merging PDFs: ${error}`,
-        variant: "destructive",
-        style: {
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
+      showToastError(`Error merging PDFs: ${error.message}`);
     }
-  }, [pdfs, pages, toast]);
-
+  }, [pdfs, pages, showToastError]);
+  
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
   };
-
+  
   const handleDragOver = (event) => {
     event.preventDefault();
   };
-
+  
   const downloadPdf = () => {
     if (mergedPdfBytes) {
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
@@ -170,16 +147,54 @@ const PdfMerge = () => {
       link.click();
     }
   };
+  
+  const handleDrop = async (e) => {
+    const files = Array.from(e.target.files);
+    
+    const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+    
+    if (invalidFiles.length > 0) {
+      showToastError("Invalid PDF Files. Only PDF files are allowed.");
+      return; 
+    }
+    
+    const newPdfs = [...pdfs];
+  
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const pdfData = ev.target.result;
+        newPdfs.push(pdfData);
+        await extractPages(pdfData, newPdfs.length - 1);
+        setCount((prevCount) => prevCount + 1);
+      };
+  
+      reader.readAsArrayBuffer(file);
+    }
+  
+    setPdfs(newPdfs);
+  
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const pdfData = ev.target.result;
+        await setingPreviewPages(pdfData, newPdfs.length - 1);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
 
   useEffect(() => {
     if (pages.length > 0) {
       mergePdfs();
     }
   }, [pages, mergePdfs]);
-
+  
   useEffect(() => {
     mergePdfs();
-  }, [count, mergePdfs])
+  }, [count, mergePdfs]);
+  
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">

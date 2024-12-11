@@ -14,14 +14,31 @@ const AddPages = () => {
   const [mergedPdfBytes, setMergedPdfBytes] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editorContent, setEditorContent] = useState('');
-  const [isContinueClicked, setIsContinueClicked] = useState(false);
   const [previewPdfPages, setPreviewPdfPages] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { toast } = useToast()
+  const { toast } = useToast();
+
+  const showToastError = useCallback((message) => {
+    toast({
+      title: message,
+      variant: 'destructive',
+      className:
+        "font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
+    });
+  },[toast]);
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    const newPdfs = [];
+
+    const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+
+    if (invalidFiles.length > 0) {
+      showToastError("Invalid PDF Files. Only PDF files are allowed.");
+      return;
+    }
+
+    const newPdfs = [...pdfs];
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -29,19 +46,22 @@ const AddPages = () => {
         newPdfs.push(pdfData);
         await extractPages(pdfData, newPdfs.length - 1);
       };
+
       reader.readAsArrayBuffer(file);
     }
+
     setPdfs(newPdfs);
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
         const pdfData = ev.target.result;
-        await setingPreviewPages(pdfData, newPdfs.length - 1)
+        await setingPreviewPages(pdfData, newPdfs.length - 1);
       };
       reader.readAsArrayBuffer(file);
     }
-    setIsContinueClicked(true);
   };
+
 
   const extractPages = async (pdfData, pdfIndex) => {
     try {
@@ -54,18 +74,98 @@ const AddPages = () => {
       }));
       setPages((prev) => [...prev, ...extractedPages]);
     } catch (error) {
-      toast({
-        title: `Error extracting pages ${error}`,
-        variant: "destructive",
-        style: {
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
-      // console.error("Error extracting pages:", error);
+      showToastError(`Error extracting pages: ${error.message}`);
+    }
+  };
+
+  const mergePdfs = useCallback(async (mergedPdf = null, newPageBlob = null) => {
+    if (!mergedPdf) {
+      mergedPdf = await PDFDocument.create();
+    }
+    if (pdfs.length === 0 || pages.length === 0) return;
+    try {
+      for (const page of pages) {
+        const { pdfIndex, index } = page;
+        if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
+          console.error(`Invalid pdfIndex: ${pdfIndex}`);
+          continue;
+        }
+        const pdfDoc = await PDFDocument.load(pdfs[pdfIndex]);
+        const pageCount = pdfDoc.getPageCount();
+        if (index < 0 || index >= pageCount) {
+          console.error(`Invalid page index: ${index} for pdfIndex: ${pdfIndex} (total pages: ${pageCount})`);
+          continue;
+        }
+        const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
+        mergedPdf.addPage(copiedPages[0]);
+      }
+      if (newPageBlob) {
+        const newPdfDoc = await PDFDocument.load(newPageBlob);
+        const copiedPages = await mergedPdf.copyPages(newPdfDoc, [0]);
+        mergedPdf.addPage(copiedPages[0]);
+      }
+      const pdfBytes = await mergedPdf.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      setPreviewPdf(URL.createObjectURL(blob));
+      setMergedPdfBytes(pdfBytes);
+    } catch (error) {
+      showToastError(`Error merging PDFs: ${error.message}`);
+    }
+  }, [pdfs, pages, showToastError]);
+
+  const addPageFromEditor = async () => {
+    const element = document.createElement('div');
+    element.innerHTML = editorContent;
+    element.style.lineHeight = '1.5';
+    element.style.fontSize = '16pt';
+    element.style.margin = '20px';
+    var opt = {
+      margin: 1,
+      filename: 'myfile.pdf',
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
+    };
+    try {
+      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+      if (pdfBlob instanceof Blob) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const arrayBuffer = reader.result;
+          setPages((prevPages) => [
+            ...prevPages,
+            { index: 0, pdfIndex: pdfs.length, name: 'Newly Created Page' },
+          ]);
+          setPdfs((prev) => [...prev, arrayBuffer]);
+          mergePdfs(null, arrayBuffer);
+          closeDialog();
+        };
+        const arrayBuffer = await pdfBlob.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+        const image = canvas.toDataURL("image/png");
+        setPreviewPdfPages((prevPages) => [
+          ...prevPages,
+          {
+            index: 0,
+            pdfIndex: pdfs.length,
+            name: 'Newly Created Page',
+            preview: image,
+          },
+        ]);
+        reader.readAsArrayBuffer(pdfBlob);
+      } else {
+        console.error('Generated PDF is not a valid Blob:', pdfBlob);
+      }
+    } catch (error) {
+      console.error('Error adding page from editor:', error);
+      showToastError('Error adding page from editor.');
     }
   };
 
@@ -99,8 +199,6 @@ const AddPages = () => {
     setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
   };
 
-  console.log(previewPdfPages)
-
   const handleDrop = (event, targetIndex) => {
     event.preventDefault();
     const sourceIndex = event.dataTransfer.getData('text/plain');
@@ -120,54 +218,6 @@ const AddPages = () => {
       return updatedPages;
     });
   };
-
-  const mergePdfs = useCallback(async (mergedPdf = null, newPageBlob = null) => {
-    if (!mergedPdf) {
-      mergedPdf = await PDFDocument.create();
-    }
-    if (pdfs.length === 0 || pages.length === 0) return;
-    try {
-      for (const page of pages) {
-        const { pdfIndex, index } = page;
-        // console.log(pdfIndex, index);
-        if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
-          console.error(`Invalid pdfIndex: ${pdfIndex}`);
-          continue;
-        }
-        const pdfDoc = await PDFDocument.load(pdfs[pdfIndex]);
-        const pageCount = pdfDoc.getPageCount();
-
-        if (index < 0 || index >= pageCount) {
-          console.error(`Invalid page index: ${index} for pdfIndex: ${pdfIndex} (total pages: ${pageCount})`);
-          continue;
-        }
-        const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
-        mergedPdf.addPage(copiedPages[0]);
-        // console.log(copiedPages);
-      }
-      if (newPageBlob) {
-        const newPdfDoc = await PDFDocument.load(newPageBlob);
-        const copiedPages = await mergedPdf.copyPages(newPdfDoc, [0]);
-        mergedPdf.addPage(copiedPages[0]);
-      }
-      const pdfBytes = await mergedPdf.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      setPreviewPdf(URL.createObjectURL(blob));
-      setMergedPdfBytes(pdfBytes);
-    } catch (error) {
-      toast({
-        title: `Error merging PDFs: ${error}`,
-        variant: "destructive",
-        style: {
-          color: "#C4CBF5",
-          borderRadius: "8px",
-          padding: "20px",
-          fontSize: "16px",
-          fontWeight: "bold",
-        },
-      });
-    }
-  }, [pdfs, pages, toast]); // Add pdfs and pages as dependencies
 
 
   useEffect(() => {
@@ -209,66 +259,6 @@ const AddPages = () => {
   const closeDialog = () => {
     setIsDialogOpen(false);
   };
-
-  const addPageFromEditor = async () => {
-    const element = document.createElement('div');
-    element.innerHTML = editorContent;
-    element.style.lineHeight = '1.5';
-    element.style.fontSize = '16pt';
-    element.style.margin = '20px';
-    // console.log(editorContent);
-    var opt = {
-      margin: 1,
-      filename: 'myfile.pdf',
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
-    };
-    try {
-      const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-
-      if (pdfBlob instanceof Blob) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const arrayBuffer = reader.result;
-          setPages((prevPages) => [
-            ...prevPages,
-            { index: 0, pdfIndex: pdfs.length, name: 'Newly Created Page' },
-          ]);
-          setPdfs((prev) => [...prev, arrayBuffer]);
-          mergePdfs(null, arrayBuffer);
-          closeDialog();
-        };
-        const arrayBuffer = await pdfBlob.arrayBuffer(); // Directly convert Blob to ArrayBuffer
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-
-        const image = canvas.toDataURL("image/png");
-        setPreviewPdfPages((prevPages) => [
-          ...prevPages,
-          {
-            index: 0,
-            pdfIndex: pdfs.length,
-            name: 'Newly Created Page',
-            preview: image,
-          },
-        ]);
-        reader.readAsArrayBuffer(pdfBlob);
-      } else {
-        console.error('Generated PDF is not a valid Blob:', pdfBlob);
-      }
-    } catch (error) {
-      console.error('Error adding page from editor:', error);
-    }
-  };
-
 
   return (
     <div className="flex  flex-col w-full ">
@@ -352,7 +342,7 @@ const AddPages = () => {
                             </span>
                           </span>
                         </button>
-                        {isContinueClicked && pdfs.length > 0 && (
+                        { pdfs.length > 0 && (
                           <button
                             disabled={!pages.length > 0 || !previewPdfPages.length > 0}
                             onClick={openDialog}

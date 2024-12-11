@@ -1,107 +1,112 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-
+import { useToast } from "../../hooks/use-toast"
 const GetPDFImages = () => {
   const [imageFile, setImageFile] = useState(null);
-  const [images, setImages] = useState([]);
-  const [error, setError] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+const [images, setImages] = useState([]);
+const [dragActive, setDragActive] = useState(false);
+const [isProcessing, setIsProcessing] = useState(false);
+const { toast } = useToast();
+const showToastError = (message) => {
+  toast({
+    title: message,
+    variant: 'destructive',
+    className: "font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
+  });
+};
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setImageFile(file);
-    } else {
-      setError('Please upload a PDF file.');
-    }
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      setImageFile(file);
-    } else {
-      setError('Please upload a PDF file.');
-    }
-  };
-
-  const handleContinue = async () => {
-    setIsProcessing(true);
-    const formData = new FormData();
-    formData.append('pdf', imageFile);
-    await fetch('/api/ExtractImages', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          setError(data.error);
-        } else {
-          const base64Images = data.images.map((image, index) => {
-            const imageData = image.data;
-            const byteNumbers = Object.values(imageData);
-            const byteArray = new Uint8Array(byteNumbers);
-            const base64String = btoa(Uint8ToString(byteArray));
-
-            const sizeInMB = (byteArray.length / (1024 * 1024)).toFixed(2);
-
-            return { id: index, url: `data:image/jpeg;base64,${base64String}`, size: sizeInMB };
-          });
-
-          setImages(base64Images);
-          setError(null);
-        }
-      })
-      .catch((err) => {
-        console.error('Error uploading file:', err);
-        setError('Error uploading file.');
-      });
-    setIsProcessing(false);
-  };
-
-
-  const Uint8ToString = (u8a) => {
-    const CHUNK_SZ = 0x8000;
-    let c = [];
-    for (let i = 0; i < u8a.length; i += CHUNK_SZ) {
-      c.push(String.fromCharCode.apply(null, u8a.subarray(i, i + CHUNK_SZ)));
-    }
-    return c.join('');
-  };
-
-  const handleImageError = (id) => {
-    setImages((prevImages) => prevImages.filter((image) => image.id !== id));
-  };
-  function downloadAllImages(images) {
-    images.forEach((image) => {
-      const anchor = document.createElement("a");
-      anchor.href = image.url;
-      anchor.download = `PDFImage_${image.id}.jpg`;
-      anchor.style.display = "none";
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    });
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file && file.type === 'application/pdf') {
+    setImageFile(file);
+  } else {
+    showToastError('Please upload a PDF file.');
   }
+};
 
+const handleDrag = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(true);
+};
+
+const handleDragLeave = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(false);
+};
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(false);
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    setImageFile(file);
+  } else {
+    showToastError('Please upload a PDF file.');
+  }
+};
+
+const handleContinue = async () => {
+  setIsProcessing(true);
+  const formData = new FormData();
+  formData.append('pdf', imageFile);
+  await fetch('/api/ExtractImages', {
+    method: 'POST',
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        showToastError(data.error);
+      } else {
+        const base64Images = data.images.map((image, index) => {
+          const imageData = image.data;
+          const byteNumbers = Object.values(imageData);
+          const byteArray = new Uint8Array(byteNumbers);
+          const base64String = btoa(Uint8ToString(byteArray));
+
+          const sizeInMB = (byteArray.length / (1024 * 1024)).toFixed(2);
+
+          return { id: index, url: `data:image/jpeg;base64,${base64String}`, size: sizeInMB };
+        });
+
+        setImages(base64Images);
+      }
+    })
+    .catch((err) => {
+      console.error('Error uploading file:', err);
+      showToastError('Error uploading file.');
+    });
+  setIsProcessing(false);
+};
+
+const Uint8ToString = (u8a) => {
+  const CHUNK_SZ = 0x8000;
+  let c = [];
+  for (let i = 0; i < u8a.length; i += CHUNK_SZ) {
+    c.push(String.fromCharCode.apply(null, u8a.subarray(i, i + CHUNK_SZ)));
+  }
+  return c.join('');
+};
+
+const handleImageError = (id) => {
+  setImages((prevImages) => prevImages.filter((image) => image.id !== id));
+};
+
+function downloadAllImages(images) {
+  images.forEach((image) => {
+    const anchor = document.createElement("a");
+    anchor.href = image.url;
+    anchor.download = `PDFImage_${image.id}.jpg`;
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  });
+}
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
@@ -162,7 +167,7 @@ const GetPDFImages = () => {
                   <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                     Upload PDF File
                   </h3>
-                  <button
+                  {!isProcessing && imageFile &&<button
                     disabled={!imageFile || isProcessing}
                     onClick={handleContinue}
                     className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
@@ -180,12 +185,12 @@ const GetPDFImages = () => {
                       </span>
                     </span>
                   </button>
+}
                   <div className=' justify-center items-center flex'>
-                    {isProcessing && !error && (
+                    {isProcessing  && (
                       <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                     )}
                   </div>
-                  {error && <p className="text-red-500 mt-2">{error}</p>}
                 </div>
                 <div className=' w-full md:mt-3  justify-around flex flex-row'>
                   <div
