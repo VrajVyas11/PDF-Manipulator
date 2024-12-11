@@ -459,16 +459,17 @@ const AddPages = () => {
                   onClick={closeDialog}
                   className={`flex w-full flex-row  justify-center rounded-2xl group mt-4`}
                 >
-                  <span className="relative min-w-36 md:min-w-40 bg-red-600 bg-opacity-65  flex justify-around items-center w-fit before:g7  min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
+                  <span className="relative min-w-36 md:min-w-40 before:g7  min-h-fit px-4  overflow-hidden flex  gap-3 w-full justify-center py-2 items-center bg-red-500  bg-opacity-20 p-2  rounded-2xl border-2 border-red-500 border-opacity-50 backdrop-blur-md">
                     <Image
                       src="/images/close.svg"
                       alt="logo"
                       width={28}
                       height={28}
+                      style={{ filter: 'hue-rotate(90deg)' }}
                       className="brightness-200 "
                     />
 
-                    <span className="font-semibold text-16 flex gap-4 p-4 text-p5">
+                    <span className="font-semibold text-[18px] flex w-full gap-4 p-3 pr-0 text-red-400">
                       Close
                     </span>
                   </span>
@@ -477,16 +478,17 @@ const AddPages = () => {
                   onClick={addPageFromEditor}
                   className={`flex w-full disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-center rounded-2xl group mt-4 `}
                 >
-                  <span className="relative min-w-36 md:min-w-40 flex justify-around items-center w-fit bg-opacity-65 bg-green-600 before:g7 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
+                  <span className="relative min-w-36 md:min-w-40 before:g7  min-h-fit px-4  overflow-hidden flex  gap-3 w-full justify-center py-2 items-center bg-green-500  bg-opacity-20 p-2  rounded-2xl border-2 border-green-500 border-opacity-50 backdrop-blur-md">
                     <Image
                       src="/images/plus.svg"
                       alt="logo"
                       width={28}
                       height={28}
+                      style={{ filter: 'hue-rotate(270deg)' }}
                       className="brightness-200"
                     />
-                    <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
-                      Add Page
+                    <span className="font-semibold text-[18px] flex w-full gap-4 p-3 pr-0 text-green-400">
+                      Add
                     </span>
                   </span>
                 </button>
@@ -496,7 +498,7 @@ const AddPages = () => {
               <QuillEditor
                 value={editorContent}
                 onChange={setEditorContent}
-                classes={" h-full w-full   overflow-hidden flex flex-col"}
+                classes={" h-full w-full bg-opacity-50   overflow-hidden flex flex-col"}
                 placeholder="Start typing to create a new page..."
               />
             </div>

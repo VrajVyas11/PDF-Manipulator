@@ -41,7 +41,7 @@ const Editor = ({ value, onChange, placeholder,classes,radius="" }) => {
               color:"black",
               width:"100%",
             }}
-            className={`text-black bg-white bg-opacity-75 rounded-lg shadow-lg ${classes}`}
+            className={`text-black bg-white rounded-lg shadow-lg ${classes}`}
           />
   );
 };
