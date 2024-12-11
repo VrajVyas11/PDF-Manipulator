@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 // import Pell from 'pell';
 // const Pell = dynamic(() => import('pell'), { ssr: false });
-import renderPdfContent from './renderPdfContent.jsx';
-import InputPdfUpload from './InputPdfUpload.jsx';
-import Pagination from './Pagination.jsx';
+import renderPdfContent from '../../../app/utils/tools/renderPdfContent.jsx';
+import InputPdfUpload from '../../../app/utils/tools/InputPdfUpload.jsx';
+import Pagination from '../../../app/utils/tools/Pagination.jsx';
 import ReactDOMServer from 'react-dom/server';
-import Toolbar from '../utils/ToolbarPell.jsx';
+import Toolbar from '../../../app/utils/tools/ToolbarPell.jsx';
 import 'pell/dist/pell.css';
 // import dynamic from 'next/dynamic.js';
 
-function PellComponent() {
+function PDFEditorSimpleText() {
   const [pdfData, setPdfData] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [content, setContent] = useState('<p>Edit me!</p>');
@@ -219,4 +219,4 @@ function PellComponent() {
   );
 }
 
-export default PellComponent;
+export default PDFEditorSimpleText;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import PellComponent from "../../../app/utils/Pell.jsx";
-import PDFEditorWorkerBased from "./PDFEditorWorkerBased.jsx";
+import PDFEditorSimpleText from "./PDFEditorSimpleText.jsx";
+import PDFEditorComplex from "./PDFEditorComplex.jsx";
+import Image from 'next/image.js';
 function PDFEditor() {
   const [isBackendBased, setIsBackendBased] = useState(false);
   const toggleImplementation = (toggle) => {
@@ -8,43 +9,79 @@ function PDFEditor() {
   };
 
   return (
-    <div className="w-full lg:w-fit px-2 sm:px-6 lg:px-24 mb-16 flex-col items-center mx-auto p-6 lg:p-10 font-sans bg-transparent rounded-xl border border-gray-200 flex backdrop-blur-lg bg-opacity-40 text-center bg-[#1d1d1d] overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] h-fit">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono mb-6 tracking-wide text-white drop-shadow-lg">
-        PDF Editor
-      </h1>
-
-      <div className="flex w-full mb-8 justify-center flex-wrap sm:flex-nowrap">
-        <button
-          onClick={() => toggleImplementation(false)}
-          className={`w-full sm:w-2/3 py-3 font-semibold text-lg transition-all duration-300 ease-in-out rounded-xl sm:rounded-r-none transform shadow-md ${!isBackendBased
-            ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700'
-            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300'
-            }`}
+    <div className="flex  flex-col w-full ">
+      <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
+        <div className="flex flex-col  md:pl-4 w-full text-center lg:text-left">
+          <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">
+            PDF Editor
+          </h2>
+          <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
+            Effortlessly edit your PDFs with just a few clicks, enhancing your documents for seamless sharing and storage.
+          </p>
+        </div>
+        <div
+          className={`flex w-full gap-4 justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
-          Worker Based
-        </button>
-        <button
-          onClick={() => toggleImplementation(true)}
-          className={`w-full sm:w-2/3 py-3 font-semibold text-lg transition-all duration-300 ease-in-out rounded-xl sm:rounded-l-none transform shadow-md ${isBackendBased
-            ? 'bg-gradient-to-r from-blue-500 to-sky-600 text-white hover:from-blue-600 hover:to-sky-700'
-            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-gray-300'
-            }`}
-        >
-          Backend Based
-        </button>
+          <span onClick={() => toggleImplementation(false)}
+            className={`relative cursor-pointer ${isBackendBased?"":"brightness-150"} flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
+            <Image
+              src="/images/zap.svg"
+              alt="logo"
+              width={36}
+              height={36}
+              className="brightness-200"
+            />
+            <span className="font-semibold text-16 flex p-4 pr-0 text-p5">
+              Worker Based
+            </span>
+          </span>
+          <span onClick={() => toggleImplementation(true)}
+            className={`relative ${isBackendBased?"brightness-150":""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
+            <Image
+              src="/images/backend.svg"
+              alt="logo"
+              width={28}
+              height={28}
+              className="brightness-200"
+            />
+            <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
+              Backend Based
+            </span>
+          </span>
+        </div>
       </div>
-
-      <div className="w-full rounded-xl sm:rounded-lg transition-transform duration-300 transform">
+      <hr className='border-s3 border-2' />
+      <div className="flex flex-col overflow-hidden text-white rounded-2xl h-fit w-full">
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[35%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[58%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
+        <div
+          className="absolute -z-2 top-1/2 left-1/2 lg:top-[55%] lg:left-[82%] transform -translate-x-1/2 -translate-y-1/2 w-[40%] sm:w-[50%] lg:w-[20%] h-[40%] sm:h-[50%] lg:h-[60%]"
+          style={{
+            background: "rgba(0, 123, 255, .25)",
+            filter: "blur(150px)",
+          }}
+        ></div>
         {isBackendBased ? (
           <div>
-            <PellComponent />
+            <PDFEditorSimpleText />
           </div>
         ) : (
-          <PDFEditorWorkerBased />
+          <PDFEditorComplex />
         )}
       </div>
     </div>
-
   );
 }
 

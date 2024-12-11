@@ -8,7 +8,7 @@ import PDFMerger from '../components/Core/PDFMerge';
 import ImageToPDF from '../components/Core/ImageToPDF';
 import CompressPDF from '../components/Core/CompressPDF';
 import GetPDFImages from '../components/Core/GetPDFImages';
-import Home from "../components/Reworks/Home"
+import Home from "../components/Navigation/Home"
 function Base() {
   const { activeLink } = useActiveLink();
 

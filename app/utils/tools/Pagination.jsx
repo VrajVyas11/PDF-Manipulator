@@ -1,4 +1,4 @@
-import downloadPdf from "../utils/downloadPdf";
+import downloadPdf from "./downloadPdf";
 const Pagination = ({ pdfData, currentPage, setCurrentPage, editorRef }) => {
   return (
     <>

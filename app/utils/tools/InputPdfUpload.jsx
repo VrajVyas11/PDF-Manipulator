@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadPdf } from '../utils/uploadPdf';
+import { uploadPdf } from './uploadPdf';
 
 const InputPdfUpload = ({ setPdfData, setCurrentPage }) => {
   const [dragActive, setDragActive] = useState(false);

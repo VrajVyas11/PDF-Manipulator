@@ -3,7 +3,7 @@ import { navLinks } from "../../app/Constants/index"
 import Image from "next/image"
 import { Link as LinkScroll } from "react-scroll";
 import Options from "./Options"
-import Button from "../../app/utils/Button"
+import Button from "../../app/utils/tools/Button"
 const Home = () => {
     const [getStarted, setGetStarted] = useState(false);
     return (

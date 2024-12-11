@@ -1,27 +1,117 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+import "jodit";
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useToast } from '../../../hooks/use-toast';
+import Image from 'next/image';
+
+const copyStringToClipboard = function(str) {
+  var el = document.createElement("textarea");
+  el.value = str;
+  el.setAttribute("readonly", "");
+  el.style = { position: "absolute", left: "-9999px" };
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+};
 
 
-const PDFEditorWorkerBased = () => {
+const buttons = [
+  "undo",
+  "redo",
+  "|",
+  "bold",
+  "strikethrough",
+  "underline",
+  "italic",
+  "|",
+  "superscript",
+  "subscript",
+  "|",
+  "align",
+  "|",
+  "ul",
+  "ol",
+  "outdent",
+  "indent",
+  "|",
+  "font",
+  "fontsize",
+  "brush",
+  "paragraph",
+  "|",
+  "image",
+  "link",
+  "table",
+  "|",
+  "hr",
+  "eraser",
+  "copyformat",
+  "|",
+  "fullsize",
+  "selectall",
+  "print",
+  "|",
+  "source",
+  "|",
+  {
+    name: "copyContent",
+    tooltip: "Copy HTML to Clipboard",
+    iconURL: "images/copy.png",
+    exec: function(editor) {
+      let html = editor.value;
+      copyStringToClipboard(html);
+    }
+  }
+];
+
+const editorConfig = {
+  readonly: false,
+  toolbar: true,
+  spellcheck: true,
+  language: "en",
+  toolbarButtonSize: "medium",
+  toolbarAdaptive: false,
+  showCharsCounter: true,
+  showWordsCounter: true,
+  showXPathInStatusbar: false,
+  askBeforePasteHTML: true,
+  askBeforePasteFromWord: true,
+  //defaultActionOnPaste: "insert_clear_html",
+  buttons: buttons,
+  uploader: {
+    insertImageAsBase64URI: true
+  },
+  width: 800,
+  height: 842
+};
+const PDFEditorComplex = () => {
   const [htmlContent, setHtmlContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
-  const pdfInputRef = useRef();
+  // const pdfInputRef = useRef();
   const editorRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const [isContinueClicked, setIsContinueClicked] = useState(false);
-  const [error, setError] = useState(null);
-
+  const { toast } = useToast();
   useEffect(() => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
   }, []);
+
+  const showToastError = (message) => {
+    toast({
+      title: message,
+      variant: 'destructive',
+      className: " font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500  bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
+    });
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -29,7 +119,7 @@ const PDFEditorWorkerBased = () => {
       setImageFile(file);
       setIsContinueClicked(false); // Reset continue button state
     } else {
-      alert('Please upload a valid PDF file');
+      showToastError('Please upload a valid PDF file');
     }
   };
 
@@ -48,7 +138,7 @@ const PDFEditorWorkerBased = () => {
       setImageFile(file);
       setIsContinueClicked(false); // Reset continue button state
     } else {
-      alert('Please upload a valid PDF file');
+      showToastError('Please upload a valid PDF file');
     }
   };
 
@@ -69,7 +159,7 @@ const PDFEditorWorkerBased = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          setError(data.error);
+          showToastError(data.error);
         } else {
           const base64Images = data.images.map((image) => {
             const imageData = image.data;
@@ -83,14 +173,12 @@ const PDFEditorWorkerBased = () => {
             return { image, url: `data:image/jpeg;base64,${base64String}` };
           });
 
-          // setImages(base64Images);
-          setError(null);
           extractContent(URL.createObjectURL(imageFile), base64Images);
         }
       })
       .catch((err) => {
         console.error('Error uploading file:', err);
-        setError('Error uploading file.');
+        showToastError('Error uploading file.');
       });
   };
 
@@ -283,8 +371,8 @@ const PDFEditorWorkerBased = () => {
       }
       setHtmlContent(fullHtmlContent);
     } catch (err) {
-      alert("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
-      console.warn("proccess failed as",err.message)
+      showToastError("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
+      console.warn("proccess failed as", err.message)
     }
   };
 
@@ -354,93 +442,179 @@ const PDFEditorWorkerBased = () => {
 
 
   return (
-    <div className="flex flex-col justify-center items-center text-white text-center p-0 sm:p-6 lg:p-10 h-fit w-full backdrop-blur-lg bg-opacity-40 bg-[#1a1a1a] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] rounded-lg">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-widest mb-6 text-sky-500 border-y-2 w-full px-8 sm:px-16 lg:px-36 py-3 border-double rounded-2xl">
-        Optimized for Complex PDFs
-      </h1>
+    <div className=" flex w-full justify-center items-center flex-col">
+      <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
+        <div className="min-h-[200px] rounded-lg p-4 pt-0">
+          <div className="flex w-full flex-col justify-center items-center text-center">
+            <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
+              <div className="flex w-full flex-col  justify-between items-center pb-4 gap-4 md:flex-row">
+                <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
+                  Upload PDF File
+                </h3>
+                <div className='w-full  flex justify-center items-center flex-row'>
+                  <button
+                    disabled={!imageFile || !isContinueClicked || !htmlContent.length > 0}
+                    onClick={downloadPdf}
+                    className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed  rounded-2xl group"
+                  >
+                    <span className="relative px-4 md:px-8 flex justify-end items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+                      <Image
+                        src={`images/download.svg`}
+                        alt="logo"
+                        width={28}
+                        height={28}
+                        className="brightness-200"
+                      />
+                      <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
+                        Download
+                      </span>
+                    </span>
+                  </button>
+                  {/* {imageFile &&<div className='flex justify-center items-center'> */}
+                  {imageFile && (
+                    <button
+                      disabled={!imageFile}
+                      onClick={handleContinue}
+                      className="flex pl-2 min-w-32 md:min-w-44 items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+                    >
+                      <span className="relative px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+                        <Image
+                          src={`images/process.svg`}
+                          alt="logo"
+                          width={28}
+                          height={28}
+                          className="brightness-200"
+                        />
+                        <span className="font-semibold text-16 flex gap-4 p-4 pr-6 text-p5">
+                          Process
+                        </span>
+                      </span>
+                    </button>
+                  )}
+                  <div className='flex justify-center items-center'>
+                    {isContinueClicked && htmlContent.length === 0 && (
+                      <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                  </div>
+                  {/* </div>} */}
+                </div>
 
-      <div
-        className={`border-4 w-full border-dashed p-5 sm:p-6 h-36 rounded-lg bg-gray-800 flex items-center justify-center cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 hover:border-blue-700 ${dragActive ? 'border-blue-400' : 'border-gray-600'}`}
-        onDragOver={handleDrag}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => pdfInputRef.current.click()}
-      >
-        <input
-          type="file"
-          ref={pdfInputRef}
-          accept="application/pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <p className="text-center text-gray-400">{imageFile ? imageFile.name : 'Drag & Drop a PDF or click to upload'}</p>
+              </div>
+
+              <div className="w-full md:mt-3 flex flex-col gap-8">
+                <div
+                  className={`flex-center ${dragActive ? "scale-105" : ""} min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center w-full backdrop-blur-lg brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]`}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('fileInput')?.click()}
+                >
+                  <div className="rounded-[16px] bg-s0/40 p-5 shadow-sm shadow-purple-200/50">
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <Image
+                      src="/images/add.svg"
+                      alt="Add Image"
+                      width={24}
+                      height={24}
+                      className='brightness-125 '
+                    />
+                  </div>
+                  <p className=" font-normal text-[16px] leading-[140%] brightness-75 text-p5">
+                    {imageFile ? imageFile.name : 'Click here to upload PDF'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {isContinueClicked && htmlContent.length > 0 && <div className="flex px-16  sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-4 flex-col sm:flex-row">
+          <button
+            disabled={currentPage === 0}
+            onClick={handlePreviousPage}
+            className="flex items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+          >
+            <span className="relative min-w-32 md:min-w-48 px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+              <Image
+                src={`images/process.svg`}
+                alt="logo"
+                width={28}
+                height={28}
+                className="brightness-200"
+              />
+              <span className="font-semibold text-16 flex gap-4 p-4 pr-6 text-p5">
+                Previous
+              </span>
+            </span>
+          </button>
+          <span className="text-[16px] font-semibold text-p5 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
+          <button
+            disabled={currentPage === numPages - 1} onClick={handleNextPage}
+            className="flex pl-2  items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+          >
+            <span className="relative px-4 md:px-8 min-w-32 md:min-w-48 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+              <Image
+                src={`images/process.svg`}
+                alt="logo"
+                width={28}
+                height={28}
+                className="brightness-200"
+              />
+              <span className="font-semibold text-16 flex gap-4 p-4 pr-6 text-p5">
+                Next
+              </span>
+            </span>
+          </button>
+        </div>}
       </div>
 
-      {imageFile && !isContinueClicked && (
-        <button
-          onClick={handleContinue}
-          className="px-6 py-4 w-fit mt-4 bg-blue-500 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-600 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-        >
-          Continue
-        </button>
-      )}
-      {isContinueClicked && htmlContent.length === 0 && (
-        <div className="w-8 h-8 mt-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      )}
-    {error && (
-        <div className="w-fit my-4 text-red-600 text-bold tracking-wide ">{error}*</div>
-      )}
+
       {isContinueClicked && htmlContent.length > 0 && (
-        <div className=" sm-320:-mt-44 sm-374:-mt-40 md:mt-6 h-fit md:h-full">
+        <div className="sm-320:-mt-44 sm-374:-mt-40 md:mt-6 h-fit md:h-full">
           <div className="flex justify-center items-center sm-320:scale-[49%] sm-374:scale-[57%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
             <JoditEditor
               ref={editorRef}
+              style={{ maxWidth: editorConfig.width, margin: "0 auto" }}
               value={htmlContent[currentPage]}
               config={{
-                toolbar: true,
+                editorConfig,
                 height: height,
                 width: width,
                 editHTMLDocumentMode: true,
+                // theme: 'dark', 
+                style: {
+                  background: 'rgba(0, 55, 155, 0.3)', 
+                  borderColor:"red",
+                  border:"1px red solid"
+                },
+                toolbarButtonSize: 'large', 
               }}
-              style={{
-                display: 'block',
-                minHeight: '400px',
-                width: '100%',
-                padding: '10px',
-                background: 'white',
-                color: 'black',
-              }}
-              className="border  border-gray-700 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2"
+              // style={{
+              //   display: 'block',
+              //   minHeight: '400px',
+              //   width: '100%',
+              //   padding: '10px',
+              //   // background: 'rgba(255, 255, 255, 0.5)', // White background with 50% opacity
+              //   color: 'black', // Black text for readability
+              //   borderColor: '#444', // Dark border color
+              // }}
+              className="border  border-gray-700 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2 jodit-dark-theme"
               onChange={() => { }}
             />
+
           </div>
 
-
-
-          <div className="flex sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-4  flex-col sm:flex-row">
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 0}
-              className="px-6 py-3 w-fit mt-0 md:mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-lg text-gray-300 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === numPages - 1}
-              className="px-10 py-3 w-fit mt-2 md:mt-4 bg-blue-600 text-white font-mono shadow-lg tracking-wide rounded-lg hover:bg-blue-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-
-          <button
-            onClick={downloadPdf}
-            className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide  hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-          >
-            Download
-          </button>
+          {/* <button
+          onClick={downloadPdf}
+          className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
+        >
+          Download
+        </button> */}
         </div>
       )}
     </div>
@@ -448,4 +622,4 @@ const PDFEditorWorkerBased = () => {
   );
 };
 
-export default PDFEditorWorkerBased;
+export default PDFEditorComplex;

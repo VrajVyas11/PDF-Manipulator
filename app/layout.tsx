@@ -1,7 +1,9 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import "./globals.css";
+import React from "react";
 import { ActiveLinkProvider } from "./context/ContextProvider";
-import Sidebar from "../components/Reworks/Sidebar";
-import MobileNav from "../components/Reworks/MobileNav";
+import Sidebar from "../components/Navigation/Sidebar";
+import MobileNav from "../components/navigation/MobileNav";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import clsx, { ClassValue } from "clsx";
@@ -13,6 +15,20 @@ const IBMPlex = IBM_Plex_Sans({
   variable: "--font-ibm-plex",
 });
 
+export const metadata = {
+  title: "PDF Manipulator",
+  description: "A comprehensive and versatile PDF tool designed to streamline the process of editing, merging, compressing, and converting PDF files. With a user-friendly interface, it offers convenient features such as drag-and-drop functionality for effortlessly adding pages, as well as powerful image extraction capabilities. The tool also enables seamless PDF viewing, ensuring you can work with your documents in a hassle-free manner. Fully responsive and intuitive, this solution enhances document management, making it easier than ever to handle your PDF files with efficiency and precision.",
+  icons: {
+    icon: "/favicon.svg",
+  },
+  links: [
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Pacifico&display=swap",
+    },
+  ],
+};
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -22,6 +38,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Pacifico&display=swap"
+        />
+      </head>
       <body
         style={{
           lineHeight: "1.5",

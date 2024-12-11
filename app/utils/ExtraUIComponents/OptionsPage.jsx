@@ -8,7 +8,7 @@ import PDFMerger from './PDFMerge';
 import ImageToPDF from './ImageToPDF';
 import CompressPDF from './CompressPDF';
 import GetPDFImages from './GetPDFImages';
-import { navLinks } from "../app/Constants/index";
+import { navLinks } from "../../Constants/index";
 
 
 const OptionsPage = ({ handleButtonClick, activeSection }) => {
