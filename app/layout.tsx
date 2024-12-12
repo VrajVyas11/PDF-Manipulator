@@ -3,7 +3,7 @@ import "./globals.css";
 import React from "react";
 import { ActiveLinkProvider } from "./context/ContextProvider";
 import Sidebar from "../components/Navigation/Sidebar";
-import MobileNav from "../components/navigation/MobileNav";
+import MobileNav from "../components/Navigation/MobileNav";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import clsx, { ClassValue } from "clsx";

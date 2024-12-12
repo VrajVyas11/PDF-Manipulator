@@ -1,94 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
-import "jodit";
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useToast } from '../../../hooks/use-toast';
 import Image from 'next/image';
 
-const copyStringToClipboard = function(str) {
-  var el = document.createElement("textarea");
-  el.value = str;
-  el.setAttribute("readonly", "");
-  el.style = { position: "absolute", left: "-9999px" };
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand("copy");
-  document.body.removeChild(el);
-};
-
-
-const buttons = [
-  "undo",
-  "redo",
-  "|",
-  "bold",
-  "strikethrough",
-  "underline",
-  "italic",
-  "|",
-  "superscript",
-  "subscript",
-  "|",
-  "align",
-  "|",
-  "ul",
-  "ol",
-  "outdent",
-  "indent",
-  "|",
-  "font",
-  "fontsize",
-  "brush",
-  "paragraph",
-  "|",
-  "image",
-  "link",
-  "table",
-  "|",
-  "hr",
-  "eraser",
-  "copyformat",
-  "|",
-  "fullsize",
-  "selectall",
-  "print",
-  "|",
-  "source",
-  "|",
-  {
-    name: "copyContent",
-    tooltip: "Copy HTML to Clipboard",
-    iconURL: "images/copy.png",
-    exec: function(editor) {
-      let html = editor.value;
-      copyStringToClipboard(html);
-    }
-  }
-];
-
-const editorConfig = {
-  readonly: false,
-  toolbar: true,
-  spellcheck: true,
-  language: "en",
-  toolbarButtonSize: "medium",
-  toolbarAdaptive: false,
-  showCharsCounter: true,
-  showWordsCounter: true,
-  showXPathInStatusbar: false,
-  askBeforePasteHTML: true,
-  askBeforePasteFromWord: true,
-  //defaultActionOnPaste: "insert_clear_html",
-  buttons: buttons,
-  uploader: {
-    insertImageAsBase64URI: true
-  },
-  width: 800,
-  height: 842
-};
 const PDFEditorComplex = () => {
   const [htmlContent, setHtmlContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -533,15 +451,15 @@ const PDFEditorComplex = () => {
             </div>
           </div>
         </div>
-        {isContinueClicked && htmlContent.length > 0 && <div className="flex px-16  sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-4 flex-col sm:flex-row">
+        {isContinueClicked && htmlContent.length > 0 && <div className="flex px-16  sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-0 flex-col sm:flex-row">
           <button
             disabled={currentPage === 0}
             onClick={handlePreviousPage}
             className="flex items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
           >
-            <span className="relative min-w-32 md:min-w-48 px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+            <span className="relative min-w-32 md:min-w-44 px-4 md:px-6 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
               <Image
-                src={`images/process.svg`}
+                src={`images/previous.svg`}
                 alt="logo"
                 width={28}
                 height={28}
@@ -552,22 +470,23 @@ const PDFEditorComplex = () => {
               </span>
             </span>
           </button>
-          <span className="text-[16px] font-semibold text-p5 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
+          <span className="text-[20px] tracking-wide font-semibold text-p5 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
           <button
             disabled={currentPage === numPages - 1} onClick={handleNextPage}
             className="flex pl-2  items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
           >
-            <span className="relative px-4 md:px-8 min-w-32 md:min-w-48 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+            <span className="relative px-4 md:px-6 min-w-32 md:min-w-44 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+              <span className="font-semibold text-16 flex gap-4 p-4 pl-6 text-p5">
+                Next
+              </span>
               <Image
-                src={`images/process.svg`}
+                src={`images/next.svg`}
                 alt="logo"
                 width={28}
                 height={28}
                 className="brightness-200"
               />
-              <span className="font-semibold text-16 flex gap-4 p-4 pr-6 text-p5">
-                Next
-              </span>
+
             </span>
           </button>
         </div>}
@@ -579,42 +498,28 @@ const PDFEditorComplex = () => {
           <div className="flex justify-center items-center sm-320:scale-[49%] sm-374:scale-[57%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
             <JoditEditor
               ref={editorRef}
-              style={{ maxWidth: editorConfig.width, margin: "0 auto" }}
+              style={{ margin: '0 auto' }}
               value={htmlContent[currentPage]}
               config={{
-                editorConfig,
+                readonly: false,
+                toolbar: true,
+                language: 'en',
+                buttons: ["undo", "redo", "|", "bold", "strikethrough", "underline", "italic", "|", "superscript", "subscript",
+                  "|", "align", "|", "ul", "ol", "outdent", "indent", "|", "font", "fontsize", "brush",
+                  "paragraph", "|", "image", "link", "table", "|", "hr", "eraser", "copyformat",
+                  "|", "fullsize", "selectall", "print", "|", "source", "|",],
                 height: height,
                 width: width,
-                editHTMLDocumentMode: true,
-                // theme: 'dark', 
-                style: {
-                  background: 'rgba(0, 55, 155, 0.3)', 
-                  borderColor:"red",
-                  border:"1px red solid"
+                containerStyle: {
+                  '.jodit-toolbar-editor-collection': {
+                    background: 'transparent', // Make toolbar background transparent
+                  },
                 },
-                toolbarButtonSize: 'large', 
               }}
-              // style={{
-              //   display: 'block',
-              //   minHeight: '400px',
-              //   width: '100%',
-              //   padding: '10px',
-              //   // background: 'rgba(255, 255, 255, 0.5)', // White background with 50% opacity
-              //   color: 'black', // Black text for readability
-              //   borderColor: '#444', // Dark border color
-              // }}
-              className="border  border-gray-700 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2 jodit-dark-theme"
-              onChange={() => { }}
+              className="jodit-editor-container border border-red-500 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2 jodit-dark-theme"
+              onChange={(newContent) => console.log(newContent)}
             />
-
           </div>
-
-          {/* <button
-          onClick={downloadPdf}
-          className="px-6 py-4 w-full mt-4 bg-green-600 text-white font-mono shadow-lg tracking-wide hover:bg-green-700 transition duration-300 font-extrabold ease-in-out disabled:opacity-50"
-        >
-          Download
-        </button> */}
         </div>
       )}
     </div>
