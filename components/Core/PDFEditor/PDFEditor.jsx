@@ -20,32 +20,32 @@ function PDFEditor() {
           </p>
         </div>
         <div
-          className={`flex w-full gap-4 justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
+          className={`flex w-full px-2 gap-4 justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
           <span onClick={() => toggleImplementation(false)}
-            className={`relative cursor-pointer ${isBackendBased ? "" : "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400"} flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
+            className={`relative ${!isBackendBased ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
             <Image
-              src="/images/zap.svg"
+              src="/images/ButtonUtils/zap.svg"
               alt="logo"
-              width={36}
-              height={36}
+              width={32}
+              height={32}
               className="brightness-200"
             />
             <span className="font-semibold text-16 flex p-4 pr-0 text-p5">
-              Worker Based
+              Complex PDFs
             </span>
           </span>
           <span onClick={() => toggleImplementation(true)}
             className={`relative ${isBackendBased ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
             <Image
-              src="/images/backend.svg"
+              src="/images/ButtonUtils/backend.svg"
               alt="logo"
               width={28}
               height={28}
               className="brightness-200"
             />
             <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
-              Backend Based
+              Simple PDFs
             </span>
           </span>
         </div>

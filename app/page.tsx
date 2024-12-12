@@ -7,7 +7,7 @@ const AddPages = dynamic(() => import('../components/Core/AddPages'), { ssr: fal
 import PDFMerger from '../components/Core/PDFMerge';
 import ImageToPDF from '../components/Core/ImageToPDF';
 import CompressPDF from '../components/Core/CompressPDF';
-import GetPDFImages from '../components/Core/GetPDFImages';
+import ExtractImages from '../components/Core/ExtractImages';
 import Home from "../components/Navigation/Home"
 function Base() {
   const { activeLink } = useActiveLink();
@@ -20,7 +20,7 @@ function Base() {
         {activeLink === 'image' && <ImageToPDF />}
         {activeLink === 'compress' && <CompressPDF />}
         {activeLink === 'addpages' && <AddPages />}
-        {activeLink === 'extract' && <GetPDFImages />}
+        {activeLink === 'extract' && <ExtractImages />}
     </div>
   );
 }

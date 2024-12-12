@@ -16,7 +16,7 @@ const Sidebar = () => {
 
                 <h1 className="text-[1rem] mt-10 flex  flex-row justify-start items-center gap-3 md:text-[1.4rem] lg:text-[1.4rem] font-pacifico pb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                     <Link href="/" className="flex items-center gap-2">
-                        <Image src="/images/logo.svg" alt="logo" width={30} height={30} />
+                        <Image src="/images/UI_Nav/logo.svg" alt="logo" width={30} height={30} />
                     </Link>
                     PDF Manipulator
                 </h1>

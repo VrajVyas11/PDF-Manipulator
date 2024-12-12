@@ -25,7 +25,7 @@ const AddPages = () => {
       className:
         "font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
     });
-  },[toast]);
+  }, [toast]);
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -277,7 +277,7 @@ const AddPages = () => {
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
             <Image
-              src="/images/download.svg"
+              src="/images/ButtonUtils/download.svg"
               alt="logo"
               width={28}
               height={28}
@@ -331,7 +331,7 @@ const AddPages = () => {
                         >
                           <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                             <Image
-                              src={`${previewOpen ? 'images/eye1.svg' : 'images/eye2.svg'}`}
+                              src={`${previewOpen ? 'images/ButtonUtils/eye1.svg' : 'images/ButtonUtils/eye2.svg'}`}
                               alt="logo"
                               width={28}
                               height={28}
@@ -342,7 +342,7 @@ const AddPages = () => {
                             </span>
                           </span>
                         </button>
-                        { pdfs.length > 0 && (
+                        {pdfs.length > 0 && (
                           <button
                             disabled={!pages.length > 0 || !previewPdfPages.length > 0}
                             onClick={openDialog}
@@ -350,7 +350,7 @@ const AddPages = () => {
                           >
                             <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                               <Image
-                                src={`/addpages.svg`}
+                                src={`images/options/addpages.svg`}
                                 alt="logo"
                                 width={28}
                                 height={28}
@@ -380,7 +380,7 @@ const AddPages = () => {
                             multiple
                           />
                           <Image
-                            src="/images/add.svg"
+                            src="/images/ButtonUtils/add.svg"
                             alt="Add Image"
                             width={24}
                             height={24}
@@ -461,7 +461,7 @@ const AddPages = () => {
                 >
                   <span className="relative min-w-36 md:min-w-40 before:g7  min-h-fit px-4  overflow-hidden flex  gap-3 w-full justify-center py-2 items-center bg-red-500  bg-opacity-20 p-2  rounded-2xl border-2 border-red-500 border-opacity-50 backdrop-blur-md">
                     <Image
-                      src="/images/close.svg"
+                      src="/images/ButtonUtils/close.svg"
                       alt="logo"
                       width={28}
                       height={28}
@@ -480,7 +480,7 @@ const AddPages = () => {
                 >
                   <span className="relative min-w-36 md:min-w-40 before:g7  min-h-fit px-4  overflow-hidden flex  gap-3 w-full justify-center py-2 items-center bg-green-500  bg-opacity-20 p-2  rounded-2xl border-2 border-green-500 border-opacity-50 backdrop-blur-md">
                     <Image
-                      src="/images/plus.svg"
+                      src="/images/ButtonUtils/plus.svg"
                       alt="logo"
                       width={28}
                       height={28}

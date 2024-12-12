@@ -20,8 +20,8 @@ const MobileNav = () => {
   };
   return (
     <header className='w-full h-fit flex flex-row justify-between items-center  border-2 bg-opacity-95 border-s2 bg-s1 shadow-md shadow-purple-200/50  lg:hidden absolute z-50'>
-      <Link href="/" className=' flex px-2 py-3 items-center gap-2 md:py-2'>
-        <Image src="/images/logo.svg" alt='logo' width={40} height={40} />
+      <Link href="/" className=' flex w-full px-2 py-3 items-center gap-2 md:py-2'>
+        <Image src="/images/UI_Nav/logo.svg" alt='logo' width={40} height={40} />
         <h1 className="text-[1rem] md:text-[1.4rem] lg:text-[2rem] font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
           PDF Manipulator
         </h1>
@@ -33,7 +33,7 @@ const MobileNav = () => {
             <Image
               width={111}
               height={111}
-              src={`/images/${"magic"}.svg`}
+              src={`/images/UI_Nav/magic.svg`}
               alt="magic"
               className="size-1/2 object-contain"
             />
@@ -43,7 +43,7 @@ const MobileNav = () => {
             <>
             <SheetTitle className="text-lg font-bold">Menu</SheetTitle>
               <div className="text-[1rem] mt-1 mb-7 flex  flex-row justify-start items-center gap-3   font-pacifico text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
-                <Image src="/images/logo.svg" alt='logo' width={30} height={30} />
+                <Image src="/images/UI_Nav/logo.svg" alt='logo' width={30} height={30} />
                 PDF Manipulator
               </div>
 

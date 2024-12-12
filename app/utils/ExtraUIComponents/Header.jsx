@@ -29,7 +29,7 @@ const Header = () => {
         >
             <div className="mx-auto max-w-[1252px] px-16 max-xl:px-10 max-sm:px-4 flex h-14 items-center max-lg:px-5">
                 <a className="lg:hidden flex flex-row justify-start items-center flex-1 cursor-pointer z-2">
-                    <Image src="/images/logo.svg" width={50} height={50} alt="logo" />
+                    <Image src="/images/UI_Nav/logo.svg" width={50} height={50} alt="logo" />
                     <h1 className="text-[1.2rem] ml-4  font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                         PDF Manipulator
                     </h1>
@@ -88,7 +88,7 @@ const Header = () => {
                                             "max-lg:hidden flex justify-center items-center transition-transform duration-500 cursor-pointer",
                                         )}
                                     >
-                                        <Image src="/images/logo.svg" width={50} height={50} alt="logo" />
+                                        <Image src="/images/UI_Nav/logo.svg" width={50} height={50} alt="logo" />
                                         <h1 className=" ml-4 text-[1.2rem] font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                                             PDF Manipulator
                                         </h1>
@@ -129,7 +129,7 @@ const Header = () => {
 
                         <div className="lg:hidden block absolute top-1/2 left-0 w-[960px] h-[380px] translate-x-[-290px] -translate-y-1/2 rotate-90">
                             <Image
-                                src="/images/bg-outlines.svg"
+                                src="/images/ExtraUI/bg-outlines.svg"
                                 width={960}
                                 height={380}
                                 alt="outline"
@@ -153,7 +153,7 @@ const Header = () => {
                     <Image
                         width={111}
                         height={111}
-                        src={`/images/${isOpen ? "close" : "magic"}.svg`}
+                        src={`/images/UI_Nav/${isOpen ? "close" : "magic"}.svg`}
                         alt="magic"
                         className="size-1/2 object-contain"
                     />

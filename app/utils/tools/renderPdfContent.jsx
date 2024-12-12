@@ -11,11 +11,9 @@ export default function renderPdfContent(pdfData=null,editorRef,currentPage) {
       width: `${canvasDimensions.width}px`,
       height: `${canvasDimensions.height}px`,
       position: 'relative',
-      background: 'white',
-      border: '1px solid #ccc',
+      background: 'transparent',
       overflow: 'auto',
       wordBreak: 'break-word',
-      padding: '10px',
       whiteSpace: 'pre-wrap', // Ensure spaces and line breaks are preserved
     };
 
@@ -49,7 +47,7 @@ export default function renderPdfContent(pdfData=null,editorRef,currentPage) {
 
     return ( 
       <div
-        className="relative mx-auto p-4 bg-white shadow-lg"
+        className="relative mx-auto bg-transparent"
         style={contentStyle}
         contentEditable="true"
         ref={editorRef}

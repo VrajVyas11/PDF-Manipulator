@@ -11,7 +11,7 @@ const ImageToPDF = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
-  
+
   const showToast = (message) => {
     toast({
       title: message,
@@ -21,7 +21,7 @@ const ImageToPDF = () => {
     });
   };
 
-  
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -31,20 +31,20 @@ const ImageToPDF = () => {
       showToast("Please Upload A Valid Image File");
     }
   };
-  
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setDragActive(true);
   };
-  
+
   const handleDragLeave = () => {
     setDragActive(false);
   };
-  
+
   const handleDrop = (e) => {
     e.preventDefault();
     setDragActive(false);
-  
+
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setImageFile(file);
@@ -53,54 +53,54 @@ const ImageToPDF = () => {
       showToast("Please Upload A Valid Image File");
     }
   };
-  
+
   const convertToPDF = async () => {
     if (!imageFile) return;
-  
+
     setIsProcessing(true);
-  
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
         const imageBytes = e.target?.result;
         const pdfDoc = await PDFDocument.create();
         const page = pdfDoc.addPage();
-  
+
         const embeddedImage =
           imageFile.type === 'image/png'
             ? await pdfDoc.embedPng(imageBytes)
             : await pdfDoc.embedJpg(imageBytes);
-  
+
         const { width, height } = embeddedImage.scale(1);
         page.setSize(width, height);
         page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
-  
+
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         setPdfUrl(URL.createObjectURL(blob));
-         toast({
-        title: 'Your PDF is ready to be downloaded. Click below to download it.',
-        action: (
-          <ToastAction
-            className="bg-green-500 hover:bg-green-800 text-p5 bg-opacity-10 border-green-500"
-            onClick={downloadPdf}
-            altText="Download PDF"
-          >
-            Download
-          </ToastAction>
-        ),
-        className:"flex gap-3 font-bold text-[12px] md:text-[16px] text-green-500 w-full justify-center items-center bg-green-500 bg-opacity-20  p-2 md:p-4 py-2 rounded-lg border-2 border-green-500 backdrop-blur-md",
-      });
+        toast({
+          title: 'Your PDF is ready to be downloaded. Click below to download it.',
+          action: (
+            <ToastAction
+              className="bg-green-500 hover:bg-green-800 text-p5 bg-opacity-10 border-green-500"
+              onClick={downloadPdf}
+              altText="Download PDF"
+            >
+              Download
+            </ToastAction>
+          ),
+          className: "flex gap-3 font-bold text-[12px] md:text-[16px] text-green-500 w-full justify-center items-center bg-green-500 bg-opacity-20  p-2 md:p-4 py-2 rounded-lg border-2 border-green-500 backdrop-blur-md",
+        });
       } catch (err) {
         showToast(`Failed to convert image to PDF: ${err}`);
       } finally {
         setIsProcessing(false);
       }
     };
-  
+
     reader.readAsArrayBuffer(imageFile);
   };
-  
+
   const downloadPdf = () => {
     if (pdfUrl) {
       const link = document.createElement('a');
@@ -109,7 +109,7 @@ const ImageToPDF = () => {
       link.click();
     }
   };
-  
+
 
   return (
     <div className="flex  flex-col w-full ">
@@ -128,7 +128,7 @@ const ImageToPDF = () => {
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
             <Image
-              src="/images/download.svg"
+              src="/images/ButtonUtils/download.svg"
               alt="logo"
               width={28}
               height={28}
@@ -179,7 +179,7 @@ const ImageToPDF = () => {
                     >
                       <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                         <Image
-                          src={`${previewOpen ? 'images/eye1.svg' : 'images/eye2.svg'}`}
+                          src={`${previewOpen ? 'images/ButtonUtils/eye1.svg' : 'images/ButtonUtils/eye2.svg'}`}
                           alt="logo"
                           width={28}
                           height={28}
@@ -199,7 +199,7 @@ const ImageToPDF = () => {
                       >
                         <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                           <Image
-                            src={`images/process.svg`}
+                            src={`images/ButtonUtils/process.svg`}
                             alt="logo"
                             width={28}
                             height={28}
@@ -213,7 +213,7 @@ const ImageToPDF = () => {
                     )}
                     <div className=' justify-center items-center flex'>
                       {isProcessing && (
-                        <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                       )}
                     </div>
                   </div>
@@ -235,7 +235,7 @@ const ImageToPDF = () => {
                         onChange={handleFileChange}
                       />
                       <Image
-                        src="/images/add.svg"
+                        src="/images/ButtonUtils/add.svg"
                         alt="Add Image"
                         width={24}
                         height={24}

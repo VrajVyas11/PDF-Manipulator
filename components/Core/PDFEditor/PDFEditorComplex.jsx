@@ -326,6 +326,7 @@ const PDFEditorComplex = () => {
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '0';
       tempDiv.style.top = '0';
+      tempDiv.style.display = "none"
       tempDiv.style.width = '560px'; // Set width for rendering
       tempDiv.style.height = '1000px'; // Set height for rendering
       tempDiv.style.overflow = 'hidden';
@@ -377,7 +378,7 @@ const PDFEditorComplex = () => {
                   >
                     <span className="relative px-4 md:px-8 flex justify-end items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                       <Image
-                        src={`images/download.svg`}
+                        src={`images/ButtonUtils/download.svg`}
                         alt="logo"
                         width={28}
                         height={28}
@@ -393,11 +394,11 @@ const PDFEditorComplex = () => {
                     <button
                       disabled={!imageFile}
                       onClick={handleContinue}
-                      className="flex pl-2 min-w-32 md:min-w-44 items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+                      className="flex pl-2 min-w-36 md:min-w-44 items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
                     >
                       <span className="relative px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                         <Image
-                          src={`images/process.svg`}
+                          src={`images/ButtonUtils/process.svg`}
                           alt="logo"
                           width={28}
                           height={28}
@@ -411,7 +412,7 @@ const PDFEditorComplex = () => {
                   )}
                   <div className='flex justify-center items-center'>
                     {isContinueClicked && htmlContent.length === 0 && (
-                      <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                     )}
                   </div>
                   {/* </div>} */}
@@ -436,7 +437,7 @@ const PDFEditorComplex = () => {
                       onChange={handleFileChange}
                     />
                     <Image
-                      src="/images/add.svg"
+                      src="/images/ButtonUtils/add.svg"
                       alt="Add Image"
                       width={24}
                       height={24}
@@ -451,36 +452,36 @@ const PDFEditorComplex = () => {
             </div>
           </div>
         </div>
-        {isContinueClicked && htmlContent.length > 0 && <div className="flex px-16  sm-320:-mt-44 sm-374:-mt-40 justify-between items-center md:mt-0 flex-col sm:flex-row">
+        {isContinueClicked && htmlContent.length > 0 && <div className="flex px-16 justify-center md:justify-between items-center md:mt-0 md:flex-row">
           <button
             disabled={currentPage === 0}
             onClick={handlePreviousPage}
             className="flex items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
           >
-            <span className="relative min-w-32 md:min-w-44 px-4 md:px-6 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+            <span className="relative min-w-28 md:min-w-44 px-2 md:px-6 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
               <Image
-                src={`images/previous.svg`}
+                src={`images/ButtonUtils/previous.svg`}
                 alt="logo"
                 width={28}
                 height={28}
                 className="brightness-200"
               />
-              <span className="font-semibold text-16 flex gap-4 p-4 pr-6 text-p5">
+              <span className="font-semibold text-[13px] md:text-16 flex p-4 md:pr-6 text-p5">
                 Previous
               </span>
             </span>
           </button>
-          <span className="text-[20px] tracking-wide font-semibold text-p5 mt-2 sm:mt-0">{`Page ${currentPage + 1} of ${numPages}`}</span>
+          <span className="text-[13px] min-w-16 flex justify-center items-center text-center md:text-[20px] tracking-wide font-semibold text-p5 mt-0 md:mt-2">{`Page ${currentPage + 1} of ${numPages}`}</span>
           <button
             disabled={currentPage === numPages - 1} onClick={handleNextPage}
             className="flex pl-2  items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
           >
-            <span className="relative px-4 md:px-6 min-w-32 md:min-w-44 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
-              <span className="font-semibold text-16 flex gap-4 p-4 pl-6 text-p5">
+            <span className="relative px-2 md:px-6 min-w-28 md:min-w-44  flex justify-around items-center w-fit before:g7 g4 min-h-fit py-1 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
+              <span className="font-semibold text-[13px] md:text-16 flex p-4 md:pl-6 text-p5">
                 Next
               </span>
               <Image
-                src={`images/next.svg`}
+                src={`images/ButtonUtils/next.svg`}
                 alt="logo"
                 width={28}
                 height={28}

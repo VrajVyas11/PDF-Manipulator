@@ -20,7 +20,7 @@ const ExperimentalLanding = ({ setGetStarted }) => {
                 A versatile PDF tool for editing, merging, compressing, and converting. Features include drag-and-drop for adding pages, extracting images, and viewing. Fully responsive, it simplifies document management.
               </p>
               <LinkScroll to="features" offset={-100} spy smooth>
-                <Button onClick={() => setGetStarted(true)} icon="/images/zap.svg">Get Started</Button>
+                <Button onClick={() => setGetStarted(true)} icon="/images/ButtonUtils/zap.svg">Get Started</Button>
               </LinkScroll>
             </div>
 

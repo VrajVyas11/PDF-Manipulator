@@ -158,7 +158,7 @@ const PDFCompressor = () => {
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
             <Image
-              src="/images/download.svg"
+              src="/images/ButtonUtils/download.svg"
               alt="logo"
               width={28}
               height={28}
@@ -209,7 +209,7 @@ const PDFCompressor = () => {
                     >
                       <span className="relative px-4 md:px-8 flex justify-end items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                         <Image
-                          src={`${previewOpen ? 'images/eye1.svg' : 'images/eye2.svg'}`}
+                          src={`${previewOpen ? 'images/ButtonUtils/eye1.svg' : 'images/ButtonUtils/eye2.svg'}`}
                           alt="logo"
                           width={28}
                           height={28}
@@ -229,7 +229,7 @@ const PDFCompressor = () => {
                       >
                         <span className="relative px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                           <Image
-                            src={`images/process.svg`}
+                            src={`images/ButtonUtils/process.svg`}
                             alt="logo"
                             width={28}
                             height={28}
@@ -243,7 +243,7 @@ const PDFCompressor = () => {
                     )}
                     <div className='flex justify-center items-center'>
                       {isProcessing && (
-                        <div className="w-6 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                       )}
                     </div>
                     {/* </div>} */}
@@ -268,7 +268,7 @@ const PDFCompressor = () => {
                         onChange={handleFileChange}
                       />
                       <Image
-                        src="/images/add.svg"
+                        src="/images/ButtonUtils/add.svg"
                         alt="Add Image"
                         width={24}
                         height={24}
@@ -293,7 +293,7 @@ const PDFCompressor = () => {
                       />
                       <div className="flex min-w-32 md:min-w-44 items-center py-2 gap-3  bg-sky-500 bg-opacity-20 p-4 rounded-lg border-2 border-p1 border-opacity-50 backdrop-blur-md ">
                         <Image
-                          src="/images/quality.svg"
+                          src="/images/ButtonUtils/quality.svg"
                           alt="Quality"
                           width={32}
                           height={32}
@@ -310,7 +310,7 @@ const PDFCompressor = () => {
                       <div className="flex w-full justify-center items-center gap-4">
                         <div className="flex  gap-3 w-full justify-center py-2 items-center bg-red-500  bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md">
                           <Image
-                            src="/images/decompressed.svg"
+                            src="/images/ButtonUtils/decompressed.svg"
                             alt="Original Size"
                             width={32}
                             height={32}
@@ -324,7 +324,7 @@ const PDFCompressor = () => {
                         {compressionMessage && (
                           <div className="flex gap-3 w-full justify-center items-center bg-green-500 bg-opacity-20  p-2 md:p-4 py-2 rounded-lg border-2 border-green-500 backdrop-blur-md">
                             <Image
-                              src="/images/compress.svg"
+                              src="/images/options/compress.svg"
                               alt="Compressed Size"
                               width={32}
                               height={32}

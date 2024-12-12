@@ -29,7 +29,7 @@ const Home = () => {
                         <ul className="flex items-center justify-center lg:justify-start w-full gap-5">
                             <div className='mr-0 md:mr-12'>
                                 <LinkScroll to="features" offset={-100} spy smooth>
-                                    <Button onClick={() => setGetStarted(true)} icon="/images/zap.svg">Get Started</Button>
+                                    <Button onClick={() => setGetStarted(true)} icon="/images/ButtonUtils/zap.svg">Get Started</Button>
                                 </LinkScroll>
                             </div>
                             {

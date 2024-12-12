@@ -2,7 +2,7 @@ export const navLinks = [
   {
     id: 'home',
     route: '',
-    icon: '/images/home.svg',
+    icon: '/images/options/home.svg',
     label: 'Home',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
@@ -10,7 +10,7 @@ export const navLinks = [
   {
     id: 'merge',
     route: '',
-    icon: '/images/merge.svg',
+    icon: '/images/options/merge.svg',
     label: 'Merge PDF',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
@@ -18,7 +18,7 @@ export const navLinks = [
   {
     id: 'edit',
     route: '',
-    icon: '/images/edit.svg',
+    icon: '/images/options/edit.svg',
     label: 'Edit PDF',
     description: 'Quickly and easily modify the content of your PDFs, including text, images, and layouts.',
     sideImage: '/images/detail-2.png',
@@ -26,7 +26,7 @@ export const navLinks = [
   {
     id: 'image',
     route: '',
-    icon: '/images/ImageToPDF.svg',
+    icon: '/images/options/ImageToPDF.svg',
     label: 'Image to PDF',
     description: 'Convert your images into high-quality PDFs in just a few clicks for secure and professional sharing.',
     sideImage: '/images/detail-3.png',
@@ -34,7 +34,7 @@ export const navLinks = [
   {
     id: 'compress',
     route: '',
-    icon: '/images/compress.svg',
+    icon: '/images/options/compress.svg',
     label: 'Compress PDF',
     description: 'Easily reduce the file size of your PDFs for faster uploads and hassle-free sharing.',
     sideImage: '/images/detail-4.png',
@@ -42,7 +42,7 @@ export const navLinks = [
   {
     id: 'addpages',
     route: '',
-    icon: '/addpages.svg',
+    icon: '/images/options/addpages.svg',
     label: 'Add Pages',
     description: 'Insert new pages seamlessly into your PDF to expand or update your document as needed.',
     sideImage: '/images/plan-3.png',
@@ -50,7 +50,7 @@ export const navLinks = [
   {
     id: 'extract',
     route: '',
-    icon: '/images/extractImages.svg',
+    icon: '/images/options/extractImages.svg',
     label: 'Extract Images',
     description: 'Effortlessly extract and save images from your PDFs for use in other documents or projects.',
     sideImage: '/images/plan-1.png',
@@ -67,7 +67,7 @@ export const navLinks = [
   {
     id: "GitHub",
     name: "GitHub",
-    icon: "/images/github-logo.png",
+    icon: "/images/Socials/github-logo.png",
     alt: "GitHub Icon",
     description:"",
     URL: "https://github.com/VrajVyas11/Next_JS_PDF_Manipulator"

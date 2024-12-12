@@ -14,7 +14,7 @@ const PdfMerge = () => {
   const [previewPdfPages, setPreviewPdfPages] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
-  
+
   const showToastError = useCallback((message) => {
     toast({
       title: message,
@@ -22,20 +22,20 @@ const PdfMerge = () => {
       className:
         'font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md',
     });
-  },[toast]);
-  
+  }, [toast]);
+
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    
+
     const invalidFiles = files.filter(file => file.type !== 'application/pdf');
-    
+
     if (invalidFiles.length > 0) {
       showToastError("Invalid PDF Files. Only PDF files are allowed.");
-      return; 
+      return;
     }
-    
+
     const newPdfs = [...pdfs];
-  
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -44,12 +44,12 @@ const PdfMerge = () => {
         await extractPages(pdfData, newPdfs.length - 1);
         setCount((prevCount) => prevCount + 1);
       };
-  
+
       reader.readAsArrayBuffer(file);
     }
-  
+
     setPdfs(newPdfs);
-  
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -59,8 +59,8 @@ const PdfMerge = () => {
       reader.readAsArrayBuffer(file);
     }
   };
-  
-  
+
+
   const extractPages = async (pdfData, pdfIndex) => {
     try {
       const pdfDoc = await PDFDocument.load(pdfData);
@@ -75,26 +75,26 @@ const PdfMerge = () => {
       showToastError(`Error extracting pages: ${error.message}`);
     }
   };
-  
+
   const setingPreviewPages = async (pdfData, pdfIndex) => {
     const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
     const pageCount = pdf.numPages;
-  
+
     const pagesArray = [];
-  
+
     for (let i = 1; i <= pageCount; i++) {
       const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 1 });
-  
+
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-  
+
       await page.render({ canvasContext: context, viewport }).promise;
-  
+
       const image = canvas.toDataURL('image/png');
-  
+
       pagesArray.push({
         index: i,
         pdfIndex,
@@ -102,24 +102,24 @@ const PdfMerge = () => {
         preview: image,
       });
     }
-  
+
     setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
   };
-  
+
   const mergePdfs = useCallback(async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
-  
+
     try {
       const mergedPdf = await PDFDocument.create();
-  
+
       for (const page of pages) {
         const { index } = page;
         const pdfDoc = await PDFDocument.load(pdfs[page.pdfIndex]);
-  
+
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
       }
-  
+
       const pdfBytes = await mergedPdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       setPreviewPdf(URL.createObjectURL(blob));
@@ -128,15 +128,15 @@ const PdfMerge = () => {
       showToastError(`Error merging PDFs: ${error.message}`);
     }
   }, [pdfs, pages, showToastError]);
-  
+
   const handleDragStart = (event, index) => {
     event.dataTransfer.setData('text/plain', index);
   };
-  
+
   const handleDragOver = (event) => {
     event.preventDefault();
   };
-  
+
   const downloadPdf = () => {
     if (mergedPdfBytes) {
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
@@ -147,19 +147,19 @@ const PdfMerge = () => {
       link.click();
     }
   };
-  
+
   const handleDrop = async (e) => {
     const files = Array.from(e.target.files);
-    
+
     const invalidFiles = files.filter(file => file.type !== 'application/pdf');
-    
+
     if (invalidFiles.length > 0) {
       showToastError("Invalid PDF Files. Only PDF files are allowed.");
-      return; 
+      return;
     }
-    
+
     const newPdfs = [...pdfs];
-  
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -168,12 +168,12 @@ const PdfMerge = () => {
         await extractPages(pdfData, newPdfs.length - 1);
         setCount((prevCount) => prevCount + 1);
       };
-  
+
       reader.readAsArrayBuffer(file);
     }
-  
+
     setPdfs(newPdfs);
-  
+
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (ev) => {
@@ -190,11 +190,11 @@ const PdfMerge = () => {
       mergePdfs();
     }
   }, [pages, mergePdfs]);
-  
+
   useEffect(() => {
     mergePdfs();
   }, [count, mergePdfs]);
-  
+
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
@@ -211,7 +211,7 @@ const PdfMerge = () => {
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
             <Image
-              src="/images/download.svg"
+              src="/images/ButtonUtils/download.svg"
               alt="logo"
               width={28}
               height={28}
@@ -263,7 +263,7 @@ const PdfMerge = () => {
                   >
                     <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                       <Image
-                        src={`${previewOpen ? 'images/eye1.svg' : 'images/eye2.svg'}`}
+                        src={`${previewOpen ? 'images/ButtonUtils/eye1.svg' : 'images/ButtonUtils/eye2.svg'}`}
                         alt="logo"
                         width={28}
                         height={28}
@@ -291,7 +291,7 @@ const PdfMerge = () => {
                         multiple
                       />
                       <Image
-                        src="/images/add.svg"
+                        src="/images/ButtonUtils/add.svg"
                         alt="Add Image"
                         width={24}
                         height={24}

@@ -16,7 +16,7 @@ const Options = () => {
           className="relative text-center md:bg-opacity-10 bg-black md:bg-transparent bg-opacity-80 w-fit border-p1 flex justify-center items-center flex-col z-2 border-y-[1px] my-7 "
         >
           <div className="rounded-half absolute -top-10 left-[calc(50%-40px)] z-4 flex size-20 items-center justify-center border-2 border-s2 bg-s1">
-            <Image width={10} height={10} src="/images/faq-logo.svg" alt="logo" className="size-1/2" />
+            <Image width={10} height={10} src="/images/ButtonUtils/optionsHead.svg" alt="logo" className="size-1/2" />
           </div>
           <div className="text-4xl mt-11 font-bold text-white mb-2">PDF Manipulator Suite</div>
           <p className="text-lg text-gray-500 mb-6">Edit, compress, merge, convert, and more—all in one tool!</p>

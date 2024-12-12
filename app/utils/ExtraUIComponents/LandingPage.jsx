@@ -20,7 +20,7 @@ function LandingPage({ setGetStarted }) {
                     width={69}
                     height={16}
                     className="absolute top-0 left-0 h-32 object-contain border-none max-w-full align-middle block"
-                    src="images/logo.svg"
+                    src="images/UI_Nav/logo.svg"
                     alt="Logo SVG"
                   />
 
@@ -60,7 +60,7 @@ function LandingPage({ setGetStarted }) {
                 </div>
               </div>
 
-              <div className="hero-figure anime-element relative text-center md:text-left md:before:absolute md:before:top-[-57.8%] md:before:left-[-1.3%] md:before:w-[152.84%] md:before:h-[178.78%] md:before:bg-[url('/images/hero-back-illustration.svg')] md:before:bg-cover md:after:absolute md:after:top-[-35.6%] md:after:w-[57.2%] md:after:h-[87.88%] md:after:left-[99.6%] md:after:bg-[url('/images/hero-top-illustration.svg')] md:after:bg-no-repeat">
+              <div className="hero-figure anime-element relative text-center md:text-left md:before:absolute md:before:top-[-57.8%] md:before:left-[-1.3%] md:before:w-[152.84%] md:before:h-[178.78%] md:before:bg-[url('/images/ExtraUI/hero-back-illustration.svg')] md:before:bg-cover md:after:absolute md:after:top-[-35.6%] md:after:w-[57.2%] md:after:h-[87.88%] md:after:left-[99.6%] md:after:bg-[url('/images/ExtraUI/hero-top-illustration.svg')] md:after:bg-no-repeat">
                 <svg className="placeholder overflow-hidden block w-auto h-auto" width="528" height="396" viewBox="0 0 528 396">
                   <rect width="528" height="396" fill="transparent" />
                 </svg>
