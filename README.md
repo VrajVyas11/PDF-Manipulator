@@ -1,4 +1,4 @@
-# **Next.js PDF Manipulator**
+# **PDF Manipulator**
 
 **A feature-rich PDF management tool for seamless editing, merging, compression, and more!**  
 **🚀 Live Demo:** [Explore the App](https://next-js-pdf-manipulator.onrender.com/)
@@ -7,7 +7,7 @@
 
 ## **Overview**
 
-Next.js PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
+PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
 
 ---
 
@@ -70,12 +70,12 @@ Follow these steps to set up and run the project locally:
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/VrajVyas11/Next_JS_PDF_Manipulator.git
+   git clone https://github.com/VrajVyas11/PDF-Manipulator.git
    ```
 
 2. **Navigate to the Project Directory**  
    ```bash
-   cd Next_JS_PDF_Manipulator
+   cd PDF-Manipulator
    ```
 
 3. **Install Dependencies**  
@@ -103,7 +103,7 @@ Contributions are welcome! Follow these steps to contribute:
 
 2. **Clone the Forked Repository**  
    ```bash
-   git clone https://github.com/VrajVyas11/Next_JS_PDF_Manipulator.git
+   git clone https://github.com/VrajVyas11/PDF-Manipulator.git
    ```
 
 3. **Create a New Branch**  
