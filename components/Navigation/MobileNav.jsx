@@ -19,10 +19,10 @@ const MobileNav = () => {
       setActiveLink(id);
   };
   return (
-    <header className='w-full h-fit flex flex-row justify-between items-center  border-2 bg-opacity-95 border-s2 bg-s1 shadow-md shadow-purple-200/50  lg:hidden absolute z-50'>
+    <header className='w-full h-fit  bg-gradient-to-b from-[#0a1130] to-[#0d1845]  flex flex-row justify-between items-center  border-2 bg-opacity-95 border-s2 shadow-md shadow-purple-200/50  lg:hidden absolute z-50'>
       <Link href="/" className=' flex w-full px-2 py-3 items-center gap-2 md:py-2'>
         <Image src="/images/UI_Nav/logo.svg" alt='logo' width={40} height={40} />
-        <h1 className="text-[1rem] md:text-[1.4rem] lg:text-[2rem] font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
+        <h1 className="text-[1rem] bg-transparent md:text-[1.4rem] lg:text-[2rem] font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
           PDF Manipulator
         </h1>
       </Link>
