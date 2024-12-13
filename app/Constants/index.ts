@@ -1,7 +1,6 @@
 export const navLinks = [
   {
     id: 'home',
-    route: '',
     icon: '/images/options/home.svg',
     label: 'Home',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
@@ -9,7 +8,6 @@ export const navLinks = [
   },
   {
     id: 'merge',
-    route: '',
     icon: '/images/options/merge.svg',
     label: 'Merge PDF',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
@@ -17,7 +15,6 @@ export const navLinks = [
   },
   {
     id: 'edit',
-    route: '',
     icon: '/images/options/edit.svg',
     label: 'Edit PDF',
     description: 'Quickly and easily modify the content of your PDFs, including text, images, and layouts.',
@@ -25,7 +22,6 @@ export const navLinks = [
   },
   {
     id: 'image',
-    route: '',
     icon: '/images/options/ImageToPDF.svg',
     label: 'Image to PDF',
     description: 'Convert your images into high-quality PDFs in just a few clicks for secure and professional sharing.',
@@ -33,7 +29,6 @@ export const navLinks = [
   },
   {
     id: 'compress',
-    route: '',
     icon: '/images/options/compress.svg',
     label: 'Compress PDF',
     description: 'Easily reduce the file size of your PDFs for faster uploads and hassle-free sharing.',
@@ -41,7 +36,6 @@ export const navLinks = [
   },
   {
     id: 'addpages',
-    route: '',
     icon: '/images/options/addpages.svg',
     label: 'Add Pages',
     description: 'Insert new pages seamlessly into your PDF to expand or update your document as needed.',
@@ -49,7 +43,6 @@ export const navLinks = [
   },
   {
     id: 'extract',
-    route: '',
     icon: '/images/options/extractImages.svg',
     label: 'Extract Images',
     description: 'Effortlessly extract and save images from your PDFs for use in other documents or projects.',
@@ -58,7 +51,7 @@ export const navLinks = [
   {
     id: "LinkedIn",
     name: "LinkedIn",
-    icon: "https://img.icons8.com/?size=100&id=xuvGCOXi8Wyg&format=png&color=000000",
+    icon: "/images/Socials/linkedin.svg",
     alt: "LinkedIn Icon",
     description:"",
     URL: "https://www.linkedin.com/in/vraj-vyas-983249297/"

@@ -14,7 +14,7 @@ const Sidebar = () => {
         <aside className="hidden overflow-auto min-h-screen w-72  border-2 bg-opacity-40 border-s2 bg-black py-5 shadow-md shadow-purple-200/50 lg:flex    p-5 ">
             <div className="flex size-full flex-col gap-10">
 
-                <h1 className="text-[1rem] mt-10 flex  flex-row justify-start items-center gap-3 md:text-[1.4rem] lg:text-[1.4rem] font-pacifico pb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
+                <h1 className="text-[1rem] font-bold mt-10 flex  flex-row justify-start items-center gap-3 md:text-[1.4rem] lg:text-[1.4rem] font-pacifico pb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                     <Link href="/" className="flex items-center gap-2">
                         <Image src="/images/UI_Nav/logo.svg" alt="logo" width={30} height={30} />
                     </Link>
@@ -144,13 +144,15 @@ const Sidebar = () => {
                                                 </svg>
                                             </span>
                                             {link.icon && (
-                                                <Image
+                                                <div className=" flex justify-center items-center h-9 w-9 p-1">
+                                                    <Image
                                                     src={link.icon}
                                                     width={25}
                                                     height={25}
                                                     alt="circle"
-                                                    className="object-contain size-6 z-10 "
+                                                    className={`object-contain ${link.name=="LinkedIn"?"size-5":"size-44"} z-10 `}
                                                 />
+                                                </div>
                                             )}
 
                                         </span>

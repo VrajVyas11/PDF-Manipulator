@@ -9,7 +9,7 @@ const Home = () => {
     return (
 
         <section className="am:flex-center items-start justify-start flex h-full flex-col gap-4 w-full bg-banner bg-cover bg-no-repeat shadow-inner">
-            <section className="relative w-full max-sm:pt-10 max-sm:pb-0 pt-20 max-lg:pt-32  max-md:pt-16 ">
+            <section className="relative w-full max-sm:pt-6 max-sm:pb-0 pt-20 max-lg:pt-32  max-md:pt-16 ">
                 <div className="mx-auto w-full max-xl:pl-10 max-lg:pl-6 max-sm:pl-0">
                     <div className="relative w-full  text-center md:text-left z-2 max-w-none">
                         <div className="text-[18px] w-full md:ml-3 font-bold leading-[16px] tracking-[0.3em] mb-5 uppercase text-p3">
@@ -23,7 +23,7 @@ const Home = () => {
                         </p>
 
                         <p className="w-full block px-3 md:px-0 md:hidden text-gray-400 mb-14 leading-[32px] text-[18px] md:text-[22px] md:leading-[36px] max-md:mb-10">
-                            {`${"A comprehensive and versatile PDF tool designed to streamline the process of editing, merging, compressing, and converting PDF files. With a user-friendly interface, it offers convenient features such as drag-and-drop functionality for effortlessly adding pages, as well as powerful image extraction capabilities. The tool also enables seamless PDF viewing, ensuring you can work with your documents in a hassle-free manner. Fully responsive and intuitive, this solution enhances document management, making it easier than ever to handle your PDF files with efficiency and precision.".slice(0, 370)}...`}
+                            {`${"A comprehensive and versatile PDF tool designed to streamline the process of editing, merging, compressing, and converting PDF files. With a user-friendly interface, it offers convenient features such as drag-and-drop functionality for effortlessly adding pages, as well as powerful image extraction capabilities. The tool also enables seamless PDF viewing, ensuring you can work with your documents in a hassle-free manner. Fully responsive and intuitive, this solution enhances document management, making it easier than ever to handle your PDF files with efficiency and precision.".slice(0, 312)}...`}
                         </p>
 
                         <ul className="flex items-center justify-center lg:justify-start w-full gap-5">

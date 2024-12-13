@@ -11,7 +11,7 @@ const PDFViewer = ({ file }) => {
   return (
     <div>
       {file && (
-        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
+        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.js">
           <div className="h-[600px] overflow-auto" style={{
             scrollbarWidth: "thin",
             scrollbarColor: "rgba(100, 100, 100, 0.6) rgba(100, 100, 100, 0.1)",

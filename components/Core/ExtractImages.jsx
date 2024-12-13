@@ -226,12 +226,12 @@ const ExtractImages = () => {
                 {images.map((image) => (
                   <div
                     key={image.id}
-                    className="bg-gray-800 hover:scale-105 items-center justify-center border border-gray-700 p-1 rounded-lg hover:bg-gray-700 flex flex-col shadow transition duration-150 ease-in-out bg-p5/5 w-full font-normal   text-white text-center  backdrop-blur-[12px]  "
+                    className="bg-gray-800 hover:scale-105 items-center justify-center border border-gray-700 p-1 rounded-xl hover:bg-gray-700 flex flex-col shadow transition duration-150 ease-in-out bg-p5/5 w-full font-normal   text-white text-center  backdrop-blur-[12px]  "
                   >
                     <Image
                       src={image.url}
                       alt={`PDF Image ${image.id}`}
-                      className="object-cover w-full rounded-lg border-2 border-p1 border-opacity-65 h-full group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover w-full rounded-xl border-2 border-p1 border-opacity-65 h-full group-hover:scale-105 transition-transform duration-300"
                       onError={() => handleImageError(image.id)}
                       width={500}
                       height={500}
