@@ -37,7 +37,6 @@ Next.js PDF Manipulator is a web-based tool designed for effortless PDF manageme
 ### **PDF Handling**
 - **pdf-lib**: To create, modify, and manipulate PDFs.
 - **pdfjs-dist**: For parsing and rendering PDF documents.
-- **pdf-parse**: To extract text and metadata from PDFs.
 - **jspdf**: For generating PDFs dynamically in the browser.
 
 ### **UI Components**
@@ -46,9 +45,6 @@ Next.js PDF Manipulator is a web-based tool designed for effortless PDF manageme
 - **Quill Image Resize Module**: To enable image resizing within the editor.
 - **Quill Blot Formatter**: For handling custom formatting in the editor.
 
-### **Utility Libraries**
-- **File Saver**: For saving files locally, like PDFs.
-- **Next Connect**: For simplifying API route handling in Next.js.
 ---
 
 ## **Images**
