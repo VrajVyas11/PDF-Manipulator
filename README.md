@@ -141,10 +141,7 @@ This project is for learning purposes only and is released under the MIT License
 
 ## **Acknowledgements**
 
-- [PDF.js](https://mozilla.github.io/pdf.js/) for rendering PDF files.
 - [pdf-lib](https://pdf-lib.js.org/) for advanced PDF editing.
-- [FileSaver.js](https://github.com/eligrey/FileSaver.js/) for enabling downloads.
+- [pdf-dist](https://pdf.js.org/) for handling PDF rendering and processing.
 
---- 
-
-Feel free to further customize the content as per your preferences or project updates!
+---
