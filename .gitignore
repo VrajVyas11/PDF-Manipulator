@@ -4,7 +4,7 @@
 .pnp.js
 .yarn/install-state.gz
 legacy-pdf-lib/
-
+app/utils/ExtraUIComponents/
 Extra/
 ConvertPageToImage/
 # testing

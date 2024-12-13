@@ -5,6 +5,7 @@ import Image from 'next/image.js';
 import downloadPdf from "../../../app/utils/tools/downloadPdf";
 import { uploadPdf } from "../../../app/utils/tools/uploadPdf.jsx";
 import dynamic from 'next/dynamic.js';
+import { useToast } from '../../../hooks/use-toast';
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 function PDFEditorSimpleText() {
   const [pdfData, setPdfData] = useState(null);
@@ -14,12 +15,20 @@ function PDFEditorSimpleText() {
   const [dragActive, setDragActive] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [isContinueClicked, setIsContinueClicked] = useState(false);
+  const { toast } = useToast();
+  const showToastError = (message) => {
+    toast({
+      title: message,
+      variant: 'destructive',
+      className: " font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500  bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
+    });
+  };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
     } else {
-      alert('Please upload a valid PDF file');
+      showToastError('Please upload a valid PDF file');
     }
   };
 
@@ -37,7 +46,7 @@ function PDFEditorSimpleText() {
     if (file && file.type === 'application/pdf') {
       setImageFile(file);
     } else {
-      alert('Please upload a valid PDF file');
+      showToastError('Please upload a valid PDF file');
     }
   };
 
