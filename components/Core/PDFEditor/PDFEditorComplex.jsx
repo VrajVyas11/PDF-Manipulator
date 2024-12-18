@@ -322,41 +322,55 @@ const PDFEditorComplex = () => {
     for (let i = 0; i < totalPages; i++) {
       const pageHtml = htmlContent[i];
 
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '0';
-      tempDiv.style.top = '0';
-      tempDiv.style.display = "none"
-      tempDiv.style.width = '560px'; // Set width for rendering
-      tempDiv.style.height = '1000px'; // Set height for rendering
-      tempDiv.style.overflow = 'hidden';
-      tempDiv.style.zIndex = '-1'; // Place it behind other elements
-      tempDiv.style.backgroundColor = 'white'; // Ensure a white background for the PDF
-      tempDiv.innerHTML = pageHtml;
+      // Create a temporary container to render the content
+      const tempCanvas = document.createElement('canvas');
 
+      // Set canvas dimensions
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+
+      // Create an off-screen container to hold the HTML content
+      const tempDiv = document.createElement('div');
+      tempDiv.style.width = `${width}px`;
+      tempDiv.style.height = `${height}px`;
+      tempDiv.style.overflow = 'hidden';
+      tempDiv.style.zIndex = '-1';
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px'; // Hide the div off-screen
+      tempDiv.innerHTML = pageHtml;
+      const children = tempDiv.querySelectorAll('*');
+      children.forEach((child) => {
+        child.style.lineHeight = '24px'; // Line height in px
+        child.style.marginLeft = '4px';
+        child.style.marginRight = '4px';
+        child.style.wordSpacing = '4px'; // Add space between words (adjust the value as needed)
+      });
       document.body.appendChild(tempDiv);
 
-      // console.log('Temporary Div Content:', tempDiv.innerHTML); // Log the content
-
+      // Convert the HTML content to canvas using html2canvas
       const canvas = await html2canvas(tempDiv, {
         scale: 2,
         backgroundColor: '#ffffff',
+        x: 0,
+        y: 0,
+        width: width,
+        height: height,
+        useCORS: true, // Handle cross-origin images if necessary
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
+      // Add the image to the PDF
       if (i > 0) {
         doc.addPage();
       }
-
       doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
-      document.body.removeChild(tempDiv);
+      document.body.removeChild(tempDiv); // Clean up after each iteration
     }
 
     doc.save('document.pdf');
   };
-
 
 
 
@@ -498,28 +512,40 @@ const PDFEditorComplex = () => {
         <div className="sm-320:-mt-44 sm-374:-mt-40 md:mt-6 h-fit md:h-full">
           <div className="flex justify-center items-center sm-320:scale-[49%] sm-374:scale-[57%] sm:scale-75 md:scale-[100%] lg:scale-[100%] xl:scale-[100%]">
             <JoditEditor
-              ref={editorRef}
-              style={{ margin: '0 auto' }}
+              ref={instance => {
+                if (instance) {
+                  editorRef.current = instance; // Attach the Jodit instance to the ref
+                }
+              }}
               value={htmlContent[currentPage]}
               config={{
                 readonly: false,
                 toolbar: true,
-                language: 'en',
-                buttons: ["undo", "redo", "|", "bold", "strikethrough", "underline", "italic", "|", "superscript", "subscript",
-                  "|", "align", "|", "ul", "ol", "outdent", "indent", "|", "font", "fontsize", "brush",
-                  "paragraph", "|", "image", "link", "table", "|", "hr", "eraser", "copyformat",
-                  "|", "fullsize", "selectall", "print", "|", "source", "|",],
+                language: "en",
+                buttons: [
+                  "undo", "redo", "|", "bold", "strikethrough", "underline", "italic", "|",
+                  "superscript", "subscript", "|", "align", "|", "ul", "ol", "outdent",
+                  "indent", "|", "font", "fontsize", "brush", "paragraph", "|", "image",
+                  "link", "table", "|", "hr", "eraser", "copyformat", "|", "fullsize",
+                  "selectall", "print", "|", "source", "|"
+                ],
                 height: height,
                 width: width,
                 containerStyle: {
-                  '.jodit-toolbar-editor-collection': {
-                    background: 'transparent', // Make toolbar background transparent
+                  ".jodit-toolbar-editor-collection": {
+                    background: "transparent", // Make toolbar background transparent
                   },
                 },
               }}
+              style={{
+                minHeight: "400px",
+                width: "100%",
+                background: "white",
+                color: "black",
+              }}
               className="jodit-editor-container border border-red-500 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2 jodit-dark-theme"
-              onChange={(newContent) => console.log(newContent)}
-            />
+              onChange={(content) => {htmlContent[currentPage]=content }}
+            />;
           </div>
         </div>
       )}

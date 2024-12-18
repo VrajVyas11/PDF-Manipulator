@@ -148,42 +148,23 @@ const PdfMerge = () => {
     }
   };
 
-  const handleDrop = async (e) => {
-    const files = Array.from(e.target.files);
-
-    const invalidFiles = files.filter(file => file.type !== 'application/pdf');
-
-    if (invalidFiles.length > 0) {
-      showToastError("Invalid PDF Files. Only PDF files are allowed.");
-      return;
-    }
-
-    const newPdfs = [...pdfs];
-
-    for (const file of files) {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const pdfData = ev.target.result;
-        newPdfs.push(pdfData);
-        await extractPages(pdfData, newPdfs.length - 1);
-        setCount((prevCount) => prevCount + 1);
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-
-    setPdfs(newPdfs);
-
-    for (const file of files) {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const pdfData = ev.target.result;
-        await setingPreviewPages(pdfData, newPdfs.length - 1);
-      };
-      reader.readAsArrayBuffer(file);
-    }
+  const handleDrop = (event, targetIndex) => {
+    const sourceIndex = event.dataTransfer.getData('text/plain');
+    if (sourceIndex === targetIndex.toString() || !pages[sourceIndex] || !pages[targetIndex]) return;
+    setPages((prevPages) => {
+      const updatedPages = [...prevPages];
+      const [movedPage] = updatedPages.splice(sourceIndex, 1);
+      updatedPages.splice(targetIndex, 0, movedPage);
+      return updatedPages;
+    });
+    setPreviewPdfPages((prevPages) => {
+      const updatedPages = [...prevPages];
+      const [movedPage] = updatedPages.splice(sourceIndex, 1);
+      updatedPages.splice(targetIndex, 0, movedPage);
+      return updatedPages;
+    })
+    mergePdfs();
   };
-
 
   useEffect(() => {
     if (pages.length > 0) {
