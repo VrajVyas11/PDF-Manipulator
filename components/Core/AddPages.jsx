@@ -10,6 +10,7 @@ import { useToast } from "../../hooks/use-toast"
 const AddPages = () => {
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [previewPdf, setPreviewPdf] = useState(null);
   const [mergedPdfBytes, setMergedPdfBytes] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -260,6 +261,17 @@ const AddPages = () => {
     setIsDialogOpen(false);
   };
 
+
+  useEffect(() => {
+    if (pdfs.length > 0) {
+      setLoading(true)
+    }
+    else if (pdfs && pages.length > 0 && previewPdfPages.length > 0) {
+      setLoading(false)
+    }
+  }, [loading, pdfs, pages, previewPdfPages])
+
+
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
@@ -420,7 +432,7 @@ const AddPages = () => {
                   Uploaded Pages
                 </h2>
               )}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {pdfs && pages.length > 0 && previewPdfPages.length > 0 ? (<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {previewPdfPages.map((page, index) => (
                   <div
                     key={index}
@@ -442,7 +454,9 @@ const AddPages = () => {
                     </span>
                   </div>
                 ))}
-              </div>
+              </div>) : (loading && <div>
+                <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>)}
             </div>
           </>)}
       </div>

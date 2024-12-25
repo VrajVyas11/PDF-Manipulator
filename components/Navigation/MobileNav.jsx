@@ -48,7 +48,7 @@ const MobileNav = () => {
 
 
                             <ul className="w-full flex-col items-start gap-2 ">
-                                {navLinks.slice(0, 7).map((link) => {
+                                {navLinks.slice(0, 8).map((link) => {
                                     const isActive = link.id === activeLink;
 
                                     return (
@@ -123,7 +123,7 @@ const MobileNav = () => {
                                 })}
                             </ul>
                             <ul className=" flex w-full flex-row gap-2 justify-between items-stretch">
-                                {navLinks.slice(7).map((link) => {
+                                {navLinks.slice(8).map((link) => {
                                     return (
                                         <li
                                             key={link.id}

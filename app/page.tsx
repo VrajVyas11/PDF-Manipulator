@@ -9,12 +9,14 @@ import ImageToPDF from '../components/Core/ImageToPDF';
 import CompressPDF from '../components/Core/CompressPDF';
 import ExtractImages from '../components/Core/ExtractImages';
 import Home from "../components/Navigation/Home"
+import PDFSplit from '../components/Core/PDFSplit';
 function Base() {
   const { activeLink } = useActiveLink();
 
   return (
     <div className=' flex justify-center items-center'>
       {activeLink === 'home' && <Home />}
+      {activeLink === 'split' && <PDFSplit />}
         {activeLink === 'edit' && <PDFEditor />}
         {activeLink === 'merge' && <PDFMerger />}
         {activeLink === 'image' && <ImageToPDF />}

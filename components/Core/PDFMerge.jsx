@@ -7,10 +7,10 @@ import { useToast } from "../../hooks/use-toast"
 
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [pages, setPages] = useState([]);
   const [previewPdf, setPreviewPdf] = useState(null);
   const [mergedPdfBytes, setMergedPdfBytes] = useState(null);
-  const [count, setCount] = useState(0);
   const [previewPdfPages, setPreviewPdfPages] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
@@ -42,7 +42,6 @@ const PdfMerge = () => {
         const pdfData = ev.target.result;
         newPdfs.push(pdfData);
         await extractPages(pdfData, newPdfs.length - 1);
-        setCount((prevCount) => prevCount + 1);
       };
 
       reader.readAsArrayBuffer(file);
@@ -60,7 +59,7 @@ const PdfMerge = () => {
     }
   };
 
-
+  console.log(pdfs)
   const extractPages = async (pdfData, pdfIndex) => {
     try {
       const pdfDoc = await PDFDocument.load(pdfData);
@@ -76,6 +75,7 @@ const PdfMerge = () => {
     }
   };
 
+
   const setingPreviewPages = async (pdfData, pdfIndex) => {
     const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
     const pageCount = pdf.numPages;
@@ -86,14 +86,14 @@ const PdfMerge = () => {
       const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 1 });
 
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
       canvas.width = viewport.width;
       canvas.height = viewport.height;
 
       await page.render({ canvasContext: context, viewport }).promise;
 
-      const image = canvas.toDataURL('image/png');
+      const image = canvas.toDataURL("image/png");
 
       pagesArray.push({
         index: i,
@@ -106,20 +106,32 @@ const PdfMerge = () => {
     setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
   };
 
-  const mergePdfs = useCallback(async () => {
+  const mergePdfs = useCallback(async (mergedPdf = null, newPageBlob = null) => {
+    if (!mergedPdf) {
+      mergedPdf = await PDFDocument.create();
+    }
     if (pdfs.length === 0 || pages.length === 0) return;
-
     try {
-      const mergedPdf = await PDFDocument.create();
-
       for (const page of pages) {
-        const { index } = page;
-        const pdfDoc = await PDFDocument.load(pdfs[page.pdfIndex]);
-
+        const { pdfIndex, index } = page;
+        if (pdfIndex < 0 || pdfIndex >= pdfs.length) {
+          console.error(`Invalid pdfIndex: ${pdfIndex}`);
+          continue;
+        }
+        const pdfDoc = await PDFDocument.load(pdfs[pdfIndex]);
+        const pageCount = pdfDoc.getPageCount();
+        if (index < 0 || index >= pageCount) {
+          console.error(`Invalid page index: ${index} for pdfIndex: ${pdfIndex} (total pages: ${pageCount})`);
+          continue;
+        }
         const copiedPages = await mergedPdf.copyPages(pdfDoc, [index]);
         mergedPdf.addPage(copiedPages[0]);
       }
-
+      if (newPageBlob) {
+        const newPdfDoc = await PDFDocument.load(newPageBlob);
+        const copiedPages = await mergedPdf.copyPages(newPdfDoc, [0]);
+        mergedPdf.addPage(copiedPages[0]);
+      }
       const pdfBytes = await mergedPdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       setPreviewPdf(URL.createObjectURL(blob));
@@ -129,28 +141,12 @@ const PdfMerge = () => {
     }
   }, [pdfs, pages, showToastError]);
 
-  const handleDragStart = (event, index) => {
-    event.dataTransfer.setData('text/plain', index);
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const downloadPdf = () => {
-    if (mergedPdfBytes) {
-      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'merged.pdf';
-      link.click();
-    }
-  };
-
   const handleDrop = (event, targetIndex) => {
+    event.preventDefault();
     const sourceIndex = event.dataTransfer.getData('text/plain');
+
     if (sourceIndex === targetIndex.toString() || !pages[sourceIndex] || !pages[targetIndex]) return;
+
     setPages((prevPages) => {
       const updatedPages = [...prevPages];
       const [movedPage] = updatedPages.splice(sourceIndex, 1);
@@ -162,19 +158,47 @@ const PdfMerge = () => {
       const [movedPage] = updatedPages.splice(sourceIndex, 1);
       updatedPages.splice(targetIndex, 0, movedPage);
       return updatedPages;
-    })
-    mergePdfs();
+    });
   };
+
 
   useEffect(() => {
     if (pages.length > 0) {
       mergePdfs();
     }
-  }, [pages, mergePdfs]);
+  }, [pages, mergePdfs, previewPdfPages]);
 
   useEffect(() => {
     mergePdfs();
-  }, [count, mergePdfs]);
+  }, [mergePdfs, previewPdfPages])
+
+  const handleDragStart = (event, index) => {
+    event.dataTransfer.setData('text/plain', index);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+  const downloadPdf = () => {
+    if (mergedPdfBytes) {
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'merged.pdf';
+      link.click();
+    }
+  };
+
+  useEffect(() => {
+    if (pdfs.length > 0) {
+      setLoading(true)
+    }
+    else if (pdfs && pages.length > 0 && previewPdfPages.length > 0) {
+      setLoading(false)
+    }
+  }, [loading, pdfs, pages, previewPdfPages])
+
 
   return (
     <div className="flex  flex-col w-full ">
@@ -312,7 +336,7 @@ const PdfMerge = () => {
               Uploaded Pages
             </h2>
           )}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {pdfs && pages.length > 0 && previewPdfPages.length > 0 ? (<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {previewPdfPages.map((page, index) => (
               <div
                 key={index}
@@ -334,7 +358,9 @@ const PdfMerge = () => {
                 </span>
               </div>
             ))}
-          </div>
+          </div>) : (loading && <div>
+            <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>)}
         </div>
       </div>
     </div>

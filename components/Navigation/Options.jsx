@@ -22,7 +22,7 @@ const Options = () => {
           <p className="text-lg text-gray-500 mb-6">Edit, compress, merge, convert, and more—all in one tool!</p>
 
           <div className=" features mx-auto md:px-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-3 gap-4 md:gap-4">
-            {navLinks.slice(1, 7).map((card) => (
+            {navLinks.slice(1, 8).map((card) => (
               <div
                 key={card.id}
                 onClick={() => handleLinkClick(card.id)}

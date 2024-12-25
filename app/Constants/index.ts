@@ -14,6 +14,13 @@ export const navLinks = [
     sideImage: '/images/detail-1.png',
   },
   {
+    id: 'split',
+    icon: '/images/options/split.svg',
+    label: 'Split PDF',
+    description: 'Effortlessly split a single PDF document into multiple smaller files for easier organization and sharing.',
+    sideImage: '/images/detail-1.png',
+},
+  {
     id: 'edit',
     icon: '/images/options/edit.svg',
     label: 'Edit PDF',
