@@ -1,13 +1,13 @@
 # **PDF Manipulator**
 
-**A feature-rich PDF management tool for seamless editing, merging, compression, and more!**  
+**A feature-rich PDF management tool for seamless editing, merging, splitting, compression, and more!**  
 **🚀 Live Demo:** [Explore the App](https://next-js-pdf-manipulator.onrender.com/)
 
 ---
 
 ## **Overview**
 
-PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
+PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, splitting, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
 
 ---
 
@@ -15,6 +15,7 @@ PDF Manipulator is a web-based tool designed for effortless PDF management. From
 
 - 🖊️ **Edit PDFs**: Modify content, pages, or annotations seamlessly. Fully responsive for all devices.  
 - 📂 **Merge PDFs**: Combine multiple files into a single document effortlessly. Fully responsive for all devices.  
+- ✂️ **Split PDFs**: Divide a single PDF into multiple smaller files for better organization. Fully responsive for all devices.  
 - 🖼️ **Image to PDF**: Convert images (JPG, PNG, etc.) into high-quality PDFs. Fully responsive for all devices.  
 - 📉 **Compress PDFs**: Reduce file size without compromising quality. Fully responsive for all devices.  
 - ➕ **Add Pages**: Insert extra pages into existing PDFs easily. Fully responsive for all devices.  
@@ -24,7 +25,6 @@ PDF Manipulator is a web-based tool designed for effortless PDF management. From
 - 🔄 **Page Preview**: Rearrange and organize pages before saving changes. Fully responsive for all devices.  
 
 ---
-
 
 ## **Tech Stack**
 
@@ -54,6 +54,7 @@ PDF Manipulator is a web-based tool designed for effortless PDF management. From
 | 🌐 **Landing Page**                | ![Landing Page](./livedemoimages/1.png) - Fully responsive and visually appealing home screen. |
 | 📋 **Feature Overview**            | ![Feature Overview](./livedemoimages/2.png) - Displays all the available tools and features, optimized for all devices.|
 | 📂 **Merge PDFs**                  | ![Merge PDFs](./livedemoimages/3.png) - Interface for combining multiple PDF files, fully responsive. |
+| ✂️ **Split PDFs**                  | ![Split PDFs](./livedemoimages/14.png) - Divide a single PDF into multiple smaller files. |
 | 🖊️ **PDF Editor (Worker-Based)**   | ![Worker-Based Editor](./livedemoimages/4.png) ![Worker-Based Editor](./livedemoimages/5.png) - Modify PDFs using a worker-based editor, accessible on all devices. |
 | ⚙️ **PDF Editor (Backend-Based)**  | ![Backend Editor](./livedemoimages/6.png) ![Backend Editor](./livedemoimages/7.png) - Modify PDFs using a backend-powered editor, responsive across devices. |
 | 🖼️ **Image to PDF Conversion**     | ![Image to PDF](./livedemoimages/8.png) - Convert images into high-quality PDF documents, designed to work smoothly on all devices. |
@@ -143,5 +144,3 @@ This project is for learning purposes only and is released under the MIT License
 
 - [pdf-lib](https://pdf-lib.js.org/) for advanced PDF editing.
 - [pdf-dist](https://pdf.js.org/) for handling PDF rendering and processing.
-
----
