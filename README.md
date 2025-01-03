@@ -1,7 +1,8 @@
 # **PDF Manipulator**
 
-**A feature-rich PDF management tool for seamless editing, merging, splitting, compression, and more!**  
-**🚀 Live Demo:** [Explore the App](https://next-js-pdf-manipulator.onrender.com/)
+**A feature-rich PDF management tool for seamless editing, merging, splitting, compression, and more!** 
+**🚀 Live Demo Fast Demo Vercel.com:** [Explore the App](https://pdf-manipulator-vrajvyas11s-projects.vercel.app/)
+**🚀 Contingency Live Demo ONRender.com:** [Explore the App](https://next-js-pdf-manipulator.onrender.com/)
 
 ---
 
