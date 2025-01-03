@@ -6,7 +6,7 @@ import {
 } from '@/legacy-pdf-lib/node_modules/pdf-lib';
 
 interface ImageInDoc {
-  ref: string;  // Use string for the reference
+  ref: string;
   name: string;
   width: number;
   height: number;
@@ -39,14 +39,18 @@ export async function POST(request: Request) {
       const bitsPerComponent = lookupMaybe(dict.getMaybe('BitsPerComponent')) as unknown as { number: number };
 
       if (subtype === PDFName.from('Image')) {
-        imagesInDoc.push({
-          ref: ref.toString(),  // Convert the ref to a string
-          name: name ? name.key : `Object${objectIdx}`,
-          width: width.number,
-          height: height.number,
-          bitsPerComponent: bitsPerComponent.number,
-          data: pdfObject.content,
-        });
+        const imageData = pdfObject.content;
+
+        if (imageData && imageData.length > 0) {
+          imagesInDoc.push({
+            ref: ref.toString(),
+            name: name ? name.key : `Object${objectIdx}`,
+            width: width.number,
+            height: height.number,
+            bitsPerComponent: bitsPerComponent.number,
+            data: imageData, 
+          });
+        }
       }
     });
 
