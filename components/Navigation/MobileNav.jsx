@@ -19,7 +19,7 @@ const MobileNav = () => {
         setActiveLink(id);
     };
     return (
-        <header className='w-full h-fit  bg-gradient-to-b from-[#0a1130] to-[#0d1845]  flex flex-row justify-between items-center  border-2 bg-opacity-95 border-s2 shadow-md shadow-purple-200/50  lg:hidden absolute z-50'>
+        <header className='w-full h-fit  bg-gradient-to-b from-[#0a1130] to-[#0d1845]  flex flex-row justify-around items-center  border-2 bg-opacity-95 border-s2 shadow-md shadow-purple-200/50  lg:hidden absolute z-50'>
             <Link href="/" className=' flex w-full px-2 py-3 items-center gap-2 md:py-2'>
                 <Image src="/images/UI_Nav/logo.svg" alt='logo' width={40} height={40} />
                 <h1 className="text-[1rem] font-bold bg-transparent md:text-[1.4rem] lg:text-[2rem] font-pacifico py-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
@@ -39,7 +39,7 @@ const MobileNav = () => {
                         />
 
                     </SheetTrigger>
-                    <SheetContent className='sheet-content justify-between flex items-start flex-col min-h-screen   border-2 bg-opacity-80 border-s2 bg-black shadow-md shadow-purple-200/50  sm:w-64 '>
+                    <SheetContent className='sheet-content justify-around flex items-start flex-col min-h-screen   border-2 bg-opacity-80 border-s2 bg-black shadow-md shadow-purple-200/50  sm:w-64 '>
                         <>
                             <SheetTitle className="text-[1rem]  mt-1 mb-2 flex  flex-row justify-start items-center gap-3   font-pacifico text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                                 <Image src="/images/UI_Nav/logo.svg" alt='logo' width={30} height={30} />
@@ -47,7 +47,7 @@ const MobileNav = () => {
                             </SheetTitle>
 
 
-                            <ul className="w-full flex-col items-start gap-2 ">
+                            <ul className="w-full flex-col items-start gap-1 ">
                                 {navLinks.slice(0, 8).map((link) => {
                                     const isActive = link.id === activeLink;
 

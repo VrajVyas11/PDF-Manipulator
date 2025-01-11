@@ -207,6 +207,118 @@ const PDFEditorComplex = () => {
     return currentPageHtml.join('');
   };
 
+  // const generatePageHtml = (graphicOperators, textContent, base64Images, H) => {
+  //   const currentPageHtml = [];
+  //   const maxTop = Math.max(...textContent.items.map((item) => item.transform[5]));
+  //   const minTop = Math.min(...textContent.items.map((item) => item.transform[5]));
+  //   const colorMap = {};
+
+  //   // Set current color
+  //   graphicOperators.forEach((op) => {
+  //     if (op.type === 'color') {
+  //       colorMap.currentColor = op.value;
+  //     }
+  //   });
+
+  //   // Loop through graphic operators to find image operators and match with images
+  //   graphicOperators.forEach((op, index) => {
+  //     if (op.type === 'image') {
+  //       for (let imgIndex = base64Images.length - 1; imgIndex >= 0; imgIndex--) {
+  //         const currentImage = base64Images[imgIndex];
+
+  //         if (currentImage.image.width === op.width && currentImage.image.height === op.height) {
+  //           const w = op.position[0];
+  //           const h = op.position[3];
+  //           const left = op.position[4];
+  //           const top = op.position[5];
+  //           const reversedTop = H - top;
+  //           const adjustedTop = Math.max(reversedTop - h * 1.25, 0);
+
+  //           currentPageHtml.unshift(`
+  //           <motion.div
+  //             key="image-${index}"
+  //             drag
+  //             dragMomentum={false}
+  //             style="
+  //               position: absolute;
+  //               left: ${left}px;
+  //               top: ${adjustedTop}px;
+  //               width: ${w}px;
+  //               height: ${h * 0.8}px;
+  //               cursor: move;
+  //               resize: both;
+  //               overflow: hidden;
+  //             "
+  //           >
+  //             <img
+  //               src="${currentImage.url}"
+  //               alt="Extracted Image"
+  //               style="width: 100%; height: 100%;"
+  //             />
+  //           </motion.div>
+  //         `);
+
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   });
+
+  //   // Process text content
+  //   textContent.items.forEach((item, index) => {
+  //     const text = item.str || '';
+  //     if (!text.trim()) return;
+
+  //     const [left, top] = item.transform.slice(4, 6);
+  //     const fontSize = item.height || 12;
+  //     const dir = item.dir || 'ltr';
+  //     const fontName = item.fontName || 'sans-serif';
+  //     let color = colorMap.currentColor || 'black';
+
+  //     for (let i = 0; i < graphicOperators.length; i++) {
+  //       if (graphicOperators[i].type === 'graphicState' && item.fontName === graphicOperators[i].flag) {
+  //         for (let j = i - 1; j >= 0; j--) {
+  //           if (graphicOperators[j].type === 'color') {
+  //             color = graphicOperators[j].value;
+  //             break;
+  //           }
+  //         }
+  //         break;
+  //       }
+  //     }
+
+  //     const reversedTop = maxTop - top;
+  //     const adjustedTop = Math.max(reversedTop + minTop * 0.2 - fontSize * 1.2, 0);
+
+  //     currentPageHtml.unshift(`
+  //     <motion.div
+  //       key="text-${index}"
+  //       drag
+  //       dragMomentum={false}
+  //       style="
+  //         position: absolute;
+  //         left: ${left}px;
+  //         top: ${adjustedTop}px;
+  //         font-size: ${fontSize}px;
+  //         cursor: move;
+  //         font-family: ${fontName};
+  //         direction: ${dir};
+  //         resize: both;
+  //         height:'fit-content';
+  //         padding-top: 0.3px;
+  //         padding-bottom: 0.3px;
+  //         overflow: hidden;
+  //         color: ${color};
+  //       "
+  //     >
+  //       ${text}
+  //     </motion.div>
+  //   `);
+  //   });
+
+  //   return currentPageHtml.join('');
+  // };
+
 
 
   // console.log(images)
@@ -545,7 +657,7 @@ const PDFEditorComplex = () => {
               }}
               className="jodit-editor-container border border-red-500 rounded-lg w-full sm:w-3/4 lg:w-2/3 xl:w-1/2 jodit-dark-theme"
               onChange={(content) => {htmlContent[currentPage]=content }}
-            />;
+            />
           </div>
         </div>
       )}

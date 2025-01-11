@@ -12,15 +12,15 @@ const Sidebar = () => {
 
     return (
         <aside className="hidden overflow-auto min-h-screen w-72  border-2 bg-opacity-40 border-s2 bg-black py-5 shadow-md shadow-purple-200/50 lg:flex    p-5 ">
-            <div className="flex size-full flex-col gap-10">
+            <div className="flex size-full flex-col gap-5">
 
-                <h1 className="text-[1rem] font-bold mt-10 flex  flex-row justify-start items-center gap-3 md:text-[1.4rem] lg:text-[1.4rem] font-pacifico pb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
+                <h1 className="text-[1rem] font-bold mt-5 flex  flex-row justify-start items-center gap-3 md:text-[1.4rem] lg:text-[1.4rem] font-pacifico pb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 drop-shadow-lg">
                     <Link href="/" className="flex items-center gap-2">
                         <Image src="/images/UI_Nav/logo.svg" alt="logo" width={30} height={30} />
                     </Link>
                     PDF Manipulator
                 </h1>
-                <nav className="h-full flex-col justify-between md:flex ">
+                <nav className="h-full flex-col justify-around md:flex ">
                     <ul className="hidden w-full flex-col items-start gap-2 md:flex">
                         {navLinks.slice(0, 8).map((link) => {
                             const isActive = link.id === activeLink;
