@@ -5,9 +5,9 @@ import { exec } from "child_process";
 import path from "path";
 import fs from "fs";
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
     try {
-      console.log("start")
+        console.log("start");
         const formData = await req.formData();
         const file = formData.get("pdf") as File;
 
@@ -25,23 +25,29 @@ export async function POST(req: Request) {
         fs.writeFileSync(pdfPath, buffer);
 
         return new Promise((resolve) => {
-          exec(
-              `docker run --rm -v ${tempDir}:/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 ${file.name}`,
-              (error, stdout, stderr) => {
-                  if (error) {
-                      console.error("Exec Error:", error);
-                      console.error("STDERR:", stderr);
-                      resolve(NextResponse.json({ error: "Conversion failed" }, { status: 500 }));
-                  } else {
-                      console.log("Conversion Success:", stdout);
-                      resolve(NextResponse.json({ url: `/uploads/${path.basename(htmlPath)}` }, { status: 200 }));
-                  }
-              }
-          );
-      });
-      
-
-    } catch (error:any) {
+            exec(
+                `docker run --rm -v ${tempDir}:/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 ${file.name}`,
+                (error, stdout, stderr) => {
+                    if (error) {
+                        console.error("Exec Error:", error);
+                        console.error("STDERR:", stderr);
+                        resolve(
+                            NextResponse.json({ error: "Conversion failed" }, { status: 500 })
+                        );
+                    } else {
+                        console.log("Conversion Success:", stdout);
+                        resolve(
+                            NextResponse.json(
+                                { url: `/uploads/${path.basename(htmlPath)}` },
+                                { status: 200 }
+                            )
+                        );
+                    }
+                }
+            );
+        });
+    } catch (error) {
+        console.error("Error:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
