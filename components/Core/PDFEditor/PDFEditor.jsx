@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-// import PDFEditorSimpleText from "./PDFEditorSimpleText.jsx";
+import PDFEditorSimpleText from "./PDFEditorSimpleText.jsx";
 import PDFEditorComplex from "./PDFEditorComplex.jsx";
-import PdfToHtml from "./Testing.jsx"
 import Image from 'next/image.js';
 function PDFEditor() {
   const [isBackendBased, setIsBackendBased] = useState(false);
@@ -76,7 +75,7 @@ function PDFEditor() {
         ></div>
         {isBackendBased ? (
           <div>
-            <PdfToHtml />
+            <PDFEditorSimpleText />
           </div>
         ) : (
           <PDFEditorComplex />

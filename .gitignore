@@ -8,6 +8,7 @@ app/utils/ExtraUIComponents/
 Extra/
 ConvertPageToImage/
 # testing
+components/Core/PDFEditor/Testing.jsx
 /coverage
 inspiration.html
 extra.txt
@@ -19,7 +20,6 @@ public/uploads
 /.next/
 out/
 app/api/docx/route.ts
-old*.png
 Old.css
 pages.css
 ConvertToDOCX.jsx
