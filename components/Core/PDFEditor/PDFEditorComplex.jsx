@@ -110,6 +110,8 @@ function PDFEditorComplex() {
       showToastError("Failed to download PDF. Please try again.");
     } finally {
       setIsDownloading(false);
+      setContent('')
+      setPdf('')
     }
   };
   const handleCommand = (command, value = null) => {
@@ -209,13 +211,13 @@ function PDFEditorComplex() {
                       </span>
                     </button>
                   )}
-                  
-                  {(isProcessing || isDownloading) &&(
+
+                  {(isProcessing || isDownloading) && (
                     <div className=' h-12 w-12 flex justify-center items-center '>
-                    <div className="w-6 h-6 ml-2 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-6 h-6 ml-2 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   )}
-                  
+
                 </div>
               </div>
 
@@ -251,11 +253,11 @@ function PDFEditorComplex() {
             </div>
           </div>
         </div>
-
         {content && (
-          <div className="mt-32 relative w-full flex justify-between flex-col items-center border border-gray-300 rounded-lg shadow-lg">
+          <div className={`mt-72 md:mt-32 scale-95 md:scale-100 relative w-full flex flex-col items-center border border-gray-300 rounded-lg shadow-lg`}>
+
             {/* Toolbar Section */}
-            <div className="bg-[linear-gradient(#0a1130c1,#0d1845a4)] -mt-28 relative z-20 flex w-full">
+            <div className="bg-[linear-gradient(#0a1130,#0d1845)] border border-opacity-50 border-p1 rounded-xl rounded-b-none -mt-72 md:-mt-[137px] relative z-20 flex w-full flex-wrap justify-center gap-2 p-2 sm:justify-between">
               <Toolbar
                 editor={editorRef}
                 applyStyle={applyStyle}
@@ -272,13 +274,20 @@ function PDFEditorComplex() {
             {/* Editable content area */}
             <div
               ref={editorRef}
+              id="containerComplexEditor"
               contentEditable
               dangerouslySetInnerHTML={{ __html: content }}
-              className="editor-container border border-gray-400 rounded-lg min-h-[1000px] w-full overflow-auto"
-              style={{ background: "white", color: "black" }}
+              className={`editor-container h-[${pdfDimensions.height ? pdfDimensions.height + 50 : 500}px] w-full max-w-[95%] overflow-auto p-4`}
+              style={{
+                height: `${pdfDimensions.height}px`,
+                outline: "none",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
         )}
+
       </div>
     </div>
   );

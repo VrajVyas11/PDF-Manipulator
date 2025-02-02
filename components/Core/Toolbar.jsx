@@ -13,6 +13,7 @@ import {
   Undo,
   Redo,
   Code,
+  Image as ImageIcon,
 } from "lucide-react";
 
 const Toolbar = ({
@@ -32,66 +33,105 @@ const Toolbar = ({
   }
 
   return (
-    <div className="px-4 h-fit py-3 rounded-tl-md rounded-tr-md flex justify-between items-start gap-5 w-full flex-wrap border border-gray-700">
-      <div className="flex justify-start items-center gap-5 w-full  flex-wrap">
-        <button onClick={() => applyStyle("bold")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Bold className="w-5 h-5" />
+    <div className="px-4 py-3 rounded-xl rounded-b-none flex flex-wrap justify-between gap-3 w-full border border-gray-700 bg-[linear-gradient(#0a1130c1,#0d1845a4)] shadow-md">
+      {/* Formatting Buttons */}
+      <div className="flex flex-wrap w-full justify-around gap-3">
+        {[
+          { action: "bold", icon: <Bold /> },
+          { action: "italic", icon: <Italic /> },
+          { action: "underline", icon: <Underline /> },
+          { action: "strike", icon: <Strikethrough /> },
+          { action: "heading", icon: <Heading2 />, args: 2 },
+          { action: "bulletList", icon: <List /> },
+          { action: "orderedList", icon: <ListOrdered /> },
+          { action: "blockquote", icon: <Quote /> },
+          { action: "code", icon: <Code /> },
+        ].map(({ action, icon, args }, index) => (
+          <button
+            key={index}
+            onClick={() => applyStyle(action, args)}
+            className="p-2  bg-opacity-10 rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white shadow-md"
+          >
+            {icon}
+          </button>
+        ))}
+
+        {/* Undo / Redo */}
+        <button onClick={undo} className="p-2 rounded-xl bg-opacity-10 bg-gray-600 hover:bg-gray-700 transition text-white shadow-md">
+          <Undo />
         </button>
-        <button onClick={() => applyStyle("italic")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Italic className="w-5 h-5" />
+        <button onClick={redo} className="p-2 rounded-xl bg-opacity-10 bg-gray-600 hover:bg-gray-700 transition text-white shadow-md">
+          <Redo />
         </button>
-        <button onClick={() => applyStyle("underline")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Underline className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("strike")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Strikethrough className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("heading", 2)} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Heading2 className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("bulletList")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <List className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("orderedList")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <ListOrdered className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("blockquote")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Quote className="w-5 h-5" />
-        </button>
-        <button onClick={() => applyStyle("code")} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Code className="w-5 h-5" />
-        </button>
-        <button onClick={undo} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Undo className="w-5 h-5" />
-        </button>
-        <button onClick={redo} className="text-blue-500 p-2 rounded-lg hover:bg-blue-100">
-          <Redo className="w-5 h-5" />
-        </button>
-      
-        <select onChange={(e) => setFontSize(e.target.value)} className="px-2 py-1 bg-[linear-gradient(#0a1130c1,#0d1845a4)] text-blue-500 rounded">
+      </div>
+
+      {/* Dropdowns & Inputs */}
+      <div className="flex flex-wrap w-full justify-around gap-3">
+        {/* Font Size */}
+        <select
+          onChange={(e) => setFontSize(e.target.value)}
+          className="px-3 py-2 bg-opacity-10 bg-blue-600 text-white rounded-xl shadow-md"
+        >
           <option value="">Font Size</option>
-          {[...Array(150)].map((_, i) => (
-            <option key={i} value={i + 1}>{i + 1}</option>
+          {[10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 50, 60, 72].map((size) => (
+            <option key={size} value={size}>
+              {size}px
+            </option>
           ))}
         </select>
-        <select onChange={(e) => setFontFamily(e.target.value)} className="px-2 py-1 bg-[linear-gradient(#0a1130c1,#0d1845a4)] text-blue-500 rounded">
+
+        {/* Font Family */}
+        <select
+          onChange={(e) => setFontFamily(e.target.value)}
+          className="px-3 py-2 bg-opacity-10 bg-blue-600 text-white rounded-xl shadow-md"
+        >
           <option value="">Font Family</option>
           {["Arial", "Courier New", "Georgia", "Times New Roman", "Verdana", "Impact", "Comic Sans MS"].map((font) => (
-            <option key={font} value={font}>{font}</option>
+            <option key={font} value={font}>
+              {font}
+            </option>
           ))}
         </select>
-        <input type="color" onChange={(e) => setTextColor(e.target.value)} className="px-2 py-1 border-2 border-blue-500 rounded" title="Text Color" />
-        <input type="color" onChange={(e) => setBackgroundColor(e.target.value)} className="px-2 py-1 border-2 border-blue-500 rounded" title="Background Color" />
-        <button onClick={setHighlight} className="px-2 py-1 bg-[linear-gradient(#0a1130c1,#0d1845a4)] text-blue-500 rounded hover:bg-blue-200">Highlight</button>
-        <button className="px-2 py-1 bg-[linear-gradient(#0a1130c1,#0d1845a4)] text-blue-500 rounded hover:bg-blue-200">
+
+        {/* Text Color */}
+        <input
+          type="color"
+          onChange={(e) => setTextColor(e.target.value)}
+          className="w-10 h-10 border-2 bg-opacity-10 border-gray-500 rounded-xl cursor-pointer"
+          title="Text Color"
+        />
+
+        {/* Background Color */}
+        <input
+          type="color"
+          onChange={(e) => setBackgroundColor(e.target.value)}
+          className="w-10 h-10 border-2 bg-opacity-10 border-gray-500 rounded-xl cursor-pointer"
+          title="Background Color"
+        />
+
+        {/* Highlight Button */}
+        <button
+          onClick={setHighlight}
+          className="px-4 py-2 bg-blue-600 bg-opacity-10 text-white font-semibold rounded-xl shadow-md hover:bg-yellow-600 transition"
+        >
+          Highlight
+        </button>
+
+        {/* Image Upload */}
+        <button
+          className="px-4 py-2 bg-green-600 bg-opacity-10 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 transition"
+        >
+          <label htmlFor="imageUpload" className="cursor-pointer bg-opacity-10 flex items-center gap-2">
+            <ImageIcon className="w-5 h-5" />
+            Insert Image
+          </label>
           <input
             type="file"
             id="imageUpload"
             accept="image/*"
             onChange={handleImageUpload}
-            style={{ display: 'none' }}
+            className="hidden"
           />
-          <span onClick={() => document.getElementById('imageUpload').click()}>Insert Image</span>
         </button>
       </div>
     </div>
