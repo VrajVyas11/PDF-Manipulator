@@ -26,7 +26,7 @@ function PDFEditorComplex() {
 
   const handleUpload = async () => {
     if (!pdf) return showToastError("Please select a PDF file!");
-
+  
     const fileReader = new FileReader();
     fileReader.onload = async (e) => {
       setIsProcessing(true);
@@ -34,36 +34,48 @@ function PDFEditorComplex() {
         const uint8Array = new Uint8Array(e.target.result);
         const pdfDoc = await PDFDocument.load(uint8Array);
         const pages = pdfDoc.getPages();
-        const { width, height } = pages[0].getSize(); // Get size of the first page
-
-        // Set the PDF dimensions in state
+        const { width, height } = pages[0].getSize();
         setPdfDimensions({ width, height });
-
-        // Now, send the PDF to the backend for processing
+  
         const formData = new FormData();
         formData.append("pdf", pdf);
-
+  
         const res = await fetch("/api/PdfToHtml", {
           method: "POST",
           body: formData,
         });
-
-        const data = await res.json();
-        if (data.url) {
-          const htmlRes = await fetch(data.url);
-          let htmlText = await htmlRes.text();
-          setContent(htmlText); // Set the HTML content
+  
+        if (!res.ok) {
+          const errorText = await res.json();
+          showToastError(` ${res.status}: ${errorText.error}`);
+          return;
         }
-      } catch (error) {
+  
+        const data = await res.json();
+  
+        if (!data.url) {
+          showToastError("Invalid response from server. No URL found.");
+          return;
+        }
+  
+        const htmlRes = await fetch(data.url);
+        if (!htmlRes.ok) {
+          showToastError(`Failed to fetch HTML content: ${htmlRes.status}`);
+          return;
+        }
+  
+        const htmlText = await htmlRes.text();
+        setContent(htmlText);
+      } catch {
         showToastError("Failed to process PDF. Please try again.");
       } finally {
         setIsProcessing(false);
       }
     };
-
+  
     fileReader.readAsArrayBuffer(pdf);
   };
-
+  
   const downloadPdf = async () => {
     const element = editorRef.current;
     if (!element) return showToastError("Editor content not loaded!");
