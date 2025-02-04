@@ -1,24 +1,23 @@
-# Use an official Node.js image
-FROM node:18
+# Use a base Debian image
+FROM debian:latest
 
 # Set working directory
 WORKDIR /app
+
+# Install required dependencies and pdf2htmlEX
+RUN apt-get update && apt-get install -y \
+    pdf2htmlex \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy rest of the code
+# Copy all application files
 COPY . .
 
-# Install Docker inside the container
-RUN apt-get update && apt-get install -y docker.io
-
-# Build Next.js app
-RUN npm run build
-
-# Expose the port for the Next.js app
+# Expose Next.js port
 EXPOSE 3000
 
-# Start the Next.js app using the built production files
+# Start the Next.js app
 CMD ["npm", "run", "start"]

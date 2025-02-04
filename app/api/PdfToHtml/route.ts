@@ -25,8 +25,7 @@ export async function POST(req: Request): Promise<Response> {
         fs.writeFileSync(pdfPath, buffer);
 
         return new Promise((resolve) => {
-            exec(
-                `docker run --rm -v ${tempDir}:/pdf bwits/pdf2htmlex-alpine pdf2htmlEX --zoom 1.3 ${file.name}`,
+            exec(`pdf2htmlEX --zoom 1.3 ${pdfPath}`, 
                 (error, stdout, stderr) => {
                     if (error) {
                         console.error("Exec Error:", error);
