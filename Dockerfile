@@ -1,23 +1,24 @@
-# Use an official Node.js image as the base
+# Use an official Node.js image
 FROM node:18
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json and install dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy rest of the code
 COPY . .
 
 # Install Docker inside the container
 RUN apt-get update && apt-get install -y docker.io
 
-# Expose the port Next.js runs on
+# Build Next.js app
+RUN npm run build
+
+# Expose the port for the Next.js app
 EXPOSE 3000
 
-# Start Next.js application
+# Start the Next.js app using the built production files
 CMD ["npm", "run", "start"]
