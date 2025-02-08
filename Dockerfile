@@ -13,11 +13,10 @@ RUN dnf install -y \
     && dnf clean all
 
 # Install pdf2htmlEX from source
-RUN git clone --depth 1 --branch pdf2htmlEX https://github.com/coolwanglu/pdf2htmlEX.git /pdf2htmlEX && \
-    cd /pdf2htmlEX && \
-    cmake . && make && make install && \
-    rm -rf /pdf2htmlEX
-
+RUN git clone git://github.com/coolwanglu/pdf2htmlEX.git && \
+    cd pdf2htmlEX && \
+    cmake . && make && sudo make install
+    
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
