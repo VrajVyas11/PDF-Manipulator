@@ -5,12 +5,12 @@ FROM ubuntu:22.04
 WORKDIR /app
 
 # Install dependencies
-RUN apt-get update && \
-    apt-get install -y cmake gcc git \
-    pkg-config libopenjp2-7-dev libfontconfig1-dev fontforge poppler-data poppler-utils \
+RUN apt-get update && apt-get install -y \
+    cmake gcc git pkg-config \
+    libopenjp2-7-dev libfontconfig1-dev fontforge poppler-data poppler-utils \
     packaging-dev python3-dev libpango1.0-dev libglib2.0-dev libxml2-dev giflib-tools \
-    libjpeg-dev libtiff-dev uthash-dev libspiro-dev wget && \
-    apt-get clean
+    libjpeg-dev libtiff-dev uthash-dev libspiro-dev wget \
+    --fix-missing && apt-get clean
 
 # Build and install Poppler
 RUN wget http://poppler.freedesktop.org/poppler-0.33.0.tar.xz && \
