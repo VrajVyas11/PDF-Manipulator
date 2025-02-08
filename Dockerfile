@@ -1,39 +1,63 @@
-# Use Fedora 41 as the base image
-FROM fedora:41
+# Use Ubuntu 22.04 as the base image
+FROM ubuntu:22.04
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
 # Install dependencies
-RUN dnf install -y \
-    cmake gcc java-1.8.0-openjdk libpng-devel fontforge-devel \
-    cairo-devel poppler-devel libspiro-devel freetype-devel poppler-data \
-    libjpeg-turbo-devel git make gcc-c++ pkg-config gettext glib2-devel \
-    util-linux \
-    && dnf clean all
+RUN apt-get update && \
+    apt-get install -y cmake gcc libgetopt++-dev git \
+    pkg-config libopenjpeg-dev libfontconfig1-dev libfontforge-dev poppler-data poppler-utils poppler-dbg \
+    packaging-dev python3-dev libpango1.0-dev libglib2.0-dev libxml2-dev giflib-tools \
+    libjpeg-dev libtiff-dev uthash-dev libspiro-dev wget && \
+    apt-get clean
 
-# Install pdf2htmlEX from source
-RUN git clone git://github.com/coolwanglu/pdf2htmlEX.git && \
+# Build and install Poppler
+RUN wget http://poppler.freedesktop.org/poppler-0.33.0.tar.xz && \
+    tar -xvf poppler-0.33.0.tar.xz && \
+    cd poppler-0.33.0 && \
+    ./configure --enable-xpdf-headers && \
+    make -j$(nproc) && make install && \
+    cd .. && rm -rf poppler-0.33.0 poppler-0.33.0.tar.xz
+
+# Build and install FontForge
+RUN git clone --depth 1 https://github.com/fontforge/fontforge.git && \
+    cd fontforge && \
+    ./bootstrap && \
+    ./configure && \
+    make -j$(nproc) && make install && \
+    cd .. && rm -rf fontforge
+
+# Build and install pdf2htmlEX
+RUN git clone --depth 1 https://github.com/coolwanglu/pdf2htmlEX.git && \
     cd pdf2htmlEX && \
-    cmake . && make && sudo make install
-    
-# Copy package.json and package-lock.json
-COPY package*.json ./
+    cmake . && \
+    make -j$(nproc) && make install && \
+    cd .. && rm -rf pdf2htmlEX
 
-# Install dependencies
+# Set up environment variables
+RUN echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc && \
+    source ~/.bashrc
+
+# Install Node.js and dependencies
+RUN apt-get install -y nodejs npm && \
+    npm install -g npm@latest
+
+# Copy package.json and install Node.js dependencies
+COPY package*.json ./
 RUN npm ci
 
-# Copy the rest of the application code
+# Copy application code
 COPY . .
 
-# Create upload directory and set permissions
+# Create upload directory
 RUN mkdir -p /app/public/uploads && chmod -R 777 /app/public/uploads
 
-# Build the Next.js application
+# Build Next.js app
 RUN npm run build
 
-# Expose the port Next.js runs on
+# Expose the Next.js port
 EXPOSE 3000
 
-# Start the Next.js application
+# Start the Next.js app
 CMD ["npm", "run", "start"]
