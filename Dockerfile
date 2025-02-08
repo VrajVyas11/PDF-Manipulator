@@ -1,30 +1,22 @@
-# Use Fedora as the base image
-FROM fedora:latest
+# Use Fedora 41 as the base image
+FROM fedora:41
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
 # Install dependencies
 RUN dnf install -y \
-    cmake gcc gnu-getopt java-1.8.0-openjdk libpng-devel fontforge-devel \
+    cmake gcc java-1.8.0-openjdk libpng-devel fontforge-devel \
     cairo-devel poppler-devel libspiro-devel freetype-devel poppler-data \
     libjpeg-turbo-devel git make gcc-c++ pkg-config gettext glib2-devel \
+    util-linux \
     && dnf clean all
 
-# Clone and build pdf2htmlEX
-RUN git clone --branch pdf2htmlEX --depth=1 https://github.com/coolwanglu/pdf2htmlEX.git /app/pdf2htmlEX \
-    && cd /app/pdf2htmlEX \
-    && cmake . \
-    && make -j$(nproc) \
-    && make install
-
-# Verify installation
-RUN pdf2htmlEX --version
-
-# Install Node.js 18 (required for Next.js)
-RUN dnf module enable -y nodejs:18 \
-    && dnf install -y nodejs \
-    && npm install -g npm@latest
+# Install pdf2htmlEX from source
+RUN git clone --depth 1 --branch pdf2htmlEX https://github.com/coolwanglu/pdf2htmlEX.git /pdf2htmlEX && \
+    cd /pdf2htmlEX && \
+    cmake . && make && make install && \
+    rm -rf /pdf2htmlEX
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -32,17 +24,17 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy application source code
+# Copy the rest of the application code
 COPY . .
 
-# Create upload directory
+# Create upload directory and set permissions
 RUN mkdir -p /app/public/uploads && chmod -R 777 /app/public/uploads
 
-# Build Next.js app
+# Build the Next.js application
 RUN npm run build
 
-# Expose port for Next.js
+# Expose the port Next.js runs on
 EXPOSE 3000
 
-# Start Next.js app
+# Start the Next.js application
 CMD ["npm", "run", "start"]
