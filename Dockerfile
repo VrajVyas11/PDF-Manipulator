@@ -1,63 +1,54 @@
-# Use Ubuntu 22.04 as the base image
-FROM ubuntu:22.04
+# Use an official Node.js runtime as a parent image
+FROM node:20-alpine AS builder
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    cmake gcc git pkg-config \
-    libopenjp2-7-dev libfontconfig1-dev fontforge poppler-data poppler-utils \
-    packaging-dev python3-dev libpango1.0-dev libglib2.0-dev libxml2-dev giflib-tools \
-    libjpeg-dev libtiff-dev uthash-dev libspiro-dev wget \
-    --fix-missing && apt-get clean
+# Install necessary build tools and dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    python3 \
+    make \
+    g++ \
+    pkgconfig \
+    pixman-dev \
+    cairo-dev \
+    pango-dev \
+    jpeg-dev \
+    giflib-dev \
+    && npm install -g npm@latest
 
-# Build and install Poppler
-RUN wget http://poppler.freedesktop.org/poppler-0.33.0.tar.xz && \
-    tar -xvf poppler-0.33.0.tar.xz && \
-    cd poppler-0.33.0 && \
-    ./configure --enable-xpdf-headers && \
-    make -j$(nproc) && make install && \
-    cd .. && rm -rf poppler-0.33.0 poppler-0.33.0.tar.xz
-
-# Build and install FontForge
-RUN git clone --depth 1 https://github.com/fontforge/fontforge.git && \
-    cd fontforge && \
-    ./bootstrap && \
-    ./configure && \
-    make -j$(nproc) && make install && \
-    cd .. && rm -rf fontforge
-
-# Build and install pdf2htmlEX
-RUN git clone --depth 1 https://github.com/coolwanglu/pdf2htmlEX.git && \
-    cd pdf2htmlEX && \
-    cmake . && \
-    make -j$(nproc) && make install && \
-    cd .. && rm -rf pdf2htmlEX
-
-# Set up environment variables
-RUN echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc && \
-    source ~/.bashrc
-
-# Install Node.js and dependencies
-RUN apt-get install -y nodejs npm && \
-    npm install -g npm@latest
-
-# Copy package.json and install Node.js dependencies
+# Copy package.json and package-lock.json
 COPY package*.json ./
-RUN npm ci
 
-# Copy application code
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
 COPY . .
 
-# Create upload directory
-RUN mkdir -p /app/public/uploads && chmod -R 777 /app/public/uploads
-
-# Build Next.js app
+# Build the Next.js application
 RUN npm run build
 
-# Expose the Next.js port
+# Use a smaller image for the final stage
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built application from the builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+# Install Docker CLI
+RUN apk add --no-cache docker-cli
+
+# Ensure the node user has access to Docker
+RUN addgroup -S docker && adduser node docker
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Start the Next.js app
-CMD ["npm", "run", "start"]
+# Command to run the application
+CMD ["npm", "start"]
