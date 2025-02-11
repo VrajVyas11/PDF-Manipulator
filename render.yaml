@@ -4,7 +4,7 @@ services:
     type: web
     runtime: docker
     repo: https://github.com/VrajVyas11/PDF-Manipulator
-    rootDir: .
+    rootDir: .  # Set the correct directory if necessary
     dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
@@ -13,7 +13,6 @@ services:
       name: uploads
       mountPath: /app/public/uploads
       sizeGB: 1
-    startCommand: npm install && npm run build && npm start
     healthCheckPath: /
     autoDeploy: true
     scaling:
@@ -22,16 +21,12 @@ services:
       targetMemoryPercent: 60
       targetCPUPercent: 60
 
-  # PDF-to-HTML Conversion Service (Private with Registry Credential)
+  # PDF-to-HTML Conversion Service
   - name: pdf2html
     type: pserv
     runtime: docker
     image:
-      url: docker.io/bwits/pdf2htmlex-alpine  # Specify correct image path
-      creds:
-        fromRegistryCreds:
-          name: BasicCred  # Replace with your actual credential name
-    startCommand: tail -f /dev/null
+      url: docker.io/bwits/pdf2htmlex-alpine  # Correct Docker image
     disk:
       name: uploads
       mountPath: /pdf
