@@ -1,24 +1,38 @@
 services:
+  # Main PDF Editor Service
   - name: pdf-editor
     type: web
-    env: docker
+    runtime: docker
     repo: https://github.com/VrajVyas11/PDF-Manipulator
+    rootDir: .
     dockerfilePath: ./Dockerfile
-    dockerCommand: npm install && npm run build && npm start
     envVars:
       - key: NODE_ENV
         value: production
     disk:
       name: uploads
       mountPath: /app/public/uploads
-      sizeGB: 1  # Adjust storage as needed
+      sizeGB: 1
+    startCommand: npm install && npm run build && npm start
+    healthCheckPath: /
+    autoDeploy: true
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetMemoryPercent: 60
+      targetCPUPercent: 60
 
+  # PDF-to-HTML Conversion Service (Private with Registry Credential)
   - name: pdf2html
-    type: web
-    env: docker
-    image: bwits/pdf2htmlex-alpine
-    dockerCommand: tail -f /dev/null
+    type: pserv
+    runtime: docker
+    image:
+      url: docker.io/bwits/pdf2htmlex-alpine  # Specify correct image path
+      creds:
+        fromRegistryCreds:
+          name: BasicCred  # Replace with your actual credential name
+    startCommand: tail -f /dev/null
     disk:
       name: uploads
       mountPath: /pdf
-      sizeGB: 1  # Shared storage with pdf-editor
+      sizeGB: 1
