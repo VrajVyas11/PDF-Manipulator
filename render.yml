@@ -1,0 +1,24 @@
+services:
+  - name: pdf-editor
+    type: web
+    env: docker
+    repo: https://github.com/VrajVyas11/PDF-Manipulator
+    dockerfilePath: ./Dockerfile
+    dockerCommand: npm install && npm run build && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: uploads
+      mountPath: /app/public/uploads
+      sizeGB: 1  # Adjust storage as needed
+
+  - name: pdf2html
+    type: web
+    env: docker
+    image: bwits/pdf2htmlex-alpine
+    dockerCommand: tail -f /dev/null
+    disk:
+      name: uploads
+      mountPath: /pdf
+      sizeGB: 1  # Shared storage with pdf-editor
