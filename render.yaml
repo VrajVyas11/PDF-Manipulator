@@ -16,7 +16,7 @@ services:
     autoDeploy: true
 
   - name: pdf2html
-    type: background
+    type: private  # Corrected from "background" to "private"
     env: docker
     image: bwits/pdf2htmlex-alpine
     startCommand: tail -f /dev/null
