@@ -4,7 +4,7 @@ services:
     type: web
     runtime: docker
     repo: https://github.com/VrajVyas11/PDF-Manipulator
-    rootDir: .  # Set the correct directory if necessary
+    rootDir: . 
     dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
@@ -26,7 +26,7 @@ services:
     type: pserv
     runtime: docker
     image:
-      url: docker.io/bwits/pdf2htmlex-alpine  # Correct Docker image
+      url: docker.io/bwits/pdf2htmlex-alpine  
     disk:
       name: uploads
       mountPath: /pdf
