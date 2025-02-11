@@ -1,19 +1,35 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  nextjs:
-    build: .
+  pdf-editor:
+    image: node:18
+    container_name: pdf-editor
     ports:
-      - "3001:3000"
-    depends_on:
-      - pdf2htmlex
-    volumes:
-      - .:/app
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-
-  pdf2htmlex:
-    image: bwits/pdf2htmlex-alpine
+    working_dir: /app
     volumes:
-      - ./public/uploads:/pdf
+      - .:/app
+      - ./public/uploads:/pdf  # 👈 Same path as in pdf2html
+      - "/var/run/docker.sock:/var/run/docker.sock"  # 👈 Allows pdf-editor to run Docker commands
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["npm install && npm run build && npm start"]
+    depends_on:
+      - pdf2html
+    networks:
+      - pdf-network
+
+  pdf2html:
+    image: bwits/pdf2htmlex-alpine
+    container_name: pdf2html
+    privileged: true  # 👈 Allows running system-level commands
+    volumes:
+      - ./public/uploads:/pdf  # 👈 Both containers now use /pdf
+    command: ["tail", "-f", "/dev/null"]  # 👈 Keeps it running
+    networks:
+      - pdf-network
+
+networks:
+  pdf-network:
+    driver: bridge

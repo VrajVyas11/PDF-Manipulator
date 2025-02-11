@@ -52,7 +52,7 @@ function PDFEditorComplex() {
         }
   
         const data = await res.json();
-  
+  console.log(data)
         if (!data.url) {
           showToastError("Invalid response from server. No URL found.");
           return;

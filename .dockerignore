@@ -1,6 +1,5 @@
 node_modules
 .next
-public/uploads
 .DS_Store
 .git
 .gitignore
