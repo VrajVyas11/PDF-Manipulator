@@ -1,25 +1,25 @@
-FROM alpine:3.2
+# Use the prebuilt pdf2htmlEX Alpine image as the base
+FROM bwits/pdf2htmlex-alpine:latest AS pdf2html
 
-RUN apk --update add alpine-sdk xz poppler-dev pango-dev m4 libtool perl autoconf automake coreutils python-dev zlib-dev freetype-dev glib-dev cmake && \
-    cd / && \
-    git clone https://github.com/BWITS/fontforge.git && \
-    cd fontforge && \
-    ./bootstrap --force && \
-    ./configure --without-iconv && \
-    make && \
-    make install && \
-    cd / && \
-    git clone git://github.com/coolwanglu/pdf2htmlEX.git && \
-    cd pdf2htmlEX && \
-    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig && \
-    cmake . && make && sudo make install && \
-    apk del alpine-sdk xz poppler-dev pango-dev m4 libtool perl autoconf automake coreutils python-dev zlib-dev freetype-dev glib-dev cmake && \
-    apk add libpng python freetype glib libintl libxml2 libltdl cairo poppler pango && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm /var/cache/apk/* && \
-    rm -rf /fontforge /libspiro /libuninameslist /pdf2htmlEX
+# Use a Node.js image for Next.js app
+FROM node:18-alpine AS nextjs
 
-RUN ln -s usr/local/bin/pdf2htmlEX
-RUN mkdir /pdf && chmod 0775 /pdf
-VOLUME /pdf
-WORKDIR /pdf
+WORKDIR /app
+
+# Copy package.json and package-lock.json first for efficient caching
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the app files
+COPY . .
+
+# Build Next.js app
+RUN npm run build
+
+# Expose port for Next.js (default 3000)
+EXPOSE 3000
+
+# Start Next.js app
+CMD ["npm", "run", "start"]
