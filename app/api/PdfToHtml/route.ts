@@ -16,13 +16,17 @@ export async function POST(req: Request): Promise<Response> {
         const tempDir = path.join("/tmp", "uploads");
         try {
             if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
+            // Clean up the directory before processing
+            fs.readdirSync(tempDir).forEach(file => {
+                fs.unlinkSync(path.join(tempDir, file));
+            });
         } catch (dirError) {
-            return NextResponse.json({ error: "Failed to create temporary directory" }, { status: 500 });
+            return NextResponse.json({ error: "Failed to create or clean temporary directory" }, { status: 500 });
         }
 
-        const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const pdfPath = path.join(tempDir, cleanFileName);
-        const htmlPath = pdfPath.replace(".pdf", ".html");
+        const pdfPath = path.join(tempDir, "upload.pdf");
+        const htmlPath = path.join(tempDir, "upload.html");
 
         try {
             const buffer = Buffer.from(await file.arrayBuffer());
@@ -34,11 +38,10 @@ export async function POST(req: Request): Promise<Response> {
         return new Promise((resolve) => {
             exec(`pdf2htmlEX --zoom 1.3 --dest-dir ${tempDir} ${pdfPath}`, (error) => {
                 if (error) {
-                    resolve(NextResponse.json({ error: `Conversion failed: ${error.message}` }, { status: 500 }));
+                    resolve(NextResponse.json({ error: `Conversion failed: Something Went Wrong.... May be File Not Supported` }, { status: 500 }));
                 } else {
-                    const htmlFile = path.join(tempDir, path.basename(htmlPath));
-                    if (fs.existsSync(htmlFile)) {
-                        resolve(NextResponse.json({ url: `/api/uploadedHtml/${path.basename(htmlPath)}` }, { status: 200 }));
+                    if (fs.existsSync(htmlPath)) {
+                        resolve(NextResponse.json({ url: `/api/uploadedHtml/upload.html` }, { status: 200 }));
                     } else {
                         resolve(NextResponse.json({ error: "HTML file not found after conversion" }, { status: 500 }));
                     }

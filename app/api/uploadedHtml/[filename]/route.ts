@@ -4,23 +4,16 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 
-export async function GET(req: Request, { params }: { params: { filename: string } }) {
-    const filePath = path.join("/tmp", "uploads", params.filename);
+export async function GET() {
+    const filePath = path.join("/tmp", "uploads", "upload.html");
     
     if (!fs.existsSync(filePath)) {
         return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
     const fileStream = fs.createReadStream(filePath);
-    const ext = path.extname(params.filename);
-
-    const contentType = ext === ".pdf" 
-        ? "application/pdf" 
-        : ext === ".html" 
-            ? "text/html" 
-            : "application/octet-stream";
 
     return new NextResponse(fileStream as any, {
-        headers: { "Content-Type": contentType }
+        headers: { "Content-Type": "text/html" }
     });
 }
