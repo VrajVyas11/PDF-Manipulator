@@ -13,12 +13,14 @@ export async function POST(req: Request): Promise<Response> {
             return NextResponse.json({ error: "No PDF file uploaded" }, { status: 400 });
         }
 
-        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-
-        const tempDir = path.join(process.cwd(), "public/uploads");
+        // Use /tmp for temporary file storage on Render
+        const tempDir = path.join("/tmp", "uploads");
         if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-        const pdfPath = path.join(tempDir, sanitizedFileName);
+        // Clean and simplify the file name
+        const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+
+        const pdfPath = path.join(tempDir, cleanFileName);
         const htmlPath = pdfPath.replace(".pdf", ".html");
 
         const buffer = Buffer.from(await file.arrayBuffer());
