@@ -100,10 +100,16 @@ function PDFEditorComplex() {
           height: pdfDimensions.height,
         }),
       });
-
       const data = await response.json();
+      console.log(data)
+            if (!data.url) {
+              showToastError("Invalid response from server. No URL found.");
+              return;
+            }
+      
+
       if (data.success) {
-        const pdfResponse = await fetch(`${window.location.origin}${data.pdfUrl}`);
+        const pdfResponse = await fetch(data.url);
         const blob = await pdfResponse.blob();
 
         const link = document.createElement("a");

@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     }
 
     console.log("Returning success response");
-    return NextResponse.json({ success: true, pdfUrl: `/uploads/download.pdf` });
+    return NextResponse.json({ success: true, url: `/api/downloadPdf/download.pdf` });
 
   } catch (error) {
     console.error("Error generating PDF:", error);
