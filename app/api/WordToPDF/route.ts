@@ -50,31 +50,31 @@ export async function POST(req: Request): Promise<Response> {
     // Convert .docx to HTML using mammoth with style mapping
     let htmlContent;
     try {
-      const styleMap = [
+     // const styleMap = [
         // Map common style names
-        "p[style-name='Heading 1'] => h1:fresh",
-        "p[style-name='Heading 2'] => h2:fresh",
-        "p[style-name='Heading 3'] => h3:fresh",
-        "p[style-name='Normal'] => p.normal:fresh",
+      //  "p[style-name='Heading 1'] => h1:fresh",
+      //  "p[style-name='Heading 2'] => h2:fresh",
+      //  "p[style-name='Heading 3'] => h3:fresh",
+   //   "p[style-name='Normal'] => p.normal:fresh",
         // Preserve inline alignments
-        "p[style*='text-align: center'] => p.center:fresh",
-        "p[style*='text-align: right'] => p.right:fresh",
-        "p[style*='text-align: justify'] => p.justify:fresh",
+       // "p[style*='text-align: center'] => p.center:fresh",
+      //  "p[style*='text-align: right'] => p.right:fresh",
+      //  "p[style*='text-align: justify'] => p.justify:fresh",
         // Preserve inline font sizes and other styles
-        "p[style*='font-size'] => p.styled:fresh",
-        "r[style*='font-size'] => span.styled:fresh",
-        "r[style*='font-family'] => span.styled:fresh",
+      //  "p[style*='font-size'] => p.styled:fresh",
+      //  "r[style*='font-size'] => span.styled:fresh",
+      //  "r[style*='font-family'] => span.styled:fresh",
         // Bold and italic
-        "r[style-name='Strong'] => strong:fresh",
-        "r[style-name='Emphasis'] => em:fresh",
+      //  "r[style-name='Strong'] => strong:fresh",
+     //   "r[style-name='Emphasis'] => em:fresh",
         // Tables
-        "table => table.doc-table:fresh",
-        "tr => tr.doc-tr:fresh",
-        "td => td.doc-td:fresh",
-        "th => th.doc-th:fresh",
-      ];
+     // "table => table.doc-table:fresh",
+      //  "tr => tr.doc-tr:fresh",
+     //   "td => td.doc-td:fresh",
+     //   "th => th.doc-th:fresh",
+     // ];
 
-      const result = await mammoth.convertToHtml({ path: docxPath, styleMap });
+      const result = await mammoth.convertToHtml({ path: docxPath });
       htmlContent = result.value;
       console.log("Successfully converted .docx to HTML");
     } catch (mammothError) {
