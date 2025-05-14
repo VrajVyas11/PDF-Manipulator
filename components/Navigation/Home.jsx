@@ -33,7 +33,7 @@ const Home = () => {
                                 </LinkScroll>
                             </div>
                             {
-                                navLinks.slice(0, 7).map((link) => (
+                                navLinks.slice(0, 8).map((link) => (
                                     <div
                                         key={link.id}
                                         className=" hidden overflow-hidden -ml-10 lg:-ml-12 max-lg:-mt-0 md:block "

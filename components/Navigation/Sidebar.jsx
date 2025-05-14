@@ -21,8 +21,8 @@ const Sidebar = () => {
                     PDF Manipulator
                 </h1>
                 <nav className="h-full flex-col justify-around md:flex ">
-                    <ul className="hidden w-full flex-col items-start gap-2 md:flex">
-                        {navLinks.slice(0, 8).map((link) => {
+                    <ul className="hidden w-full flex-col items-start gap-1 md:flex">
+                        {navLinks.slice(0, 9).map((link) => {
                             const isActive = link.id === activeLink;
                             return (
                                 <li
@@ -96,7 +96,7 @@ const Sidebar = () => {
                         })}
                     </ul>
                     <ul className=" flex flex-row gap-2 justify-center items-center">
-                        {navLinks.slice(8).map((link) => {
+                        {navLinks.slice(9).map((link) => {
                             return (
                                 <li
                                     key={link.id}

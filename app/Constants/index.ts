@@ -19,7 +19,7 @@ export const navLinks = [
     label: 'Split PDF',
     description: 'Effortlessly split a single PDF document into multiple smaller files for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
-},
+  },
   {
     id: 'edit',
     icon: '/images/options/edit.svg',
@@ -56,11 +56,18 @@ export const navLinks = [
     sideImage: '/images/plan-1.png',
   },
   {
+    id: 'wordtopdf',
+    icon: '/images/options/msword.svg',
+    label: 'Docx To PDF',
+    description: 'Effortlessly Convert your Doc/Docx word files into PDf ',
+    sideImage: '/images/plan-1.png',
+  },
+  {
     id: "LinkedIn",
     name: "LinkedIn",
     icon: "/images/Socials/linkedin.svg",
     alt: "LinkedIn Icon",
-    description:"",
+    description: "",
     URL: "https://www.linkedin.com/in/vraj-vyas-983249297/"
   },
 
@@ -69,7 +76,7 @@ export const navLinks = [
     name: "GitHub",
     icon: "/images/Socials/github-logo.png",
     alt: "GitHub Icon",
-    description:"",
+    description: "",
     URL: "https://github.com/VrajVyas11/Next_JS_PDF_Manipulator"
   },
 ];

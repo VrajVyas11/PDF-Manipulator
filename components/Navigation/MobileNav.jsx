@@ -47,8 +47,8 @@ const MobileNav = () => {
                             </SheetTitle>
 
 
-                            <ul className="w-full flex-col items-start gap-1 ">
-                                {navLinks.slice(0, 8).map((link) => {
+                            <ul className="w-full flex-col items-start ">
+                                {navLinks.slice(0, 9).map((link) => {
                                     const isActive = link.id === activeLink;
 
                                     return (
@@ -110,7 +110,7 @@ const MobileNav = () => {
                                                         />
                                                     )}
 
-                                                    <span className="font-semibold text-16 flex size-full gap-4 p-4 text-white ">
+                                                    <span className="font-semibold text-sm flex size-full gap-4 p-4 text-white ">
                                                         {link.label}
                                                     </span>
 
@@ -123,11 +123,11 @@ const MobileNav = () => {
                                 })}
                             </ul>
                             <ul className=" flex w-full flex-row gap-2 justify-between items-stretch">
-                                {navLinks.slice(8).map((link) => {
+                                {navLinks.slice(9).map((link) => {
                                     return (
                                         <li
                                             key={link.id}
-                                            className={`w-full whitespace-nowrap rounded-full hover:bg-opacity-70 transition-all duration-150 ease-in-out flex items-center justify-center text-[16px] font-semibold leading-[140%]`}
+                                            className={`w-full whitespace-nowrap rounded-full hover:bg-opacity-70 transition-all duration-150 ease-in-out flex items-center justify-center text-[12px] font-semibold leading-[140%]`}
                                         >
                                             <button
                                                 onClick={() => window.open(link.URL, "_blank")}

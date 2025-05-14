@@ -20,13 +20,7 @@ export const metadata = {
   description: "A comprehensive and versatile PDF tool designed to streamline the process of editing, merging, compressing, and converting PDF files. With a user-friendly interface, it offers convenient features such as drag-and-drop functionality for effortlessly adding pages, as well as powerful image extraction capabilities. The tool also enables seamless PDF viewing, ensuring you can work with your documents in a hassle-free manner. Fully responsive and intuitive, this solution enhances document management, making it easier than ever to handle your PDF files with efficiency and precision.",
   icons: {
     icon: "/favicon.svg",
-  },
-  links: [
-    {
-      rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Pacifico&display=swap",
-    },
-  ],
+  }
 };
 
 export function cn(...inputs: ClassValue[]) {
@@ -39,10 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Pacifico&display=swap"
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Pacifico&display=swap" rel="stylesheet" />
       </head>
       <body
         style={{
@@ -61,13 +54,16 @@ export default function RootLayout({
         className={cn(
           "font-IBMPlex antialiased",
           IBMPlex.variable,
-          `body-wrap m-0 sm:min-h-screen min-h-screen md:h-auto text-white font-sans text-body bg-[#03050e] bg-opacity-95 transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased overflow-scroll flex flex-row bg-fixed`
+          `body-wrap m-0 sm:min-h-screen min-h-screen overflow-hidden text-white font-sans text-body bg-[#03050e] bg-opacity-95 transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased flex flex-row bg-fixed`
         )}
       >
         <ActiveLinkProvider>
           <Sidebar />
           <MobileNav />
-          <div className="mt-16 flex-1 overflow-auto py-8 lg:mt-0 lg:max-h-screen lg:py-10">
+          <div style={{
+            scrollbarWidth: "none",
+            scrollbarColor: "rgba(0, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
+          }} className="mt-16 flex-1 overflow-auto py-8 lg:mt-0 lg:max-h-screen lg:py-10">
             <div className=" max-w-5xl mx-auto md:px-2 w-full text-dark-400">
               {children}
               <Toaster />
