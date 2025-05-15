@@ -54,7 +54,7 @@ export default function RootLayout({
         className={cn(
           "font-IBMPlex antialiased",
           IBMPlex.variable,
-          `body-wrap m-0 sm:min-h-screen min-h-screen overflow-hidden text-white font-sans text-body bg-[#03050e] bg-opacity-95 transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased flex flex-row bg-fixed`
+          `body-wrap m-0 sm:min-h-screen min-h-screen text-white font-sans text-body bg-[#03050e] bg-opacity-95 transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased flex flex-row bg-fixed`
         )}
       >
         <ActiveLinkProvider>
