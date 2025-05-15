@@ -217,7 +217,9 @@ const WordDocxToPdf = () => {
                                             </button>
                                         )}
                                         {isProcessing && (
+                                            <div>
                                             <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                        </div>
                                         )}
                                     </div>
                                 </div>

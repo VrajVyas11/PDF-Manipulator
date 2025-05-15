@@ -6,6 +6,25 @@ import path from "path";
 import fs from "fs";
 import os from "os";
 
+// Utility function to convert Node.js ReadStream to Web ReadableStream
+function nodeStreamToWebStream(nodeStream: fs.ReadStream): ReadableStream {
+  return new ReadableStream({
+    start(controller) {
+      nodeStream.on("data", (chunk) => {
+        controller.enqueue(chunk);
+      });
+
+      nodeStream.on("end", () => {
+        controller.close();
+      });
+
+      nodeStream.on("error", (err) => {
+        controller.error(err);
+      });
+    },
+  });
+}
+
 export async function POST(req: Request): Promise<Response> {
   try {
     const formData = await req.formData();
@@ -47,42 +66,21 @@ export async function POST(req: Request): Promise<Response> {
       return NextResponse.json({ error: "Failed to write .docx file" }, { status: 500 });
     }
 
-    // Convert .docx to HTML using mammoth with style mapping
+    // Convert .docx to HTML using mammoth
     let htmlContent;
     try {
-     // const styleMap = [
-        // Map common style names
-      //  "p[style-name='Heading 1'] => h1:fresh",
-      //  "p[style-name='Heading 2'] => h2:fresh",
-      //  "p[style-name='Heading 3'] => h3:fresh",
-   //   "p[style-name='Normal'] => p.normal:fresh",
-        // Preserve inline alignments
-       // "p[style*='text-align: center'] => p.center:fresh",
-      //  "p[style*='text-align: right'] => p.right:fresh",
-      //  "p[style*='text-align: justify'] => p.justify:fresh",
-        // Preserve inline font sizes and other styles
-      //  "p[style*='font-size'] => p.styled:fresh",
-      //  "r[style*='font-size'] => span.styled:fresh",
-      //  "r[style*='font-family'] => span.styled:fresh",
-        // Bold and italic
-      //  "r[style-name='Strong'] => strong:fresh",
-     //   "r[style-name='Emphasis'] => em:fresh",
-        // Tables
-     // "table => table.doc-table:fresh",
-      //  "tr => tr.doc-tr:fresh",
-     //   "td => td.doc-td:fresh",
-     //   "th => th.doc-th:fresh",
-     // ];
-
       const result = await mammoth.convertToHtml({ path: docxPath });
       htmlContent = result.value;
       console.log("Successfully converted .docx to HTML");
     } catch (mammothError) {
       console.error("Mammoth conversion error:", mammothError);
-      return NextResponse.json({ error: "Failed to convert .docx to HTML: " + (mammothError as Error).message }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to convert .docx to HTML: " + (mammothError as Error).message },
+        { status: 500 }
+      );
     }
 
-    // Enhanced HTML with CSS to preserve styling dynamically
+    // Enhanced HTML with CSS to preserve styling
     const html = `
       <!DOCTYPE html>
       <html>
@@ -93,7 +91,7 @@ export async function POST(req: Request): Promise<Response> {
               line-height: 1.6;
               font-family: Arial, sans-serif;
             }
-            /* Headings (default sizes for fallback) */
+            /* Headings */
             h1 { font-size: 24pt; font-weight: bold; margin: 0.67em 0; }
             h2 { font-size: 18pt; font-weight: bold; margin: 0.83em 0; }
             h3 { font-size: 14pt; font-weight: bold; margin: 1em 0; }
@@ -167,13 +165,18 @@ export async function POST(req: Request): Promise<Response> {
       console.log(`Generated PDF at: ${pdfPath}`);
     } catch (puppeteerError) {
       console.error("Puppeteer error:", puppeteerError);
-      return NextResponse.json({ error: "Failed to convert HTML to PDF: " + (puppeteerError as Error).message }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to convert HTML to PDF: " + (puppeteerError as Error).message },
+        { status: 500 }
+      );
     }
 
     // Stream the PDF to client
     try {
       const pdfStream = fs.createReadStream(pdfPath);
-      const response = new NextResponse(pdfStream, {
+      const webStream = nodeStreamToWebStream(pdfStream);
+
+      const response = new NextResponse(webStream, {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": "attachment; filename=converted.pdf",
