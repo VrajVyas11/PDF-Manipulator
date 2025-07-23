@@ -12,7 +12,7 @@
 
 ## **Overview**
 
-PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, splitting, and even extracting images from PDF files, this app combines efficiency with simplicity. With its **fully responsive design**, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs.
+PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, splitting, converting Word files to PDFs, and even extracting images from PDF files, this app combines efficiency with simplicity. With its fully responsive design, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs and Word documents.
 
 ---
 
@@ -28,7 +28,7 @@ PDF Manipulator is a web-based tool designed for effortless PDF management. From
 - 👀 **View PDFs**: Preview and navigate PDFs directly within the app. Fully responsive for all devices.  
 - 📤 **Drag-and-Drop**: Upload files with a user-friendly drag-and-drop interface. Fully responsive for all devices.  
 - 🔄 **Page Preview**: Rearrange and organize pages before saving changes. Fully responsive for all devices.  
-
+- 📄 **Word File TO PDFs**: Effortlessly convert your Word Doc/Docx files into PDF documents. Fully responsive for all devices.
 ---
 
 ## **Tech Stack**
@@ -66,7 +66,7 @@ PDF Manipulator is a web-based tool designed for effortless PDF management. From
 | ➕ **Add Pages to PDFs**            | ![Add Pages](./livedemoimages/9.png) ![Add Pages](./livedemoimages/10.png) ![Extract Images](./livedemoimages/11.png) - Add extra pages to existing PDFs with ease, responsive UI. |
 | 📸 **Extract Images from PDFs**     | ![Extract Images](./livedemoimages/12.png) - Extract embedded images from a PDF file, responsive design for mobile and desktop. |
 | 📉 **Compress PDFs**               | ![Compress PDF](./livedemoimages/13.png) - Reduce PDF file size without losing quality, optimized for all devices. |
-
+| 📄 **Word File TO PDFs**               | ![Compress PDF](./livedemoimages/15.png) - Effortlessly convert your Word Doc/Docx files into PDF. |
 
 ---
 
