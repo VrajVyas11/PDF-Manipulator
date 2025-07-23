@@ -31,87 +31,100 @@ const PdfSplit = () => {
         });
     }, [toast]);
 
+    // Convert ArrayBuffer to base64 string
+    const arrayBufferToBase64 = (buffer) => {
+        // Buffer is Node.js, in browser use btoa with Uint8Array
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    };
+
+    // Convert base64 string back to Uint8Array
+    const base64ToUint8Array = (base64) => {
+        const binaryString = window.atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+    };
     const handleFileChange = async (e) => {
         const files = Array.from(e.target.files);
         const invalidFiles = files.filter(file => file.type !== 'application/pdf');
-
         if (invalidFiles.length > 0) {
             showToastError("Invalid PDF Files. Only PDF files are allowed.");
             return;
         }
-
         setPdfName(files[0].name);
-        setPdfs([]);
-        setPages([]);
-        setPreviewPdfPages([]);
+        setLoading(true);
 
-        const newPdfs = [];
-        for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                const pdfData = ev.target.result;
-                newPdfs.push(pdfData);
-                await extractPages(pdfData, newPdfs.length - 1);
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
-
-        setPdfs(newPdfs);
-        for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                const pdfData = ev.target.result;
-                await setingPreviewPages(pdfData, newPdfs.length - 1);
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    };
-
-    const extractPages = async (pdfData, pdfIndex) => {
         try {
-            const pdfDoc = await PDFDocument.load(pdfData);
-            const pageCount = pdfDoc.getPageCount();
-            const extractedPages = Array.from({ length: pageCount }, (_, index) => ({
-                index,
-                pdfIndex,
-                name: `page No :- ${index + 1}`,
-            }));
-            setPages((prev) => [...prev, ...extractedPages]);
+            const newPdfs = [];
+            const newPages = [];
+            const newPreviewPages = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const arrayBuffer = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsArrayBuffer(file);
+                });
+
+                // Convert to base64 string
+                const base64String = arrayBufferToBase64(arrayBuffer);
+                newPdfs.push(base64String);
+
+                // Convert back to Uint8Array for pdf-lib and pdfjs
+                const uint8Array = base64ToUint8Array(base64String);
+
+                // Extract pages info
+                const pdfDoc = await PDFDocument.load(uint8Array);
+                const pageCount = pdfDoc.getPageCount();
+                const extractedPages = Array.from({ length: pageCount }, (_, index) => ({
+                    index,
+                    pdfIndex: i,
+                    name: `PDF ${i + 1} Page ${index + 1}`,
+                }));
+                newPages.push(...extractedPages);
+
+                // Extract preview pages using pdfjs
+                const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+                for (let j = 1; j <= pageCount; j++) {
+                    const page = await pdf.getPage(j);
+                    const viewport = page.getViewport({ scale: 1 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: context, viewport }).promise;
+                    const image = canvas.toDataURL('image/png');
+
+                    newPreviewPages.push({
+                        index: j - 1,
+                        pdfIndex: i,
+                        name: `PDF ${i + 1} Page ${j}`,
+                        preview: image,
+                    });
+                }
+            }
+
+            setPdfs(newPdfs);
+            setPages(newPages);
+            setPreviewPdfPages(newPreviewPages);
         } catch (error) {
-            showToastError(`Error extracting pages: ${error.message}`);
+            showToastError(`Error processing files: ${error.message}`);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const setingPreviewPages = async (pdfData, pdfIndex) => {
-        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-        const pageCount = pdf.numPages;
-
-        const pagesArray = [];
-
-        for (let i = 1; i <= pageCount; i++) {
-            const page = await pdf.getPage(i);
-            const viewport = page.getViewport({ scale: 1 });
-
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ canvasContext: context, viewport }).promise;
-
-            const image = canvas.toDataURL("image/png");
-
-            pagesArray.push({
-                index: i,
-                pdfIndex,
-                name: `Page No :- ${i}`,
-                preview: image,
-            });
-        }
-
-        setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
-    };
 
     const handlePageRangeChange = (e) => {
         setPageRanges(e.target.value);
@@ -319,21 +332,47 @@ const PdfSplit = () => {
                         </div>
                     </div>
                     {previewOpen && splitPdfPreview && (
-                        <>
-                            <div className="bg-p5/5 w-full font-normal p-1  rounded-lg pt-4 flex  cursor-pointer flex-col text-white text-center  backdrop-blur-[12px]   ">
-                                <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
-                                    Full PDF Preview
-                                </h2>
-
-                                {pages.length > 0 ? (
-                                    <PDFViewer file={splitPdfPreview} />
-                                ) : (
-                                    <div className="font-normal text-[16px] leading-[140%] flex justify-center text-p5">
-                                        No files uploaded. Upload files to preview and merge.
-                                    </div>
-                                )}
+                        <div className="mt-8 w-full px-6 md:px-0 pt-6 bg-gray-900/80 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
+                            <div className='flex flex-row w-full pb-8 px-12 justify-center items-center'>
+                                <div className="flex items-center flex-col justify-center w-full">
+                                    <h3 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-300 tracking-tight">
+                                        PDF Preview
+                                    </h3>
+                                    <p className="text-sm text-gray-400 mt-1">Review your document before processing</p>
+                                </div>
+                                <button
+                                    disabled={!pages.length || !previewPdfPages.length}
+                                    onClick={() => setPreviewOpen((prev) => !prev)}
+                                    className="ml-4 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                                    aria-label="Close preview"
+                                >
+                                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-red-600/60 hover:bg-red-600/70 backdrop-blur-lg border border-red-700 text-gray-300 hover:text-white transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </span>
+                                </button>
                             </div>
-                        </>
+
+                            {pages.length > 0 ? (
+                                <div className="overflow-hidden">
+                                    <PDFViewer file={splitPdfPreview} />
+                                </div>
+                            ) : (
+                                <div className="py-12 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-500">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                    <p className="mt-4 text-gray-400 font-medium">No files uploaded</p>
+                                    <p className="text-sm text-gray-500 mt-1">Upload PDFs to preview and merge</p>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
 
