@@ -1,9 +1,10 @@
+"use client"
 import React, { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import PDFViewer from "./PDFViewer"
+import PDFViewer from "../../../components/Core/PDFViewer"
 import Image from 'next/image';
 import { ToastAction } from "@/components/ui/toast"
-import { useToast } from "../../hooks/use-toast"
+import { useToast } from "../../../hooks/use-toast"
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);

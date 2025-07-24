@@ -1,9 +1,10 @@
+"use client"
 import React, { useState, useCallback, useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import { useToast } from "../../hooks/use-toast";
+import { useToast } from "../../../hooks/use-toast";
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import Image from 'next/image';
-import PDFViewer from "./PDFViewer";
+import PDFViewer from "../../../components/Core/PDFViewer";
 
 const PdfSplit = () => {
     const [pdfs, setPdfs] = useState([]);

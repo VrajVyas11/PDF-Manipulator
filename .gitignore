@@ -25,7 +25,7 @@ pages.css
 ConvertToDOCX.jsx
 # production
 /build
-
+app/context
 # misc
 .DS_Store
 *.pem

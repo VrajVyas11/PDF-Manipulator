@@ -1,9 +1,10 @@
+"use client"
 import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import PDFViewer from "./PDFViewer";
+import PDFViewer from "../../../components/Core/PDFViewer";
 import Image from 'next/image';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
-import { useToast } from "../../hooks/use-toast"
+import { useToast } from "../../../hooks/use-toast"
 
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);

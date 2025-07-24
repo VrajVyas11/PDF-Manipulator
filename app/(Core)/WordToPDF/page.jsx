@@ -1,9 +1,10 @@
+"use client"
 import React, { useState } from 'react';
 import { saveAs } from 'file-saver';
 import Image from 'next/image';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '../../../hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import PDFViewer from "./PDFViewer";
+import PDFViewer from "../../../components/Core/PDFViewer";
 
 const WordDocxToPdf = () => {
     const [docxFile, setDocxFile] = useState(null);

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 "use client";
 import React, { useState, useRef } from "react";
-import Toolbar from "../Toolbar";
+import Toolbar from "./Toolbar";
 import Image from "next/image";
 import { useToast } from "../../../hooks/use-toast";
 import { PDFDocument } from "pdf-lib";

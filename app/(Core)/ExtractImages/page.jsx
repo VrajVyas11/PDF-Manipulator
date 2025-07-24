@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useToast } from "../../hooks/use-toast"
+import { useToast } from "../../../hooks/use-toast"
 const ExtractImages = () => {
   const [imageFile, setImageFile] = useState(null);
   const [images, setImages] = useState([]);

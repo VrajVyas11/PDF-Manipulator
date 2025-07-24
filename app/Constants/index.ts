@@ -5,6 +5,7 @@ export const navLinks = [
     label: 'Home',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
+    URL:"/"
   },
   {
     id: 'merge',
@@ -12,6 +13,7 @@ export const navLinks = [
     label: 'Merge PDF',
     description: 'Effortlessly combine multiple PDF documents into a single file for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
+    URL:"/MergePDFs"
   },
   {
     id: 'split',
@@ -19,6 +21,7 @@ export const navLinks = [
     label: 'Split PDF',
     description: 'Effortlessly split a single PDF document into multiple smaller files for easier organization and sharing.',
     sideImage: '/images/detail-1.png',
+    URL:"/SplitPDF"
   },
   {
     id: 'edit',
@@ -26,6 +29,7 @@ export const navLinks = [
     label: 'Edit PDF',
     description: 'Quickly and easily modify the content of your PDFs, including text, images, and layouts.',
     sideImage: '/images/detail-2.png',
+    URL:"/PDFEditor"
   },
   {
     id: 'image',
@@ -33,6 +37,7 @@ export const navLinks = [
     label: 'Image to PDF',
     description: 'Convert your images into high-quality PDFs in just a few clicks for secure and professional sharing.',
     sideImage: '/images/detail-3.png',
+    URL:"/ImageToPDF"
   },
   {
     id: 'compress',
@@ -40,6 +45,7 @@ export const navLinks = [
     label: 'Compress PDF',
     description: 'Easily reduce the file size of your PDFs for faster uploads and hassle-free sharing.',
     sideImage: '/images/detail-4.png',
+    URL:"/CompressPDF"
   },
   {
     id: 'addpages',
@@ -47,6 +53,7 @@ export const navLinks = [
     label: 'Add Pages',
     description: 'Insert new pages seamlessly into your PDF to expand or update your document as needed.',
     sideImage: '/images/plan-3.png',
+    URL:"/AddPages"
   },
   {
     id: 'extract',
@@ -54,6 +61,7 @@ export const navLinks = [
     label: 'Extract Images',
     description: 'Effortlessly extract and save images from your PDFs for use in other documents or projects.',
     sideImage: '/images/plan-1.png',
+    URL:"/ExtractImages"
   },
   {
     id: 'wordtopdf',
@@ -61,6 +69,7 @@ export const navLinks = [
     label: 'Docx To PDF',
     description: 'Effortlessly Convert your Doc/Docx word files into PDf ',
     sideImage: '/images/plan-1.png',
+    URL:"/WordToPDF"
   },
   {
     id: "LinkedIn",

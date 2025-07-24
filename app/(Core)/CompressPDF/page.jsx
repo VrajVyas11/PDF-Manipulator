@@ -1,11 +1,12 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import Image from 'next/image';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '../../../hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import PDFViewer from "./PDFViewer"
+import PDFViewer from "../../../components/Core/PDFViewer"
 const PDFCompressor = () => {
   const [imageFile, setImageFile] = useState(null);
   const [compressionQuality, setCompressionQuality] = useState(0.5);

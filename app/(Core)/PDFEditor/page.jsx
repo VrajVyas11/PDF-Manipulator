@@ -1,6 +1,7 @@
+"use client"
 import React, { useState } from 'react';
-import PDFEditorSimpleText from "./PDFEditorSimpleText.jsx";
-import PDFEditorComplex from "./PDFEditorComplex.jsx";
+import PDFEditorSimpleText from "../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx";
+import PDFEditorComplex from "../../../components/Core/PDFEditor/PDFEditorComplex.jsx";
 import Image from 'next/image.js';
 function PDFEditor() {
   const [isBackendBased, setIsBackendBased] = useState(false);

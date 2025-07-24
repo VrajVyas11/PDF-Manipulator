@@ -1,13 +1,16 @@
+"use client"
 import React, { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
-const QuillEditor = dynamic(() => import('../../app/utils/tools/QuillEditor'), { ssr: false });
-import html2pdf from 'html2pdf.js';
-import PDFViewer from "./PDFViewer"
+const QuillEditor = dynamic(() => import('../../utils/tools/QuillEditor'), { ssr: false });
+// import html2pdf from 'html2pdf.js';
+import PDFViewer from "../../../components/Core/PDFViewer"
 import Image from 'next/image';
-import * as pdfjsLib from 'pdfjs-dist/webpack';
-import { useToast } from "../../hooks/use-toast"
+// import * as pdfjsLib from 'pdfjs-dist/webpack';
+import { useToast } from "../../../hooks/use-toast"
 const AddPages = () => {
+    const [pdfjsLib, setPdfjsLib] = useState(null);
+  const [html2pdf, setHtml2pdf] = useState(null);
   const [pdfs, setPdfs] = useState([]);
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,6 +22,14 @@ const AddPages = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    import('pdfjs-dist/webpack').then((mod) => {
+      setPdfjsLib(mod);
+    });
+    import('html2pdf.js').then((mod) => {
+      setHtml2pdf(mod.default || mod);
+    });
+  }, []);
   const showToastError = useCallback((message) => {
     toast({
       title: message,
