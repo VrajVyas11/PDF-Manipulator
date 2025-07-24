@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import "./globals.css";
 import React from "react";
-import { ActiveLinkProvider } from "./context/ContextProvider";
 import Sidebar from "../components/Navigation/Sidebar";
 import MobileNav from "../components/Navigation/MobileNav";
 import { IBM_Plex_Sans } from "next/font/google";
@@ -57,7 +56,6 @@ export default function RootLayout({
           `body-wrap m-0 sm:min-h-screen min-h-screen text-white font-sans text-body bg-[#03050e] bg-opacity-95 transition-colors duration-200 leading-6 text-base box-border -webkit-font-smoothing:antialiased flex flex-row bg-fixed`
         )}
       >
-        <ActiveLinkProvider>
           <Sidebar />
           <MobileNav />
           <div style={{
@@ -69,7 +67,6 @@ export default function RootLayout({
               <Toaster />
             </div>
           </div>
-        </ActiveLinkProvider>
       </body>
     </html>
   );
