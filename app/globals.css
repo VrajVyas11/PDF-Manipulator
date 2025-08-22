@@ -130,9 +130,9 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   width: 2rem;
   height: 2rem;
-  background: #ffffff;
+  background: #356788;
   border-radius: 50%;
-  border: 0.125rem solid #1e90ff;
+   border: 0.3rem solid #7e99b5;
   cursor: pointer;
   appearance: none;
 }
@@ -140,9 +140,9 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-thumb {
   width: 2rem;
   height: 2rem;
-  background: #ffffff;
+  background: #2d3032;
   border-radius: 50%;
-  border: 0.125rem solid #1e90ff;
+  border: 0.3rem solid #184e84;
   cursor: pointer;
   appearance: none;
 }
