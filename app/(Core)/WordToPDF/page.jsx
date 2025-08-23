@@ -52,9 +52,24 @@ const WordDocxToPdf = () => {
 
     const showToastError = (message) => {
         toast({
-            title: message,
-            variant: 'destructive',
-            className: "font-semibold text-[12px] md:text-[16px] text-red-500 gap-3 w-full py-2 bg-red-500 bg-opacity-20 p-2 md:p-4 rounded-lg border-2 border-red-500 border-opacity-50 backdrop-blur-md",
+            variant: "destructive",
+            title: (
+                <div className="flex items-center w-full gap-3">
+                    {/* subtle check icon */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-red-400 flex-shrink-0" viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true">
+                        <path fillRule="evenodd" d="M6.99486 7.00636C6.60433 7.39689 6.60433 8.03005 6.99486 8.42058L10.58 12.0057L6.99486 15.5909C6.60433 15.9814 6.60433 16.6146 6.99486 17.0051C7.38538 17.3956 8.01855 17.3956 8.40907 17.0051L11.9942 13.4199L15.5794 17.0051C15.9699 17.3956 16.6031 17.3956 16.9936 17.0051C17.3841 16.6146 17.3841 15.9814 16.9936 15.5909L13.4084 12.0057L16.9936 8.42059C17.3841 8.03007 17.3841 7.3969 16.9936 7.00638C16.603 6.61585 15.9699 6.61585 15.5794 7.00638L11.9942 10.5915L8.40907 7.00636C8.01855 6.61584 7.38538 6.61584 6.99486 7.00636Z" />
+                    </svg>
+                    <div className="text-left ">
+                        <div className="text-sm md:text-base font-semibold text-red-100">
+                            {message}
+                        </div>
+                    </div>
+                </div>
+            ),
+            className:
+                "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
         });
     };
 
@@ -85,17 +100,57 @@ const WordDocxToPdf = () => {
             setPdfUrl(URL.createObjectURL(blob));
 
             toast({
-                title: 'Your PDF is ready to be downloaded. Click below to download it.',
+                title: (
+                    <div className="flex items-center w-full gap-3">
+                        {/* subtle check icon */}
+                        <svg
+                            className="w-5 h-5 text-emerald-400 flex-shrink-0"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                fillRule="evenodd"
+                                d="M16.704 5.29a1 1 0 00-1.408-1.418L7.5 11.668 4.704 8.88a1 1 0 10-1.408 1.418l4 4a1 1 0 001.408 0l8-8z"
+                                clipRule="evenodd"
+                            />
+                        </svg>
+
+                        <div className="text-left ">
+                            <div className="text-sm md:text-base font-semibold text-emerald-100">
+                                PDF ready to download
+                            </div>
+                            <div className="text-xs md:text-sm text-emerald-200/80">
+                                Your compressed PDF is available. Click Download to save it.
+                            </div>
+                        </div>
+                    </div>
+                ),
                 action: (
                     <ToastAction
-                        className="bg-green-500 hover:bg-green-800 text-p5 bg-opacity-10 border-green-500"
                         onClick={downloadPDF}
                         altText="Download PDF"
+                        className="ml-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 min-h-12 text-sm font-semibold text-slate-900 shadow-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     >
+                        {/* download icon */}
+                        <svg
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
                         Download
                     </ToastAction>
                 ),
-                className: "flex gap-3 font-bold text-[12px] md:text-[16px] text-green-500 w-full justify-center items-center bg-green-500 bg-opacity-20 p-2 md:p-4 py-2 rounded-lg border-2 border-green-500 backdrop-blur-md",
+                className:
+                    "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-emerald-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
             });
         } catch (err) {
             console.error('Error converting .docx to PDF:', err);
@@ -219,8 +274,8 @@ const WordDocxToPdf = () => {
                                         )}
                                         {isProcessing && (
                                             <div>
-                                            <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                        </div>
+                                                <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
