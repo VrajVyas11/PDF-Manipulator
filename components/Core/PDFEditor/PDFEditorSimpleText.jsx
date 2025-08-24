@@ -506,7 +506,7 @@ const PDFEditorComplex = () => {
       <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
         <div className="min-h-[200px] rounded-lg p-4 pt-0">
           <div className="flex w-full flex-col justify-center items-center text-center">
-            <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
+            <div className="flex w-full min-w-fit px-3 md:px-12 py-6 justify-self-center flex-col">
               <div className="flex w-full flex-col  justify-between items-center pb-4 gap-4 md:flex-row">
                 <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                   Upload PDF File

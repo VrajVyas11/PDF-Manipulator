@@ -179,7 +179,7 @@ const ImageToPDF = () => {
         <button
           disabled={!imageFile || !pdfUrl || isProcessing}
           onClick={downloadPdf}
-          className={`flex w-full md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
+          className={`flex min-w-fit w-fit md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
             <Image
@@ -221,7 +221,7 @@ const ImageToPDF = () => {
         <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
           <div className="min-h-[200px] rounded-lg p-4 pt-0">
             <div className="flex w-full flex-col justify-center items-center text-center">
-              <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
+              <div className="flex w-full   min-w-fit px-3 md:px-12 py-6 justify-self-center flex-col">
                 <div className="flex w-full  justify-between items-center pb-4 gap-4 flex-col md:flex-row">
                   <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                     Upload PDF File

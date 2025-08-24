@@ -1,10 +1,23 @@
 "use client"
 import React, { useEffect, useState, useCallback } from 'react';
+import dynamic from "next/dynamic";
 import { PDFDocument } from 'pdf-lib';
-import PDFViewer from "../../../components/Core/PDFViewer";
 import Image from 'next/image';
-import * as pdfjsLib from 'pdfjs-dist/webpack';
 import { useToast } from "../../../hooks/use-toast"
+import { saveAs } from "file-saver";
+import { Layers } from 'lucide-react';
+
+const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-800/50 rounded-lg">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-gray-400">Loading PDF viewer...</p>
+      </div>
+    </div>
+  )
+});
 
 const PdfMerge = () => {
   const [pdfs, setPdfs] = useState([]);
@@ -73,6 +86,8 @@ const PdfMerge = () => {
     setLoading(true);
 
     try {
+      const pdfjsLib = await import("pdfjs-dist/webpack")
+
       const newPdfs = [];
       const newPages = [];
       const newPreviewPages = [];
@@ -134,53 +149,6 @@ const PdfMerge = () => {
     }
   };
 
-  console.log(pdfs)
-  // const extractPages = async (pdfData, pdfIndex) => {
-  //   try {
-  //     const pdfDoc = await PDFDocument.load(pdfData);
-  //     const pageCount = pdfDoc.getPageCount();
-  //     const extractedPages = Array.from({ length: pageCount }, (_, index) => ({
-  //       index,
-  //       pdfIndex,
-  //       name: `pdf ${pdfIndex + 1} page ${index + 1}`,
-  //     }));
-  //     setPages((prev) => [...prev, ...extractedPages]);
-  //   } catch (error) {
-  //     showToastError(`Error extracting pages: ${error.message}`);
-  //   }
-  // };
-
-
-  // const setingPreviewPages = async (pdfData, pdfIndex) => {
-  //   const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-  //   const pageCount = pdf.numPages;
-
-  //   const pagesArray = [];
-
-  //   for (let i = 1; i <= pageCount; i++) {
-  //     const page = await pdf.getPage(i);
-  //     const viewport = page.getViewport({ scale: 1 });
-
-  //     const canvas = document.createElement("canvas");
-  //     const context = canvas.getContext("2d");
-  //     canvas.width = viewport.width;
-  //     canvas.height = viewport.height;
-
-  //     await page.render({ canvasContext: context, viewport }).promise;
-
-  //     const image = canvas.toDataURL("image/png");
-
-  //     pagesArray.push({
-  //       index: i,
-  //       pdfIndex,
-  //       name: `PDF ${pdfIndex + 1} Page ${i}`,
-  //       preview: image,
-  //     });
-  //   }
-
-  //   setPreviewPdfPages((prev) => [...prev, ...pagesArray]);
-  // };
-
   const mergePdfs = useCallback(async () => {
     if (pdfs.length === 0 || pages.length === 0) return;
 
@@ -215,7 +183,7 @@ const PdfMerge = () => {
     }
   }, [pdfs, pages, showToastError]);
 
-  const handleDrop = (event, targetIndex) => {
+  const handleDrop = useCallback((event, targetIndex) => {
     event.preventDefault();
     const sourceIndex = event.dataTransfer.getData('text/plain');
 
@@ -233,7 +201,7 @@ const PdfMerge = () => {
       updatedPages.splice(targetIndex, 0, movedPage);
       return updatedPages;
     });
-  };
+  }, [pages]);
 
 
   useEffect(() => {
@@ -253,16 +221,18 @@ const PdfMerge = () => {
   const handleDragOver = (event) => {
     event.preventDefault();
   };
-  const downloadPdf = () => {
+
+  const downloadPdf = useCallback(async () => {
     if (mergedPdfBytes) {
-      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'merged.pdf';
-      link.click();
+      try {
+        const blob = new Blob([mergedPdfBytes])
+        saveAs(blob, `merged.pdf`);
+      } catch (error) {
+        console.error("Download failed:", error);
+        showToastError("Download failed. Please try again.");
+      }
     }
-  };
+  }, [mergedPdfBytes, showToastError]);
 
   useEffect(() => {
     if (pdfs.length > 0) {
@@ -286,7 +256,7 @@ const PdfMerge = () => {
         <button
           disabled={!pages.length > 0}
           onClick={downloadPdf}
-          className={`flex w-full md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
+          className={`flex min-w-fit w-fit md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
           <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100  overflow-hidden">
             <Image
@@ -330,15 +300,15 @@ const PdfMerge = () => {
         <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
           <div className="min-h-[200px] rounded-lg p-4 pt-0">
             <div className="flex w-full flex-col justify-center items-center text-center">
-              <div className="flex w-full   min-w-fit px-12 py-6 justify-self-center flex-col">
-                <div className="flex w-full  justify-between items-center pb-4 gap-4 flex-row">
-                  <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
+              <div className="flex w-full   min-w-fit px-3 md:px-12 py-6 justify-self-center flex-col">
+                <div className="flex w-full  justify-between items-center pb-4 flex-row">
+                  <h3 className="text-[28px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                     Upload PDF File
                   </h3>
                   <button
                     disabled={!pages.length > 0 || !previewPdfPages.length > 0}
                     onClick={() => setPreviewOpen((prev) => !prev)}
-                    className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+                    className="flex w-full justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
                   >
                     <span className="relative px-4  md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                       <Image
@@ -430,14 +400,15 @@ const PdfMerge = () => {
           </div>
         </div>
 
-        <div className="w-full flex flex-col pt-4 px-16 pb-8 gap-6 lg:w-full">
+        <div className="w-full flex flex-col px-6 md:px-16 pb-8 gap-6 lg:w-full">
           {pages.length > 0 && (
-            <h2 className="text-2xl md:text-3xl font-extrabold text-center text-p5 tracking-tight mb-4">
-              Uploaded Pages
+            <h2 className="text-2xl md:text-3xl flex flex-col md:flex-row justify-start items-center md:gap-4  font-extrabold text-center text-p5 mb-4">
+              <span className=' flex items-center gap-4'><Layers className='w-8 h-8' /> Uploaded Pages </span><span className=' text-lg mt-1 tracking-wider  flex items-center'>( Total pages : {previewPdfPages.length} )</span>
+
             </h2>
           )}
           {pdfs && pages.length > 0 && previewPdfPages.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {previewPdfPages.map((page, index) => (
                 <div
                   key={index}
@@ -445,14 +416,14 @@ const PdfMerge = () => {
                   onDragStart={(e) => handleDragStart(e, index)}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, index)}
-                  className="bg-gray-800 border border-gray-600 rounded-lg p-2 flex flex-col items-center shadow-md hover:bg-gray-700/80 cursor-move transition-colors duration-200"
+                  className="bg-blue-900/20 border rounded-2xl border-gray-600  p-2 flex flex-col items-center shadow-md hover:bg-gray-700/80 cursor-move transition-colors duration-200"
                 >
                   <Image
                     width={120}
                     height={160}
                     src={page.preview}
                     alt={`Page ${index + 1}`}
-                    className="w-full h-auto rounded-md mb-3 object-cover"
+                    className="w-full h-auto rounded-xl mb-3 object-cover"
                   />
                   <span className="text-xs md:text-sm text-p5 text-center opacity-90">
                     PDF {page.pdfIndex + 1} - Page {page.index + 1}
