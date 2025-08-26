@@ -1,11 +1,21 @@
 "use client"
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { saveAs } from 'file-saver';
 import Image from 'next/image';
 import { useToast } from '../../../hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import PDFViewer from "../../../components/Core/PDFViewer";
-
+import dynamic from "next/dynamic";
+const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center h-64 bg-gray-800/50 rounded-lg">
+            <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-gray-400">Loading PDF viewer...</p>
+            </div>
+        </div>
+    )
+});
 const WordDocxToPdf = () => {
     const [docxFile, setDocxFile] = useState(null);
     const [dragActive, setDragActive] = useState(false);
@@ -41,16 +51,16 @@ const WordDocxToPdf = () => {
     };
 
     const validateFile = (file) => {
-        if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            setDocxFile(file);
-            setConvertedPdfBlob(null);
-            setPdfUrl(null);
-        } else {
-            showToastError('Please upload a valid .docx file.');
-        }
+        // if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        setDocxFile(file);
+        setConvertedPdfBlob(null);
+        setPdfUrl(null);
+        // } else {
+        //     showToastError('Please upload a valid .docx file.');
+        // }
     };
 
-    const showToastError = (message) => {
+    const showToastError = useCallback((message) => {
         toast({
             variant: "destructive",
             title: (
@@ -71,9 +81,21 @@ const WordDocxToPdf = () => {
             className:
                 "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
         });
-    };
+    }, [toast]);
 
-    const handleConvert = async () => {
+    const downloadPDF = useCallback(async () => {
+        if (convertedPdfBlob) {
+            try {
+                saveAs(convertedPdfBlob, `converted.pdf`);
+            } catch (error) {
+                console.error("Download failed:", error);
+                showToastError("Download failed. Please try again.");
+            }
+        }
+    }, [convertedPdfBlob, showToastError]);
+
+
+    const handleConvert = useCallback(async () => {
         if (!docxFile) {
             showToastError('No .docx file selected.');
             return;
@@ -158,13 +180,9 @@ const WordDocxToPdf = () => {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [docxFile, downloadPDF, showToastError, toast]);
 
-    const downloadPDF = () => {
-        if (convertedPdfBlob) {
-            saveAs(convertedPdfBlob, 'converted.pdf');
-        }
-    };
+
 
     return (
         <div

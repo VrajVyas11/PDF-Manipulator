@@ -1,11 +1,24 @@
 "use client"
-import React, { useState, useCallback, useEffect } from 'react';
+import  { useState, useCallback, useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { useToast } from "../../../hooks/use-toast";
-import * as pdfjsLib from 'pdfjs-dist/webpack';
+// import * as pdfjsLib from 'pdfjs-dist/webpack';
 import Image from 'next/image';
-import PDFViewer from "../../../components/Core/PDFViewer";
 import { ToastAction } from "@/components/ui/toast";
+import { saveAs } from "file-saver";
+import { Layers } from 'lucide-react';
+import dynamic from "next/dynamic";
+const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-800/50 rounded-lg">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-gray-400">Loading PDF viewer...</p>
+      </div>
+    </div>
+  )
+});
 const PdfSplit = () => {
     const [pdfs, setPdfs] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -72,6 +85,7 @@ const PdfSplit = () => {
         setLoading(true);
 
         try {
+            const pdfjsLib = await import("pdfjs-dist/webpack")
             const newPdfs = [];
             const newPages = [];
             const newPreviewPages = [];
@@ -138,7 +152,21 @@ const PdfSplit = () => {
         setPageRanges(e.target.value);
     };
 
-    const splitPdf = async () => {
+     const downloadPdf = useCallback(async () => {
+        if (splitPdfPreview) {
+          try {
+            const blob = new Blob([splitPdfPreview])
+            saveAs(blob, `splited.pdf`);
+          } catch (error) {
+            console.error("Download failed:", error);
+            showToastError("Download failed. Please try again.");
+          }
+        }
+      }, [splitPdfPreview, showToastError]);
+    
+
+
+    const splitPdf = useCallback(async () => {
         if (!pageRanges) {
             showToastError('Please provide page ranges.');
             return;
@@ -232,16 +260,8 @@ const PdfSplit = () => {
         } catch (error) {
             showToastError(`Error splitting PDF: ${error.message}`);
         }
-    };
+    },[downloadPdf, pageRanges, pdfs, showToastError, toast]);
 
-    const downloadPdf = () => {
-        if (splitPdfPreview) {
-            const link = document.createElement('a');
-            link.href = splitPdfPreview;
-            link.download = 'split.pdf';
-            link.click();
-        }
-    };
 
     useEffect(() => {
         if (pdfs.length > 0) {
@@ -367,7 +387,7 @@ const PdfSplit = () => {
                                     value={pageRanges}
                                     onChange={handlePageRangeChange}
                                     placeholder="Enter page ranges (e.g., 1-5, 7, 10-12)"
-                                    className="px-4 w-full border-2 border-p1 bg-white bg-opacity-30 py-5 rounded-[9px] text-p5 border-opacity-40 ring-0 focus:border-p1 focus:border-opacity-50 active:border-opacity-50 focus:outline-none focus:ring-0 focus:ring-p1 active:border-p1 hover:border-p1 hover:border-opacity-50"
+                                    className=" py-5 px-5 tracking-widest rounded-[16px] border bg-[#48526d] bg-opacity-20 border-p1  backdrop-blur-sm border-opacity-30  w-full brightness-125 shadow-[inset_0_0_5px_rgba(0,0,0,1)]"
                                 />
 
                                 <button
@@ -391,10 +411,11 @@ const PdfSplit = () => {
                             </div>)}
                         </div>
                     </div>
-                    {previewOpen && splitPdfPreview && (
-                        <div className="mt-8 w-full px-6 md:px-0 pt-6 bg-gray-900/80 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
-                            <div className='flex flex-row w-full pb-8 px-12 justify-center items-center'>
-                                <div className="flex items-center flex-col justify-center w-full">
+                    {previewOpen && (
+                        <div className='px-3 md:px-16'>
+                        <div className="mt-2 mb-4 w-full text-center  md:px-0 pt-3 bg-gray-900/30 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
+                            <div className='flex flex-row pb-4 px-12 justify-between items-center'>
+                                <div className="flex-1">
                                     <h3 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-300 tracking-tight">
                                         PDF Preview
                                     </h3>
@@ -433,38 +454,44 @@ const PdfSplit = () => {
                                 </div>
                             )}
                         </div>
+                        </div>
                     )}
                 </div>
 
-
-                <div className="w-full flex flex-col  pt-0 px-4 pb-4  gap-4 lg:w-full">
+                <div className="w-full flex flex-col px-6 md:px-16 pb-8 gap-6 lg:w-full">
                     {pages.length > 0 && (
-                        <h2 className="text-[24px]  leading-[140%] text-p5 text-center font-bold  mb-2">
-                            Uploaded Pages
+                        <h2 className="text-2xl md:text-3xl flex flex-col md:flex-row justify-start items-center md:gap-4  font-extrabold text-center text-p5 mb-4">
+                            <span className=' flex items-center gap-4'><Layers className='w-8 h-8' /> Uploaded Pages </span><span className=' text-lg mt-1 tracking-wider  flex items-center'>( Total pages : {previewPdfPages.length} )</span>
+
                         </h2>
                     )}
-                    {pdfs && pages.length > 0 && previewPdfPages.length > 0 ? (<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {previewPdfPages.map((page, index) => (
-                            <div
-                                key={index}
-                                draggable
-                                className="bg-gray-800 justify-between border border-gray-700 p-1 rounded-md hover:bg-gray-700 flex flex-col items-center shadow transition duration-150 ease-in-out"
-                            >
-                                <Image
-                                    width={111}
-                                    height={111}
-                                    src={page.preview}
-                                    alt={`Page ${index + 1}`}
-                                    className="w-full h-auto rounded-md mb-2"
-                                />
-                                <span className="font-normal text-[12px] leading-[140%] text-p5">
-                                    Page No : {page.index}
-                                </span>
+                    {pdfs && pages.length > 0 && previewPdfPages.length > 0 ? (
+                        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {previewPdfPages.map((page, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-blue-900/20 border rounded-2xl border-gray-600  p-2 flex flex-col items-center shadow-md hover:bg-gray-700/80 cursor-move transition-colors duration-200"
+                                >
+                                    <Image
+                                        width={120}
+                                        height={160}
+                                        src={page.preview}
+                                        alt={`Page ${index + 1}`}
+                                        className="w-full h-auto rounded-xl mb-3 object-cover"
+                                    />
+                                    <span className="text-xs md:text-sm text-p5 text-center opacity-90">
+                                        PDF {page.pdfIndex + 1} - Page {page.index + 1}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        loading && (
+                            <div className="flex justify-center">
+                                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                             </div>
-                        ))}
-                    </div>) : (loading && <div>
-                        <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>)}
+                        )
+                    )}
                 </div>
             </div>
         </div>

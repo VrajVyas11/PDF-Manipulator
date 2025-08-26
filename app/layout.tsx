@@ -14,7 +14,7 @@ const MobileNav = dynamic(() => import("../components/Navigation/MobileNav"), {
 
 // Lazy load toaster since it's only needed when toast is triggered
 const Toaster = dynamic(() => import("@/components/ui/toaster").then(mod => ({ default: mod.Toaster })), {
-  ssr: false,
+  ssr: true,
 });
 
 

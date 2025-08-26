@@ -353,49 +353,51 @@ const PdfMerge = () => {
                 </div>
               </div>
 
-              {previewOpen && (
-                <div className="mt-8 w-full px-6 md:px-0 pt-6 bg-gray-900/80 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
-                  <div className='flex flex-row pb-8 px-12 justify-between items-center'>
-                    <div className="flex-1">
-                      <h3 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-300 tracking-tight">
-                        PDF Preview
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1">Review your document before processing</p>
-                    </div>
-                    <button
-                      disabled={!pages.length || !previewPdfPages.length}
-                      onClick={() => setPreviewOpen((prev) => !prev)}
-                      className="ml-4 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-                      aria-label="Close preview"
-                    >
-                      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-red-600/60 hover:bg-red-600/70 backdrop-blur-lg border border-red-700 text-gray-300 hover:text-white transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </span>
-                    </button>
-                  </div>
+                    {previewOpen && (
+                        <div className='px-3 md:px-16'>
+                        <div className="mt-2 mb-4 w-full text-center  md:px-0 pt-3 bg-gray-900/30 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
+                            <div className='flex flex-row pb-4 px-12 justify-between items-center'>
+                                <div className="flex-1">
+                                    <h3 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-300 tracking-tight">
+                                        PDF Preview
+                                    </h3>
+                                    <p className="text-sm text-gray-400 mt-1">Review your document before processing</p>
+                                </div>
+                                <button
+                                    disabled={!pages.length || !previewPdfPages.length}
+                                    onClick={() => setPreviewOpen((prev) => !prev)}
+                                    className="ml-4 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                                    aria-label="Close preview"
+                                >
+                                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-red-600/60 hover:bg-red-600/70 backdrop-blur-lg border border-red-700 text-gray-300 hover:text-white transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
 
-                  {pages.length > 0 ? (
-                    <div className="overflow-hidden">
-                      <PDFViewer file={previewPdf} />
-                    </div>
-                  ) : (
-                    <div className="py-12 text-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-500">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                      </svg>
-                      <p className="mt-4 text-gray-400 font-medium">No files uploaded</p>
-                      <p className="text-sm text-gray-500 mt-1">Upload PDFs to preview and merge</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                            {pages.length > 0 ? (
+                                <div className="overflow-hidden">
+                                    <PDFViewer file={previewPdf} />
+                                </div>
+                            ) : (
+                                <div className="py-12 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-500">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                    <p className="mt-4 text-gray-400 font-medium">No files uploaded</p>
+                                    <p className="text-sm text-gray-500 mt-1">Upload PDFs to preview and merge</p>
+                                </div>
+                            )}
+                        </div>
+                        </div>
+                    )}
             </div>
           </div>
         </div>
