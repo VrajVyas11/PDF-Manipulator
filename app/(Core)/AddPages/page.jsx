@@ -6,8 +6,8 @@ const QuillEditor = dynamic(() => import('../../utils/tools/QuillEditor'), { ssr
 // import html2pdf from 'html2pdf.js';
 import Image from 'next/image';
 import { useToast } from "../../../hooks/use-toast"
-import { saveAs } from "file-saver";
 import { Layers } from 'lucide-react';
+
 const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
   ssr: false,
   loading: () => (
@@ -330,7 +330,8 @@ const AddPages = () => {
     if (mergedPdfBytes) {
       try {
         const blob = new Blob([mergedPdfBytes])
-        saveAs(blob, `Modified.pdf`);
+        const fileSaver = await import("file-saver");
+        fileSaver?.saveAs(blob, `Modified.pdf`);
       } catch (error) {
         console.error("Download failed:", error);
         showToastError("Download failed. Please try again.");

@@ -4,8 +4,6 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useToast } from "../../../hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { saveAs } from "file-saver";
-// Lazy load heavy dependencies only when needed
 
 // Lazy load PDF viewer only when preview is opened
 const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
@@ -117,7 +115,8 @@ const PDFCompressor = () => {
   const downloadPDF = useCallback(async () => {
     if (compressedPdfBlob) {
       try {
-        saveAs(compressedPdfBlob, `compressed_${compressionQuality}.pdf`);
+        const fileSaver=await import("file-saver");
+        fileSaver?.saveAs(compressedPdfBlob, `compressed_${compressionQuality}.pdf`);
       } catch (error) {
         console.error("Download failed:", error);
         showToastError("Download failed. Please try again.");

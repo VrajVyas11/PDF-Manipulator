@@ -1,10 +1,10 @@
 "use client"
 import { useCallback, useState } from 'react';
-import { saveAs } from 'file-saver';
 import Image from 'next/image';
 import { useToast } from '../../../hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import dynamic from "next/dynamic";
+
 const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
     ssr: false,
     loading: () => (
@@ -86,7 +86,8 @@ const WordDocxToPdf = () => {
     const downloadPDF = useCallback(async () => {
         if (convertedPdfBlob) {
             try {
-                saveAs(convertedPdfBlob, `converted.pdf`);
+                const fileSaver = await import("file-saver");
+                fileSaver?.saveAs(convertedPdfBlob, `converted.pdf`);
             } catch (error) {
                 console.error("Download failed:", error);
                 showToastError("Download failed. Please try again.");

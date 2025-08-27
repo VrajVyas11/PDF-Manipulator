@@ -1,10 +1,23 @@
 "use client"
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import PDFViewer from "../../../components/Core/PDFViewer"
 import Image from 'next/image';
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "../../../hooks/use-toast"
+import dynamic from "next/dynamic";
+
+const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-800/50 rounded-lg">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-gray-400">Loading PDF viewer...</p>
+      </div>
+    </div>
+  )
+});
+
 const ImageToPDF = () => {
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
@@ -13,7 +26,7 @@ const ImageToPDF = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
 
-  const showToast = (message) => {
+  const showToastError = useCallback((message) => {
     toast({
       variant: "destructive",
       title: (
@@ -34,7 +47,7 @@ const ImageToPDF = () => {
       className:
         "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
     });
-  };
+  }, [toast]);
 
 
   const handleFileChange = (e) => {
@@ -43,7 +56,7 @@ const ImageToPDF = () => {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      showToast("Please Upload A Valid Image File");
+      showToastError("Please Upload A Valid Image File");
     }
   };
 
@@ -65,11 +78,80 @@ const ImageToPDF = () => {
       setImageFile(file);
       setPdfUrl(null);
     } else {
-      showToast("Please Upload A Valid Image File");
+      showToastError("Please Upload A Valid Image File");
     }
   };
 
-  const convertToPDF = async () => {
+  const downloadPdf = useCallback(async () => {
+    if (pdfUrl) {
+      try {
+        const fileSaver = await import("file-saver");
+        fileSaver?.saveAs(pdfUrl, `image-to-pdf.pdf`);
+      } catch (error) {
+        console.error("Download failed:", error);
+        showToastError("Download failed. Please try again.");
+      }
+    }
+  }, [pdfUrl, showToastError]);
+
+
+  const showToast = useCallback(() => {
+    toast({
+      title: (
+        <div className="flex items-center w-full gap-3">
+          {/* subtle check icon */}
+          <svg
+            className="w-5 h-5 text-emerald-400 flex-shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.704 5.29a1 1 0 00-1.408-1.418L7.5 11.668 4.704 8.88a1 1 0 10-1.408 1.418l4 4a1 1 0 001.408 0l8-8z"
+              clipRule="evenodd"
+            />
+          </svg>
+
+          <div className="text-left ">
+            <div className="text-sm md:text-base font-semibold text-emerald-100">
+              PDF ready to download
+            </div>
+            <div className="text-xs md:text-sm text-emerald-200/80">
+              Your compressed PDF is available. Click Download to save it.
+            </div>
+          </div>
+        </div>
+      ),
+      action: (
+        <ToastAction
+          onClick={downloadPdf}
+          altText="Download PDF"
+          className="ml-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 min-h-12 text-sm font-semibold text-slate-900 shadow-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        >
+          {/* download icon */}
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download
+        </ToastAction>
+      ),
+      className:
+        "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-emerald-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
+    });
+  }, [downloadPdf, toast])
+
+  const convertToPDF = useCallback(async () => {
     if (!imageFile) return;
 
     setIsProcessing(true);
@@ -93,77 +175,16 @@ const ImageToPDF = () => {
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         setPdfUrl(URL.createObjectURL(blob));
-        toast({
-          title: (
-            <div className="flex items-center w-full gap-3">
-              {/* subtle check icon */}
-              <svg
-                className="w-5 h-5 text-emerald-400 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.704 5.29a1 1 0 00-1.408-1.418L7.5 11.668 4.704 8.88a1 1 0 10-1.408 1.418l4 4a1 1 0 001.408 0l8-8z"
-                  clipRule="evenodd"
-                />
-              </svg>
-
-              <div className="text-left ">
-                <div className="text-sm md:text-base font-semibold text-emerald-100">
-                  PDF ready to download
-                </div>
-                <div className="text-xs md:text-sm text-emerald-200/80">
-                  Your compressed PDF is available. Click Download to save it.
-                </div>
-              </div>
-            </div>
-          ),
-          action: (
-            <ToastAction
-              onClick={downloadPdf}
-              altText="Download PDF"
-              className="ml-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 min-h-12 text-sm font-semibold text-slate-900 shadow-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            >
-              {/* download icon */}
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Download
-            </ToastAction>
-          ),
-          className:
-            "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-emerald-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
-        });
+        showToast()
       } catch (err) {
-        showToast(`Failed to convert image to PDF: ${err}`);
+        showToastError(`Failed to convert image to PDF: ${err}`);
       } finally {
         setIsProcessing(false);
       }
     };
 
     reader.readAsArrayBuffer(imageFile);
-  };
-
-  const downloadPdf = () => {
-    if (pdfUrl) {
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = 'image-to-pdf.pdf';
-      link.click();
-    }
-  };
+  }, [imageFile, showToast, showToastError]);
 
 
   return (

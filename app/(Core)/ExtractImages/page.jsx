@@ -1,14 +1,15 @@
 "use client";
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Image from 'next/image';
 import { useToast } from "../../../hooks/use-toast"
+
 const ExtractImages = () => {
   const [imageFile, setImageFile] = useState(null);
   const [images, setImages] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
-  const showToastError = (message) => {
+  const showToastError = useCallback((message) => {
     toast({
       variant: "destructive",
       title: (
@@ -29,7 +30,7 @@ const ExtractImages = () => {
       className:
         "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
     });
-  };
+  }, [toast]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -64,7 +65,7 @@ const ExtractImages = () => {
     }
   };
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     setIsProcessing(true);
     const formData = new FormData();
     formData.append('pdf', imageFile);
@@ -96,7 +97,7 @@ const ExtractImages = () => {
         showToastError('Error uploading file.');
       });
     setIsProcessing(false);
-  };
+  }, [imageFile, showToastError]);
 
   const Uint8ToString = (u8a) => {
     const CHUNK_SZ = 0x8000;
@@ -111,17 +112,32 @@ const ExtractImages = () => {
     setImages((prevImages) => prevImages.filter((image) => image.id !== id));
   };
 
-  function downloadAllImages(images) {
-    images.forEach((image) => {
-      const anchor = document.createElement("a");
-      anchor.href = image.url;
-      anchor.download = `PDFImage_${image.id}.jpg`;
-      anchor.style.display = "none";
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    });
-  }
+  const downloadAllImages = useCallback(() => {
+    if (images.length > 0) {
+      try {
+        images.forEach(async(image) => {
+          const fileSaver = await import("file-saver");
+        fileSaver?.saveAs(image.url, `PDFImage_${image.id}.jpg`);
+        });
+      } catch (error) {
+        console.error("Download failed:", error);
+        showToastError("Download failed. Please try again.");
+      }
+    }
+  }, [images, showToastError]);
+
+
+  // function downloadAllImages(images) {
+  //   images.forEach((image) => {
+  //     const anchor = document.createElement("a");
+  //     anchor.href = image.url;
+  //     anchor.download = `PDFImage_${image.id}.jpg`;
+  //     anchor.style.display = "none";
+  //     document.body.appendChild(anchor);
+  //     anchor.click();
+  //     document.body.removeChild(anchor);
+  //   });
+  // }
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">

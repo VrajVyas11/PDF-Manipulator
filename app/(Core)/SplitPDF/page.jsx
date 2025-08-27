@@ -5,9 +5,9 @@ import { useToast } from "../../../hooks/use-toast";
 // import * as pdfjsLib from 'pdfjs-dist/webpack';
 import Image from 'next/image';
 import { ToastAction } from "@/components/ui/toast";
-import { saveAs } from "file-saver";
 import { Layers } from 'lucide-react';
 import dynamic from "next/dynamic";
+
 const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
   ssr: false,
   loading: () => (
@@ -19,6 +19,7 @@ const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
     </div>
   )
 });
+
 const PdfSplit = () => {
     const [pdfs, setPdfs] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -156,7 +157,8 @@ const PdfSplit = () => {
         if (splitPdfPreview) {
           try {
             const blob = new Blob([splitPdfPreview])
-            saveAs(blob, `splited.pdf`);
+            const fileSaver = await import("file-saver");
+        fileSaver?.saveAs(blob, `splited.pdf`);
           } catch (error) {
             console.error("Download failed:", error);
             showToastError("Download failed. Please try again.");

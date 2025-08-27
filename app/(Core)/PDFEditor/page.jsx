@@ -1,8 +1,21 @@
 "use client"
 import React, { useState } from 'react';
-import PDFEditorSimpleText from "../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx";
+// import PDFEditorSimpleText from "../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx";
 import PDFEditorComplex from "../../../components/Core/PDFEditor/PDFEditorComplex.jsx";
 import Image from 'next/image.js';
+import dynamic from "next/dynamic";
+const PDFEditorSimpleText = dynamic(() => import("../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx"), {
+  ssr: false,
+  loading: () => (
+      <div className="flex items-center justify-center h-screen">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm text-gray-400">Loading PDF Editor...</p>
+      </div>
+    </div>
+  )
+});
+
 function PDFEditor() {
   const [isBackendBased, setIsBackendBased] = useState(false);
   const toggleImplementation = (toggle) => {

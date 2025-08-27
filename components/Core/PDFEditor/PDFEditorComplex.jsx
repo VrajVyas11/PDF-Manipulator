@@ -504,7 +504,7 @@ function PDFEditorComplex() {
                 <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                   Upload PDF File
                 </h3>
-                <div className="w-full flex justify-center items-center flex-row">
+                <div className="w-full flex justify-end items-center flex-row">
                   <button
                     disabled={!pdf || isProcessing || isDownloading}
                     onClick={downloadPdf}

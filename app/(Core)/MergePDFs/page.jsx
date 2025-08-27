@@ -1,10 +1,9 @@
 "use client"
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import dynamic from "next/dynamic";
 import { PDFDocument } from 'pdf-lib';
 import Image from 'next/image';
 import { useToast } from "../../../hooks/use-toast"
-import { saveAs } from "file-saver";
 import { Layers } from 'lucide-react';
 
 const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
@@ -226,7 +225,8 @@ const PdfMerge = () => {
     if (mergedPdfBytes) {
       try {
         const blob = new Blob([mergedPdfBytes])
-        saveAs(blob, `merged.pdf`);
+        const fileSaver = await import("file-saver");
+        fileSaver.saveAs(blob, `merged.pdf`);
       } catch (error) {
         console.error("Download failed:", error);
         showToastError("Download failed. Please try again.");
