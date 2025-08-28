@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
 "use client";
-import React, { useState, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Toolbar from "./Toolbar";
 import Image from "next/image";
 import { useToast } from "../../../hooks/use-toast";
@@ -14,14 +13,24 @@ function PDFEditorComplex() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const editorRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const { toast } = useToast();
 
-  const showToastError = (message) => {
-       toast({
+  // Cleanup function for aborting requests
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  const showToastError = useCallback((message) => {
+    toast({
       variant: "destructive",
       title: (
         <div className="flex items-center w-full gap-3">
-          {/* subtle check icon */}
           <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-red-400 flex-shrink-0" viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden="true">
@@ -37,427 +46,534 @@ function PDFEditorComplex() {
       className:
         "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
     });
-  };
+  }, [toast]);
 
-  const handleUpload = async () => {
-    if (!pdf) return showToastError("Please select a PDF file!");
+  // Enhanced file validation
+  const validatePDFFile = useCallback((file) => {
+    if (!file) return { valid: false, error: "No file selected" };
+    
+    if (file.type !== "application/pdf") {
+      return { valid: false, error: "Please upload a valid PDF file" };
+    }
+    
+    if (file.size > 100 * 1024 * 1024) { // 100MB limit
+      return { valid: false, error: "PDF file size exceeds 100MB limit" };
+    }
+    
+    if (file.size === 0) {
+      return { valid: false, error: "PDF file appears to be empty" };
+    }
+    
+    return { valid: true };
+  }, []);
 
-    const fileReader = new FileReader();
-    fileReader.onload = async (e) => {
-      setIsProcessing(true);
-      try {
-        const uint8Array = new Uint8Array(e.target.result);
-        const pdfDoc = await PDFDocument.load(uint8Array);
-        const pages = pdfDoc.getPages();
-        const { width, height } = pages[0].getSize();
-        setPdfDimensions({ width, height });
+  // Enhanced PDF processing with retry logic
+  const handleUpload = useCallback(async () => {
+    const validation = validatePDFFile(pdf);
+    if (!validation.valid) {
+      return showToastError(validation.error);
+    }
 
-        const formData = new FormData();
-        formData.append("pdf", pdf);
+    // Abort previous request if still running
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
-        const res = await fetch("/api/PdfToHtml", {
-          method: "POST",
-          body: formData,
-        });
+    setIsProcessing(true);
 
-        if (!res.ok) {
-          const errorText = await res.json();
-          showToastError(` ${res.status}: ${errorText.error}`);
-          return;
+    try {
+      // Validate PDF structure first
+      const fileReader = new FileReader();
+      const pdfValidation = new Promise((resolve, reject) => {
+        fileReader.onload = async (e) => {
+          try {
+            const uint8Array = new Uint8Array(e.target.result);
+            const pdfDoc = await PDFDocument.load(uint8Array);
+            const pages = pdfDoc.getPages();
+            
+            if (pages.length === 0) {
+              reject(new Error("PDF contains no pages"));
+              return;
+            }
+            
+            const { width, height } = pages[0].getSize();
+            setPdfDimensions({ width: Math.round(width), height: Math.round(height) });
+            resolve(uint8Array);
+          } catch {
+            reject(new Error("Invalid or corrupted PDF file"));
+          }
+        };
+        fileReader.onerror = () => reject(new Error("Failed to read PDF file"));
+      });
+
+      fileReader.readAsArrayBuffer(pdf);
+      await pdfValidation;
+
+      if (signal.aborted) return;
+
+
+      // Prepare form data with timeout
+      const formData = new FormData();
+      formData.append("pdf", pdf);
+
+
+      // Make request with timeout and retry logic
+      let attempt = 0;
+      const maxAttempts = 2;
+      let lastError;
+
+      while (attempt < maxAttempts && !signal.aborted) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Request timeout")), 120000) // 2 minutes
+          );
+
+          const fetchPromise = fetch("/api/PdfToHtml", {
+            method: "POST",
+            body: formData,
+            signal,
+          });
+
+          const res = await Promise.race([fetchPromise, timeoutPromise]);
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(`Server error ${res.status}: ${errorData.error || 'Unknown error'}`);
+          }
+
+          const data = await res.json();
+          if (!data.url) {
+            throw new Error("Invalid server response: No URL provided");
+          }
+
+
+          // Fetch HTML with timeout
+          const htmlTimeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("HTML fetch timeout")), 60000) // 1 minute
+          );
+
+          const htmlFetchPromise = fetch(data.url, { signal });
+          const htmlRes = await Promise.race([htmlFetchPromise, htmlTimeoutPromise]);
+
+          if (!htmlRes.ok) {
+            throw new Error(`Failed to fetch HTML: ${htmlRes.status} ${htmlRes.statusText}`);
+          }
+
+          const htmlText = await htmlRes.text();
+          
+          if (!htmlText.trim()) {
+            throw new Error("Received empty HTML content");
+          }
+
+          setContent(htmlText);
+          
+          // Success - break out of retry loop
+          break;
+
+        } catch (error) {
+          lastError = error;
+          attempt++;
+          
+          if (signal.aborted) return;
+          
+          if (attempt < maxAttempts) {
+            // Wait before retry with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+          }
         }
-
-        const data = await res.json();
-        if (!data.url) {
-          showToastError("Invalid response from server. No URL found.");
-          return;
-        }
-
-        const htmlRes = await fetch(data.url);
-        if (!htmlRes.ok) {
-          showToastError(`Failed to fetch HTML content: ${htmlRes.status}`);
-          return;
-        }
-
-        const htmlText = await htmlRes.text();
-        setContent(htmlText);
-      } catch {
-        showToastError("Failed to process PDF. Please try again.");
-      } finally {
-        setIsProcessing(false);
       }
-    };
 
-    fileReader.readAsArrayBuffer(pdf);
-  };
+      if (attempt >= maxAttempts) {
+        throw lastError || new Error("Maximum retry attempts exceeded");
+      }
 
-  const downloadPdf = async () => {
+    } catch (error) {
+      if (signal.aborted) return;
+      
+      let errorMessage = "Failed to process PDF. ";
+      
+      if (error.name === 'AbortError') return;
+      if (error.message.includes('timeout')) {
+        errorMessage += "Request timed out. Please try again.";
+      } else if (error.message.includes('network')) {
+        errorMessage += "Network error. Please check your connection.";
+      } else if (error.message.includes('Server error 5')) {
+        errorMessage += "Server is temporarily unavailable. Please try again.";
+      } else {
+        errorMessage += error.message || "Please try again.";
+      }
+      
+      showToastError(errorMessage);
+    } finally {
+      setIsProcessing(false);
+      abortControllerRef.current = null;
+    }
+  }, [pdf, showToastError, validatePDFFile]);
+
+  // Enhanced PDF download with better error handling
+  const downloadPdf = useCallback(async () => {
     const element = editorRef.current;
-    if (!element) return showToastError("Editor content not loaded!");
-
-    const htmlContent = element.innerHTML;
+    if (!element?.innerHTML?.trim()) {
+      return showToastError("No content available to download. Please process a PDF first.");
+    }
 
     if (!pdfDimensions.width || !pdfDimensions.height) {
-      return showToastError("PDF dimensions are not set. Please upload a PDF first.");
+      return showToastError("PDF dimensions not available. Please upload and process a PDF first.");
     }
+
+    // Abort previous request if still running
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setIsDownloading(true);
 
     try {
-      const response = await fetch("/api/MakePdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          html: htmlContent,
-          width: pdfDimensions.width,
-          height: pdfDimensions.height,
-        }),
-      });
-      const data = await response.json();
-      if (!data.url) {
-        showToastError("Invalid response from server. No URL found.");
-        return;
+      const htmlContent = element.innerHTML;
+      
+      // Validate HTML content
+      if (!htmlContent || htmlContent.length < 10) {
+        throw new Error("Content is too short or invalid");
       }
 
-      if (data.success) {
-        const pdfResponse = await fetch(data.url);
-        const blob = await pdfResponse.blob();
+      const requestPayload = {
+        html: htmlContent,
+        width: Math.round(pdfDimensions.width),
+        height: Math.round(pdfDimensions.height),
+      };
 
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "download.pdf");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Make request with timeout and retry logic
+      let attempt = 0;
+      const maxAttempts = 2;
+      let lastError;
 
-        URL.revokeObjectURL(link.href);
-      } else {
-        showToastError("Failed to generate PDF: " + data.error);
+      while (attempt < maxAttempts && !signal.aborted) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Request timeout")), 90000) // 1.5 minutes
+          );
+
+          const fetchPromise = fetch("/api/MakePdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestPayload),
+            signal,
+          });
+
+          const response = await Promise.race([fetchPromise, timeoutPromise]);
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Server error ${response.status}: ${errorData.error || response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (!data.success || !data.url) {
+            throw new Error(data.error || "Failed to generate PDF: Invalid response");
+          }
+
+          // Download PDF with timeout
+          const pdfTimeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("PDF download timeout")), 60000)
+          );
+
+          const pdfFetchPromise = fetch(data.url, { signal });
+          const pdfResponse = await Promise.race([pdfFetchPromise, pdfTimeoutPromise]);
+          
+          if (!pdfResponse.ok) {
+            throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`);
+          }
+
+          const blob = await pdfResponse.blob();
+          
+          if (blob.size === 0) {
+            throw new Error("Generated PDF is empty");
+          }
+
+          // Create download link
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `edited-document-${Date.now()}.pdf`;
+          
+          // Trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Cleanup
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          
+          // Success - break out of retry loop
+          break;
+
+        } catch (error) {
+          lastError = error;
+          attempt++;
+          
+          if (signal.aborted) return;
+          
+          if (attempt < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+          }
+        }
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+      if (attempt >= maxAttempts) {
+        throw lastError || new Error("Maximum retry attempts exceeded");
+      }
+
     } catch (error) {
-      showToastError("Failed to download PDF. Please try again.");
+      if (signal.aborted) return;
+      
+      let errorMessage = "Failed to download PDF. ";
+      
+      if (error.message.includes('timeout')) {
+        errorMessage += "Request timed out. Please try again.";
+      } else if (error.message.includes('network')) {
+        errorMessage += "Network error. Please check your connection.";
+      } else if (error.message.includes('Server error 5')) {
+        errorMessage += "Server is temporarily unavailable. Please try again.";
+      } else {
+        errorMessage += error.message || "Please try again.";
+      }
+      
+      showToastError(errorMessage);
     } finally {
       setIsDownloading(false);
-      setContent("");
-      setPdf("");
+      abortControllerRef.current = null;
     }
-  };
+  }, [pdfDimensions.height, pdfDimensions.width, showToastError]);
 
-  const applyStyle = (style, value = null) => {
-    if (!editorRef.current) return;
-
+    // Helper functions for complex operations
+  const handleListCommand = useCallback((listType, styleType) => {
     const selection = window.getSelection();
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-    switch (style) {
-      case "bold":
-        document.execCommand("bold", false, null);
-        break;
-      case "italic":
-        document.execCommand("italic", false, null);
-        break;
-      case "underline":
-        document.execCommand("underline", false, null);
-        break;
-      case "strike":
-        document.execCommand("strikethrough", false, null);
-        break;
-      case "heading":
-        document.execCommand("formatBlock", false, `<h${value}>`);
-        break;
-      case "bulletList":
-        if (range) {
-          const commonAncestor = range.commonAncestorContainer;
-          const parentUl = commonAncestor.nodeType === 1 ? commonAncestor.closest("ul") : commonAncestor.parentElement.closest("ul");
-          const parentOl = commonAncestor.nodeType === 1 ? commonAncestor.closest("ol") : commonAncestor.parentElement.closest("ol");
-          if (parentUl) {
-            // Toggle off: Remove <ul> and extract <li> content
-            const li = (range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement).closest("li") || parentUl.querySelector("li");
-            if (li) {
-              const p = document.createElement("p");
-              p.appendChild(li.cloneNode(true));
-              p.innerHTML = p.innerHTML.replace(/<\/?li>/gi, ""); // Remove <li> tags
-              parentUl.parentNode.replaceChild(p, parentUl);
-              // Reselect the content
-              range.selectNodeContents(p);
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          } else if (parentOl) {
-            // Switch <ol> to <ul>
-            const ul = document.createElement("ul");
-            ul.style.listStyleType = "disc";
-            const lis = Array.from(parentOl.querySelectorAll("li"));
-            lis.forEach((li) => {
-              const newLi = document.createElement("li");
-              newLi.appendChild(li.cloneNode(true));
-              newLi.innerHTML = newLi.innerHTML.replace(/<\/?li>/gi, "");
-              ul.appendChild(newLi);
-            });
-            parentOl.parentNode.replaceChild(ul, parentOl);
-            // Reselect the content
-            const firstLi = ul.querySelector("li");
-            if (firstLi) {
-              range.selectNodeContents(firstLi);
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          } else {
-            // Create new bullet list
-            const ul = document.createElement("ul");
-            ul.style.listStyleType = "disc"; // Use • (disc) for bullets
-            const li = document.createElement("li");
-            try {
-              // Extract selected content
-              const fragment = range.extractContents();
-              li.appendChild(fragment);
-              ul.appendChild(li);
-              range.insertNode(ul);
-              // Select the new li for further editing
-              range.selectNodeContents(li);
-              selection.removeAllRanges();
-              selection.addRange(range);
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (e) {
-              // Fallback to execCommand for complex selections
-              document.execCommand("insertUnorderedList", false, null);
-            }
-          }
+    if (!selection.rangeCount) return;
+    
+    const range = selection.getRangeAt(0);
+    const commonAncestor = range.commonAncestorContainer;
+    
+    const findParentList = (element, tagName) => {
+      let current = element.nodeType === 1 ? element : element.parentElement;
+      while (current && current !== editorRef.current) {
+        if (current.tagName === tagName.toUpperCase()) {
+          return current;
+        }
+        current = current.parentElement;
+      }
+      return null;
+    };
+    
+    const parentUl = findParentList(commonAncestor, "ul");
+    const parentOl = findParentList(commonAncestor, "ol");
+    const targetList = listType === "ul" ? parentUl : parentOl;
+    const otherList = listType === "ul" ? parentOl : parentUl;
+    
+    if (targetList) {
+      // Remove list - convert to paragraph
+      const li = range.startContainer.nodeType === 1 ? 
+        range.startContainer.closest("li") : 
+        range.startContainer.parentElement?.closest("li");
+      
+      if (li) {
+        const p = document.createElement("p");
+        p.innerHTML = li.innerHTML;
+        targetList.parentNode.replaceChild(p, targetList);
+        
+        const newRange = document.createRange();
+        newRange.selectNodeContents(p);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    } else if (otherList) {
+      // Convert between list types
+      const newList = document.createElement(listType);
+      newList.style.listStyleType = styleType;
+      
+      Array.from(otherList.children).forEach(li => {
+        const newLi = document.createElement("li");
+        newLi.innerHTML = li.innerHTML;
+        newList.appendChild(newLi);
+      });
+      
+      otherList.parentNode.replaceChild(newList, otherList);
+      
+      const firstLi = newList.querySelector("li");
+      if (firstLi) {
+        const newRange = document.createRange();
+        newRange.selectNodeContents(firstLi);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+    } else {
+      // Create new list
+      const list = document.createElement(listType);
+      list.style.listStyleType = styleType;
+      const li = document.createElement("li");
+      
+      if (range.collapsed) {
+        li.innerHTML = "&nbsp;";
+        list.appendChild(li);
+        
+        if (range.startContainer === editorRef.current) {
+          editorRef.current.appendChild(list);
         } else {
-          // Insert empty list if no selection
-          const ul = document.createElement("ul");
-          ul.style.listStyleType = "disc";
-          const li = document.createElement("li");
-          li.innerText = " ";
-          ul.appendChild(li);
-          editorRef.current.appendChild(ul);
-          // Place cursor in the new li
-          const range = document.createRange();
-          range.selectNodeContents(li);
-          selection.removeAllRanges();
-          selection.addRange(range);
+          range.insertNode(list);
         }
-        break;
-      case "orderedList":
-        if (range) {
-          const commonAncestor = range.commonAncestorContainer;
-          const parentOl = commonAncestor.nodeType === 1 ? commonAncestor.closest("ol") : commonAncestor.parentElement.closest("ol");
-          const parentUl = commonAncestor.nodeType === 1 ? commonAncestor.closest("ul") : commonAncestor.parentElement.closest("ul");
-          if (parentOl) {
-            // Toggle off: Remove <ol> and extract <li> content
-            const li = (range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement).closest("li") || parentOl.querySelector("li");
-            if (li) {
-              const p = document.createElement("p");
-              p.appendChild(li.cloneNode(true));
-              p.innerHTML = p.innerHTML.replace(/<\/?li>/gi, ""); // Remove <li> tags
-              parentOl.parentNode.replaceChild(p, parentOl);
-              // Reselect the content
-              range.selectNodeContents(p);
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          } else if (parentUl) {
-            // Switch <ul> to <ol>
-            const ol = document.createElement("ol");
-            ol.style.listStyleType = "decimal";
-            const lis = Array.from(parentUl.querySelectorAll("li"));
-            lis.forEach((li) => {
-              const newLi = document.createElement("li");
-              newLi.appendChild(li.cloneNode(true));
-              newLi.innerHTML = newLi.innerHTML.replace(/<\/?li>/gi, "");
-              ol.appendChild(newLi);
-            });
-            parentUl.parentNode.replaceChild(ol, parentUl);
-            // Reselect the content
-            const firstLi = ol.querySelector("li");
-            if (firstLi) {
-              range.selectNodeContents(firstLi);
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          } else {
-            // Create new numbered list
-            const ol = document.createElement("ol");
-            ol.style.listStyleType = "decimal"; // Use 1, 2, 3 numbering
-            const li = document.createElement("li");
-            try {
-              // Extract selected content
-              const fragment = range.extractContents();
-              li.appendChild(fragment);
-              ol.appendChild(li);
-              range.insertNode(ol);
-              // Select the new li for further editing
-              range.selectNodeContents(li);
-              selection.removeAllRanges();
-              selection.addRange(range);
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (e) {
-              // Fallback to execCommand for complex selections
-              document.execCommand("insertOrderedList", false, null);
-            }
-          }
-        } else {
-          // Insert empty list if no selection
-          const ol = document.createElement("ol");
-          ol.style.listStyleType = "decimal";
-          const li = document.createElement("li");
-          li.innerText = " ";
-          ol.appendChild(li);
-          editorRef.current.appendChild(ol);
-          // Place cursor in the new li
-          const range = document.createRange();
-          range.selectNodeContents(li);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-        break;
-      case "indent":
-        document.execCommand("indent", false, null);
-        break;
-      case "outdent":
-        document.execCommand("outdent", false, null);
-        break;
-      case "alignLeft":
-        document.execCommand("justifyLeft", false, null);
-        break;
-      case "alignCenter":
-        document.execCommand("justifyCenter", false, null);
-        break;
-      case "alignRight":
-        document.execCommand("justifyRight", false, null);
-        break;
-      case "alignJustify":
-        document.execCommand("justifyFull", false, null);
-        break;
-      case "fontSize":
-        document.execCommand("fontSize", false, "3"); // Reset to default
-        if (range) {
-          const span = document.createElement("span");
-          span.style.fontSize = `${value}px`;
-          range.surroundContents(span);
-        }
-        break;
-      case "fontFamily":
-        document.execCommand("fontName", false, value);
-        break;
-      case "textColor":
-        document.execCommand("foreColor", false, value);
-        break;
-      case "backgroundColor":
-        document.execCommand("backColor", false, value);
-        break;
-      case "highlight":
-        if (range) {
-          const span = document.createElement("span");
-          span.style.backgroundColor = "yellow";
-          range.surroundContents(span);
-        }
-        break;
-      case "blockquote":
-        if (range) {
-          document.execCommand("formatBlock", false, "<blockquote>");
-        } else {
-          const blockquote = document.createElement("blockquote");
-          blockquote.innerText = " ";
-          editorRef.current.appendChild(blockquote);
-          const range = document.createRange();
-          range.selectNodeContents(blockquote);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-        break;
-      case "code":
-        document.execCommand("formatBlock", false, "<pre>");
-        break;
-      case "link":
-        const url = prompt("Enter the URL:", "https://");
-        if (url && range) {
-          document.execCommand("createLink", false, url);
-        }
-        break;
-      case "table":
-        const rows = prompt("Enter number of rows (e.g., 3):", "3");
-        const cols = prompt("Enter number of columns (e.g., 3):", "3");
-        if (rows && cols && !isNaN(Number(rows)) && !isNaN(Number(cols))) {
-          const table = document.createElement("table");
-          table.style.borderCollapse = "collapse";
-          table.style.width = "100%";
-          table.style.border = "1px solid #000";
-          table.style.margin = "10px 0";
-          for (let i = 0; i < Number(rows); i++) {
-            const tr = document.createElement("tr");
-            for (let j = 0; j < Number(cols); j++) {
-              const td = document.createElement("td");
-              td.style.border = "1px solid #000";
-              td.style.padding = "8px";
-              td.innerText = "Cell";
-              tr.appendChild(td);
-            }
-            table.appendChild(tr);
-          }
-          if (range) {
-            range.insertNode(table);
-          } else {
-            editorRef.current.appendChild(table);
-          }
-        } else {
-          showToastError("Please enter valid numbers for rows and columns.");
-        }
-        break;
-      case "checkbox":
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.style.margin = "0 8px";
-        if (range) {
-          range.insertNode(checkbox);
-        } else {
-          editorRef.current.appendChild(checkbox);
-        }
-        break;
-      case "specialCharacter":
-        const char = prompt("Enter a special character (e.g., ©, ™, ★):", "©");
-        if (char && range) {
-          range.insertNode(document.createTextNode(char));
-        } else if (char) {
-          editorRef.current.appendChild(document.createTextNode(char));
-        }
-        break;
-      case "cut":
-        document.execCommand("cut", false, null);
-        break;
-      case "copy":
-        document.execCommand("copy", false, null);
-        break;
-      case "paste":
-        document.execCommand("paste", false, null);
-        break;
-      default:
-        console.warn(`Unsupported style: ${style}`);
+        
+        const newRange = document.createRange();
+        newRange.selectNodeContents(li);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      } else {
+        const fragment = range.extractContents();
+        li.appendChild(fragment);
+        list.appendChild(li);
+        range.insertNode(list);
+        
+        const newRange = document.createRange();
+        newRange.selectNodeContents(li);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
     }
+  }, []);
 
-    editorRef.current.focus();
-  };
+  const applySpanStyle = useCallback((range, property, value) => {
+    if (!range || range.collapsed) return;
+    
+    try {
+      const span = document.createElement("span");
+      span.style[property] = value;
+      
+      const contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+      
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    } catch (error) {
+      console.error("Error applying span style:", error);
+    }
+  }, []);
 
-  const handleImageUpload = (event) => {
+  const insertTable = useCallback(() => {
+    const rows = parseInt(prompt("Enter number of rows (1-20):", "3"));
+    const cols = parseInt(prompt("Enter number of columns (1-10):", "3"));
+    
+    if (!rows || !cols || rows < 1 || rows > 20 || cols < 1 || cols > 10) {
+      showToastError("Please enter valid numbers (rows: 1-20, columns: 1-10)");
+      return;
+    }
+    
+    const table = document.createElement("table");
+    table.style.cssText = `
+      border-collapse: collapse;
+      width: 100%;
+      border: 1px solid #000;
+      margin: 10px 0;
+    `;
+    
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement("tr");
+      for (let j = 0; j < cols; j++) {
+        const td = document.createElement("td");
+        td.style.cssText = `
+          border: 1px solid #000;
+          padding: 8px;
+          min-width: 50px;
+          min-height: 25px;
+        `;
+        td.innerHTML = "&nbsp;";
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.insertNode(table);
+    } else {
+      editorRef.current.appendChild(table);
+    }
+  }, [showToastError]);
+
+  const insertCheckbox = useCallback((range) => {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.style.margin = "0 8px";
+    checkbox.addEventListener('change', (e) => e.preventDefault()); // Prevent state change in editor
+    
+    if (range && !range.collapsed) {
+      range.insertNode(checkbox);
+    } else {
+      editorRef.current.appendChild(checkbox);
+    }
+  }, []);
+
+  const insertText = useCallback((range, text) => {
+    const textNode = document.createTextNode(text);
+    if (range) {
+      range.insertNode(textNode);
+    } else {
+      editorRef.current.appendChild(textNode);
+    }
+  }, []);
+
+  // Enhanced image upload handler
+  const handleImageUpload = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
+    
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        showToastError("Image size exceeds 5MB limit.");
-        return;
-      }
-      if (!file.type.startsWith("image/")) {
-        showToastError("Please upload a valid image file.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
+    if (!file) return;
+    
+    // Validate file
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      showToastError("Image size exceeds 10MB limit.");
+      return;
+    }
+    
+    if (!file.type.startsWith("image/")) {
+      showToastError("Please upload a valid image file.");
+      return;
+    }
+    
+    // Validate image type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showToastError("Supported image formats: JPEG, PNG, GIF, WebP");
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
         const img = document.createElement("img");
         img.src = reader.result;
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-        img.style.margin = "10px 0";
+        img.style.cssText = `
+          max-width: 100%;
+          height: auto;
+          margin: 10px 0;
+          border-radius: 4px;
+        `;
+        
+        // Error handling for image loading
+        img.onerror = () => {
+          showToastError("Failed to load image. Please try a different file.");
+        };
+        
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
@@ -465,34 +581,256 @@ function PDFEditorComplex() {
         } else {
           editorRef.current.appendChild(img);
         }
-        // Reset the input to prevent toolbar button issues
+        
+        // Reset input
         event.target.value = "";
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+      } catch (error) {
+        showToastError("Failed to process image. Please try again.");
+        console.error("Image upload error:", error);
+      }
+    };
+    
+    reader.onerror = () => {
+      showToastError("Failed to read image file.");
+    };
+    
+    reader.readAsDataURL(file);
+  }, [showToastError]);
 
-  const handleDrag = (e) => {
+  // Enhanced apply style with better selection handling
+  const applyStyle = useCallback((style, value = null) => {
+    if (!editorRef.current) return;
+
+    const selection = window.getSelection();
+    if (!selection) return;
+    
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    // Store selection for restoration if needed
+    const saveSelection = () => {
+      if (range) {
+        return {
+          startContainer: range.startContainer,
+          startOffset: range.startOffset,
+          endContainer: range.endContainer,
+          endOffset: range.endOffset
+        };
+      }
+      return null;
+    };
+
+    const restoreSelection = (savedSelection) => {
+      if (savedSelection && selection) {
+        try {
+          const newRange = document.createRange();
+          newRange.setStart(savedSelection.startContainer, savedSelection.startOffset);
+          newRange.setEnd(savedSelection.endContainer, savedSelection.endOffset);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        } catch (e) {
+          console.warn("Failed to restore selection:", e);
+        }
+      }
+    };
+
+    const savedSelection = saveSelection();
+
+    try {
+      switch (style) {
+        case "bold":
+        case "italic":
+        case "underline":
+        case "strike":
+          const commands = {
+            bold: "bold",
+            italic: "italic", 
+            underline: "underline",
+            strike: "strikethrough"
+          };
+          document.execCommand(commands[style], false, null);
+          break;
+
+        case "heading":
+          if (value >= 1 && value <= 6) {
+            document.execCommand("formatBlock", false, `<h${value}>`);
+          }
+          break;
+
+        case "bulletList":
+          handleListCommand("ul", "disc");
+          break;
+
+        case "orderedList":
+          handleListCommand("ol", "decimal");
+          break;
+
+        case "indent":
+        case "outdent":
+          document.execCommand(style, false, null);
+          break;
+
+        case "alignLeft":
+        case "alignCenter":
+        case "alignRight":
+        case "alignJustify":
+          const alignCommands = {
+            alignLeft: "justifyLeft",
+            alignCenter: "justifyCenter",
+            alignRight: "justifyRight",
+            alignJustify: "justifyFull"
+          };
+          document.execCommand(alignCommands[style], false, null);
+          break;
+
+        case "fontSize":
+          if (value && range) {
+            applySpanStyle(range, "fontSize", `${value}px`);
+          }
+          break;
+
+        case "fontFamily":
+          if (value) {
+            document.execCommand("fontName", false, value);
+          }
+          break;
+
+        case "textColor":
+        case "backgroundColor":
+          if (value) {
+            const command = style === "textColor" ? "foreColor" : "backColor";
+            document.execCommand(command, false, value);
+          }
+          break;
+
+        case "highlight":
+          if (range) {
+            applySpanStyle(range, "backgroundColor", "yellow");
+          }
+          break;
+
+        case "blockquote":
+          document.execCommand("formatBlock", false, "<blockquote>");
+          break;
+
+        case "code":
+          document.execCommand("formatBlock", false, "<pre>");
+          break;
+
+        case "link":
+          const url = prompt("Enter the URL:", "https://");
+          if (url && url.trim() && range) {
+            // Validate URL
+            try {
+              new URL(url);
+              document.execCommand("createLink", false, url);
+            } catch {
+              showToastError("Please enter a valid URL");
+            }
+          }
+          break;
+
+        case "table":
+          insertTable();
+          break;
+
+        case "checkbox":
+          insertCheckbox(range);
+          break;
+
+        case "specialCharacter":
+          const char = prompt("Enter a special character (e.g., ©, ™, ★):", "©");
+          if (char && char.trim()) {
+            insertText(range, char);
+          }
+          break;
+
+        case "cut":
+        case "copy":
+        case "paste":
+          document.execCommand(style, false, null);
+          break;
+
+        default:
+          console.warn(`Unsupported style: ${style}`);
+      }
+    } catch (error) {
+      console.error("Error applying style:", error);
+      restoreSelection(savedSelection);
+    }
+
+    editorRef.current.focus();
+  }, [applySpanStyle, handleListCommand, insertCheckbox, insertTable, insertText, showToastError]);
+
+  // Enhanced drag and drop handlers
+  const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(true);
-  };
+  }, []);
 
-  const handleDrop = (e) => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === "application/pdf") {
-      setPdf(file);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const pdfFile = files.find(file => file.type === "application/pdf");
+    
+    if (pdfFile) {
+      const validation = validatePDFFile(pdfFile);
+      if (validation.valid) {
+        setPdf(pdfFile);
+      } else {
+        showToastError(validation.error);
+      }
     } else {
-      showToastError("Please upload a valid PDF file");
+      showToastError("Please drop a valid PDF file");
     }
-  };
+  }, [validatePDFFile, showToastError]);
 
-  const handleDragLeave = () => {
-    setDragActive(false);
-  };
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Only set dragActive to false if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragActive(false);
+    }
+  }, []);
+
+  // Enhanced file input handler
+  const handleFileInputChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validation = validatePDFFile(file);
+      if (validation.valid) {
+        setPdf(file);
+      } else {
+        showToastError(validation.error);
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    }
+  }, [validatePDFFile, showToastError]);
+
+  // Reset function for cleanup
+  // const resetEditor = useCallback(() => {
+  //   setContent("");
+  //   setPdf(null);
+  //   setPdfDimensions({ width: null, height: null });
+  //   setUploadProgress(0);
+    
+  //   if (fileInputRef.current) {
+  //     fileInputRef.current.value = "";
+  //   }
+    
+  //   if (abortControllerRef.current) {
+  //     abortControllerRef.current.abort();
+  //     abortControllerRef.current = null;
+  //   }
+  // }, []);
 
   return (
     <div className="flex w-full justify-center items-center flex-col">
@@ -506,7 +844,7 @@ function PDFEditorComplex() {
                 </h3>
                 <div className="w-full flex justify-end items-center flex-row">
                   <button
-                    disabled={!pdf || isProcessing || isDownloading}
+                    disabled={!content || isProcessing || isDownloading}
                     onClick={downloadPdf}
                     className="flex min-w-fit w-fit justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
                   >
@@ -557,17 +895,19 @@ function PDFEditorComplex() {
                   className={`flex-center ${dragActive ? "scale-105" : ""
                     } min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center w-full backdrop-blur-lg brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]`}
                   onDragOver={handleDrag}
+                  onDragEnter={handleDrag}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  onClick={() => document.getElementById("fileInput")?.click()}
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="rounded-[16px] bg-s0/40 p-5 shadow-sm shadow-purple-200/50">
                     <input
+                      ref={fileInputRef}
                       id="fileInput"
                       type="file"
-                      accept=".pdf"
+                      accept=".pdf,application/pdf"
                       className="hidden"
-                      onChange={(e) => setPdf(e.target.files[0])}
+                      onChange={handleFileInputChange}
                     />
                     <Image
                       src="/images/ButtonUtils/add.svg"
@@ -578,8 +918,13 @@ function PDFEditorComplex() {
                     />
                   </div>
                   <p className="font-normal text-[16px] leading-[140%] brightness-75 text-p5">
-                    {pdf ? pdf.name : "Click here to upload PDF"}
+                    {pdf ? `Selected: ${pdf.name}` : "Click here to upload PDF"}
                   </p>
+                  {dragActive && (
+                    <p className="font-normal text-[14px] leading-[140%] brightness-90 text-blue-300">
+                      Drop your PDF file here
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -587,10 +932,9 @@ function PDFEditorComplex() {
         </div>
         {content && (
           <div
-            className={`mt-72 md:mt-60 lg:mt-48 scale-95 md:scale-100 relative w-full flex flex-col items-center border border-gray-300  rounded-lg shadow-lg`}
+            className={`mt-72 md:mt-60 lg:mt-48 scale-95 md:scale-100 relative w-full flex flex-col items-center border border-gray-300 rounded-lg shadow-lg`}
           >
-            {/* Toolbar Section */}
-            <div className="bg-[linear-gradient(#0a1130,#0d1845)] border border-opacity-50 border-p1 rounded-xl rounded-b-none sm-320:-mt-80 sm-374:-mt-72 -mt-96  sm:-mt-80 md:-mt-[227px] lg:-mt-[197px] xl:-mt-[137px] relative z-20 flex w-full flex-wrap justify-center gap-2 p-2 sm:justify-between">
+            <div className="bg-[linear-gradient(#0a1130,#0d1845)] border border-opacity-50 border-p1 rounded-xl rounded-b-none sm-320:-mt-80 sm-374:-mt-72 -mt-96 sm:-mt-80 md:-mt-[227px] lg:-mt-[197px] xl:-mt-[137px] relative z-20 flex w-full flex-wrap justify-center gap-2 p-2 sm:justify-between">
               <Toolbar
                 editor={editorRef}
                 applyStyle={applyStyle}
@@ -605,38 +949,42 @@ function PDFEditorComplex() {
               />
             </div>
 
-            {/* Editable content area */}
             <div
               ref={editorRef}
               id="containerComplexEditor"
               contentEditable
-              dangerouslySetInnerHTML={{ __html:content }}
+              dangerouslySetInnerHTML={{ __html: content }}
               className={`editor-container h-[${pdfDimensions.height ? pdfDimensions.height + 50 : 500
                 }px] w-full max-w-[95%] overflow-auto p-4`}
               style={{
-                height: `${pdfDimensions.height}px`,
+                height: `${pdfDimensions.height || 500}px`,
                 outline: "none",
                 scrollbarWidth: "thin",
                 scrollbarColor: "rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.1)",
+                lineHeight: "1.6",
+                fontFamily: "inherit",
+              }}
+              onInput={(e) => {
+                // Auto-save functionality can be added here
+                // For now, just ensure content stays clean
+                if (e.target.innerHTML.trim() === "<br>" || e.target.innerHTML.trim() === "") {
+                  e.target.innerHTML = "&nbsp;";
+                }
+              }}
+              onPaste={(e) => {
+                // Enhanced paste handling
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                if (text) {
+                  document.execCommand('insertText', false, text);
+                }
               }}
             />
           </div>
         )}
       </div>
-
-      {/* Inline CSS for custom bullet style */}
-      <style jsx>{`
-        ul {
-          list-style-type: disc;
-          margin: 10px 0;
-          padding-left: 20px;
-        }
-        ul li {
-          margin-bottom: 5px;
-        }
-      `}</style>
     </div>
   );
 }
 
-export default PDFEditorComplex;
+export default PDFEditorComplex

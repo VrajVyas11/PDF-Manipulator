@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import dynamic from 'next/dynamic';
-const QuillEditor = dynamic(() => import('../../utils/tools/QuillEditor'), { ssr: false });
+const QuillEditor = dynamic(() => import('../../../components/Core/QuillEditor'), { ssr: false });
 // import html2pdf from 'html2pdf.js';
 import Image from 'next/image';
 import { useToast } from "../../../hooks/use-toast"

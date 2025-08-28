@@ -20,6 +20,11 @@ public/uploads
 /.next/
 out/
 app/api/docx/route.ts
+# app/utils/tools/uploadPdf.jsx
+# app/utils/tools/renderPdfContent.jsx
+# app/utils/tools/proccessCombinedText.jsx
+# app/utils/tools/downloadPdf.jsx
+app/utils/tools
 Old.css
 pages.css
 ConvertToDOCX.jsx

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 import * as pdfjsLib from 'pdfjs-dist/webpack';
@@ -23,7 +23,7 @@ const PDFEditorComplex = () => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
   }, []);
 
-  const showToastError = (message) => {
+  const showToastError = useCallback((message) => {
     toast({
       variant: "destructive",
       title: (
@@ -44,7 +44,7 @@ const PDFEditorComplex = () => {
       className:
         "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-red-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
     });
-  };
+  }, [toast]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -79,43 +79,7 @@ const PDFEditorComplex = () => {
     setDragActive(false);
   };
 
-  const handleContinue = () => {
-    setIsContinueClicked(true);
-    setCurrentPage(0)
-    const formData = new FormData();
-    formData.append('pdf', imageFile);
-
-    fetch('/api/ExtractImages', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          showToastError(data.error);
-        } else {
-          const base64Images = data.images.map((image) => {
-            const imageData = image.data;
-            // Convert imageData object into an array
-            const byteNumbers = Object.values(imageData);
-            const byteArray = new Uint8Array(byteNumbers);
-
-            // Convert byteArray to a Base64 string
-            const base64String = btoa(Uint8ToString(byteArray));
-
-            return { image, url: `data:image/jpeg;base64,${base64String}` };
-          });
-
-          extractContent(URL.createObjectURL(imageFile), base64Images);
-        }
-      })
-      .catch((err) => {
-        console.error('Error uploading file:', err);
-        showToastError('Error uploading file.');
-      });
-  };
-
-  const generatePageHtml = (graphicOperators, textContent, base64Images, H) => {
+  const generatePageHtml = useCallback((graphicOperators, textContent, base64Images, H) => {
     const currentPageHtml = [];
     const maxTop = Math.max(...textContent.items.map(item => item.transform[5]));
     const minTop = Math.min(...textContent.items.map(item => item.transform[5]));
@@ -220,7 +184,127 @@ const PDFEditorComplex = () => {
     });
 
     return currentPageHtml.join('');
-  };
+  }, []);
+
+  const extractGraphicOperators = useCallback(async (page) => {
+    try {
+      const operatorList = await page.getOperatorList();
+      const graphicsStateMap = {};
+      const processedOperators = [];
+      // console.log(operatorList)
+      if (!operatorList || !operatorList.argsArray) {
+        console.error("Operator list or arguments are undefined.");
+        return;
+      }
+
+      operatorList.argsArray.forEach((arg, index) => {
+        if (arg === null) {
+          return;
+        }
+
+        if (arg instanceof Uint8ClampedArray) {
+          const color = `RGB(${arg[0]}, ${arg[1]}, ${arg[2]})`;
+          processedOperators.push({ type: 'color', value: color });
+        } else if (Array.isArray(arg) && arg.length > 0) {
+          if (typeof arg[0] === "string") {
+            if (arg[0].startsWith("g_") && arg[1] && typeof arg[1] === "number") {
+              graphicsStateMap[arg[0]] = { reference: `Reference at index ${index}` };
+              processedOperators.push({ type: 'graphicState', flag: arg[0], value: arg[1] });
+            } else if (arg[0].startsWith("img_p")) {
+              // Handle images
+              const imageId = arg[0];
+              const [width, height] = arg.length >= 3 ? [arg[1], arg[2]] : [0, 0];
+              processedOperators.push({ type: 'image', id: imageId, width, height, position: operatorList.argsArray[index - 2] });
+            }
+          } else if (arg.length === 2) {
+            processedOperators.push({ type: 'coordinates', left: arg[0], top: arg[1] });
+          }
+
+          arg.forEach((item) => {
+            if (Array.isArray(item) && item[0].fontChar) {
+              processedOperators.push({ type: 'array', value: item });
+            } else if (typeof item === 'object' && item.fontChar) {
+              processedOperators.push({
+                type: 'character',
+                value: {
+                  fontChar: item.fontChar,
+                  unicode: item.unicode,
+                  width: item.width,
+                },
+              });
+            }
+          });
+        } else if (typeof arg === "string" && arg.startsWith("g_")) {
+          graphicsStateMap[arg] = { reference: `Reference at index ${index}` };
+          processedOperators.push({ type: 'graphicState', value: arg });
+        }
+      });
+
+      return processedOperators;
+    } catch (err) {
+      console.error("Failed to extract operators:", err);
+    }
+  }, []);
+
+
+  // console.log(images)
+  const extractContent = useCallback(async (url, base64Images) => {
+    try {
+      const pdf = await pdfjsLib.getDocument({ url }).promise;
+      setNumPages(pdf.numPages);
+      let fullHtmlContent = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        setHeight(page.view[3]);
+        setWidth(page.view[2]);
+        const graphicOperators = await extractGraphicOperators(page); // Extract graphic operators here
+        const textContent = await page.getTextContent();
+        const pageHtml = generatePageHtml(graphicOperators, textContent, base64Images, page.view[3], page.view[2]); // Pass graphicOperators to generatePageHtml
+        fullHtmlContent.push(pageHtml);
+      }
+      setHtmlContent(fullHtmlContent);
+    } catch (err) {
+      showToastError("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
+      console.warn("proccess failed as", err.message)
+    }
+  }, [extractGraphicOperators, generatePageHtml, showToastError]);
+
+  const handleContinue = useCallback(() => {
+    setIsContinueClicked(true);
+    setCurrentPage(0)
+    const formData = new FormData();
+    formData.append('pdf', imageFile);
+
+    fetch('/api/ExtractImages', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          showToastError(data.error);
+        } else {
+          const base64Images = data.images.map((image) => {
+            const imageData = image.data;
+            // Convert imageData object into an array
+            const byteNumbers = Object.values(imageData);
+            const byteArray = new Uint8Array(byteNumbers);
+
+            // Convert byteArray to a Base64 string
+            const base64String = btoa(Uint8ToString(byteArray));
+
+            return { image, url: `data:image/jpeg;base64,${base64String}` };
+          });
+
+          extractContent(URL.createObjectURL(imageFile), base64Images);
+        }
+      })
+      .catch((err) => {
+        console.error('Error uploading file:', err);
+        showToastError('Error uploading file.');
+      });
+  }, [extractContent, imageFile, showToastError]);
+
 
   // const generatePageHtml = (graphicOperators, textContent, base64Images, H) => {
   //   const currentPageHtml = [];
@@ -338,89 +422,6 @@ const PDFEditorComplex = () => {
 
   // console.log(images)
 
-  const extractGraphicOperators = async (page) => {
-    try {
-      const operatorList = await page.getOperatorList();
-      const graphicsStateMap = {};
-      const processedOperators = [];
-      // console.log(operatorList)
-      if (!operatorList || !operatorList.argsArray) {
-        console.error("Operator list or arguments are undefined.");
-        return;
-      }
-
-      operatorList.argsArray.forEach((arg, index) => {
-        if (arg === null) {
-          return;
-        }
-
-        if (arg instanceof Uint8ClampedArray) {
-          const color = `RGB(${arg[0]}, ${arg[1]}, ${arg[2]})`;
-          processedOperators.push({ type: 'color', value: color });
-        } else if (Array.isArray(arg) && arg.length > 0) {
-          if (typeof arg[0] === "string") {
-            if (arg[0].startsWith("g_") && arg[1] && typeof arg[1] === "number") {
-              graphicsStateMap[arg[0]] = { reference: `Reference at index ${index}` };
-              processedOperators.push({ type: 'graphicState', flag: arg[0], value: arg[1] });
-            } else if (arg[0].startsWith("img_p")) {
-              // Handle images
-              const imageId = arg[0];
-              const [width, height] = arg.length >= 3 ? [arg[1], arg[2]] : [0, 0];
-              processedOperators.push({ type: 'image', id: imageId, width, height, position: operatorList.argsArray[index - 2] });
-            }
-          } else if (arg.length === 2) {
-            processedOperators.push({ type: 'coordinates', left: arg[0], top: arg[1] });
-          }
-
-          arg.forEach((item) => {
-            if (Array.isArray(item) && item[0].fontChar) {
-              processedOperators.push({ type: 'array', value: item });
-            } else if (typeof item === 'object' && item.fontChar) {
-              processedOperators.push({
-                type: 'character',
-                value: {
-                  fontChar: item.fontChar,
-                  unicode: item.unicode,
-                  width: item.width,
-                },
-              });
-            }
-          });
-        } else if (typeof arg === "string" && arg.startsWith("g_")) {
-          graphicsStateMap[arg] = { reference: `Reference at index ${index}` };
-          processedOperators.push({ type: 'graphicState', value: arg });
-        }
-      });
-
-      return processedOperators;
-    } catch (err) {
-      console.error("Failed to extract operators:", err);
-    }
-  };
-
-
-  // console.log(images)
-  const extractContent = async (url, base64Images) => {
-    try {
-      const pdf = await pdfjsLib.getDocument({ url }).promise;
-      setNumPages(pdf.numPages);
-      let fullHtmlContent = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        setHeight(page.view[3]);
-        setWidth(page.view[2]);
-        const graphicOperators = await extractGraphicOperators(page); // Extract graphic operators here
-        const textContent = await page.getTextContent();
-        const pageHtml = generatePageHtml(graphicOperators, textContent, base64Images, page.view[3], page.view[2]); // Pass graphicOperators to generatePageHtml
-        fullHtmlContent.push(pageHtml);
-      }
-      setHtmlContent(fullHtmlContent);
-    } catch (err) {
-      showToastError("Oops! Failed to load the PDF. This type of PDF might not be supported yet.");
-      console.warn("proccess failed as", err.message)
-    }
-  };
-
   const Uint8ToString = (u8a) => {
     const CHUNK_SZ = 0x8000;
     let c = [];
@@ -442,62 +443,67 @@ const PDFEditorComplex = () => {
   };
 
 
-  const downloadPdf = async () => {
-    const doc = new jsPDF();
-    const totalPages = htmlContent.length;
+  const downloadPdf = useCallback(async () => {
+    try {
+      const doc = new jsPDF();
+      const totalPages = htmlContent.length;
 
-    for (let i = 0; i < totalPages; i++) {
-      const pageHtml = htmlContent[i];
+      for (let i = 0; i < totalPages; i++) {
+        const pageHtml = htmlContent[i];
 
-      // Create a temporary container to render the content
-      const tempCanvas = document.createElement('canvas');
+        // Create a temporary container to render the content
+        const tempCanvas = document.createElement('canvas');
 
-      // Set canvas dimensions
-      tempCanvas.width = width;
-      tempCanvas.height = height;
+        // Set canvas dimensions
+        tempCanvas.width = width;
+        tempCanvas.height = height;
 
-      // Create an off-screen container to hold the HTML content
-      const tempDiv = document.createElement('div');
-      tempDiv.style.width = `${width}px`;
-      tempDiv.style.height = `${height}px`;
-      tempDiv.style.overflow = 'hidden';
-      tempDiv.style.zIndex = '-1';
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px'; // Hide the div off-screen
-      tempDiv.innerHTML = pageHtml;
-      const children = tempDiv.querySelectorAll('*');
-      children.forEach((child) => {
-        child.style.lineHeight = '24px'; // Line height in px
-        child.style.marginLeft = '4px';
-        child.style.marginRight = '4px';
-        child.style.wordSpacing = '4px'; // Add space between words (adjust the value as needed)
-      });
-      document.body.appendChild(tempDiv);
+        // Create an off-screen container to hold the HTML content
+        const tempDiv = document.createElement('div');
+        tempDiv.style.width = `${width}px`;
+        tempDiv.style.height = `${height}px`;
+        tempDiv.style.overflow = 'hidden';
+        tempDiv.style.zIndex = '-1';
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px'; // Hide the div off-screen
+        tempDiv.innerHTML = pageHtml;
+        const children = tempDiv.querySelectorAll('*');
+        children.forEach((child) => {
+          child.style.lineHeight = '24px'; // Line height in px
+          child.style.marginLeft = '4px';
+          child.style.marginRight = '4px';
+          child.style.wordSpacing = '4px'; // Add space between words (adjust the value as needed)
+        });
+        document.body.appendChild(tempDiv);
 
-      // Convert the HTML content to canvas using html2canvas
-      const canvas = await html2canvas(tempDiv, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        x: 0,
-        y: 0,
-        width: width,
-        height: height,
-        useCORS: true, // Handle cross-origin images if necessary
-      });
+        // Convert the HTML content to canvas using html2canvas
+        const canvas = await html2canvas(tempDiv, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
+          useCORS: true, // Handle cross-origin images if necessary
+        });
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-      // Add the image to the PDF
-      if (i > 0) {
-        doc.addPage();
+        // Add the image to the PDF
+        if (i > 0) {
+          doc.addPage();
+        }
+        doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+
+        document.body.removeChild(tempDiv); // Clean up after each iteration
       }
-      doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
-      document.body.removeChild(tempDiv); // Clean up after each iteration
+      doc.save('document.pdf');
     }
-
-    doc.save('document.pdf');
-  };
+    catch (err) {
+      console.log(err)
+    }
+  }, [height, htmlContent, width]);
 
 
 
