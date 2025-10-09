@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server";
 import mammoth from "mammoth";
 import puppeteer from "puppeteer";
@@ -44,12 +43,12 @@ export async function POST(req: Request): Promise<Response> {
       }
 
       // Clean up the directory before processing
-      fs.readdirSync(tempDir).forEach((file) => {
-        const filePath = path.join(tempDir, file);
+      fs.readdirSync(tempDir).forEach((fileName: string) => {
+        const filePath = path.join(tempDir, fileName);
         fs.unlinkSync(filePath);
         console.log(`Cleaned up file: ${filePath}`);
       });
-    } catch (dirError) {
+    } catch (dirError: unknown) {
       console.error("Directory error:", dirError);
       return NextResponse.json({ error: "Failed to create or clean temporary directory" }, { status: 500 });
     }
@@ -61,18 +60,48 @@ export async function POST(req: Request): Promise<Response> {
       const buffer = Buffer.from(await file.arrayBuffer());
       fs.writeFileSync(docxPath, buffer);
       console.log(`Wrote .docx file to: ${docxPath}`);
-    } catch (writeError) {
+    } catch (writeError: unknown) {
       console.error("Write error:", writeError);
       return NextResponse.json({ error: "Failed to write .docx file" }, { status: 500 });
     }
 
     // Convert .docx to HTML using mammoth
-    let htmlContent;
+    let htmlContent: string;
     try {
-      const result = await mammoth.convertToHtml({ path: docxPath });
+      // Simple styleMap as array of strings to avoid issues
+      const styleMap: string[] = [
+        "p[style-name='Heading 1'] => h1:fresh",
+        "p[style-name='Heading 2'] => h2:fresh",
+        "p[style-name='Heading 3'] => h3:fresh",
+        "p[style-name='Normal'] => p.normal",
+        "p[alignment='center'] => p.center",
+        "p[alignment='right'] => p.right",
+        "p[alignment='justify'] => p.justify",
+        "p[style-name='List Bullet'] => ul > li:fresh",
+        "p[style-name='List Number'] => ol > li:fresh",
+        "table => table.doc-table",
+        "table tr => tr.doc-tr",
+        "table th => th.doc-th",
+        "table td => td.doc-td",
+        "r[b] => strong",
+        "r[i] => em",
+        "r[u] => u",
+        "r[strike] => del",
+        "r[font='Calibri'] => span.calibri",
+        "r[font='Arial'] => span.arial",
+        "r[color='red'] => span.text-red",
+        "r[color='blue'] => span.text-blue",
+        "p[style-name='Header'] => !",
+        "p[style-name='Footer'] => !"
+      ];
+
+      const result = await mammoth.convertToHtml({ 
+        path: docxPath,
+        styleMap 
+      } as {path:string});
       htmlContent = result.value;
       console.log("Successfully converted .docx to HTML");
-    } catch (mammothError) {
+    } catch (mammothError: unknown) {
       console.error("Mammoth conversion error:", mammothError);
       return NextResponse.json(
         { error: "Failed to convert .docx to HTML: " + (mammothError as Error).message },
@@ -85,11 +114,15 @@ export async function POST(req: Request): Promise<Response> {
       <!DOCTYPE html>
       <html>
         <head>
+          <meta charset="utf-8">
           <style>
+            @import url('https://fonts.googleapis.com/css2?family=Calibri:wght@400;700&family=Arial:wght@400;700&display=swap');
             body {
               margin: 10mm;
               line-height: 1.6;
-              font-family: Arial, sans-serif;
+              font-family: 'Calibri', Arial, sans-serif;
+              font-size: 11pt;
+              color: #000;
             }
             /* Headings */
             h1 { font-size: 24pt; font-weight: bold; margin: 0.67em 0; }
@@ -133,11 +166,20 @@ export async function POST(req: Request): Promise<Response> {
               background-color: #f2f2f2;
               font-weight: bold;
             }
+            /* Fonts and colors */
+            span.calibri { font-family: 'Calibri', sans-serif; }
+            span.arial { font-family: Arial, sans-serif; }
+            span.text-red { color: red; }
+            span.text-blue { color: blue; }
+            /* Lists */
+            ul, ol { margin: 1em 0; padding-left: 40px; }
             /* Constrain images */
             img {
               max-width: 100%;
               height: auto;
             }
+            /* Print tweaks */
+            @media print { body { -webkit-print-color-adjust: exact; } }
           </style>
         </head>
         <body>
@@ -163,7 +205,7 @@ export async function POST(req: Request): Promise<Response> {
       });
       await browser.close();
       console.log(`Generated PDF at: ${pdfPath}`);
-    } catch (puppeteerError) {
+    } catch (puppeteerError: unknown) {
       console.error("Puppeteer error:", puppeteerError);
       return NextResponse.json(
         { error: "Failed to convert HTML to PDF: " + (puppeteerError as Error).message },
@@ -189,17 +231,17 @@ export async function POST(req: Request): Promise<Response> {
           fs.unlinkSync(docxPath);
           fs.unlinkSync(pdfPath);
           console.log("Cleaned up temporary files");
-        } catch (cleanupError) {
+        } catch (cleanupError: unknown) {
           console.error("Cleanup error:", cleanupError);
         }
       });
 
       return response;
-    } catch (streamError) {
+    } catch (streamError: unknown) {
       console.error("Stream error:", streamError);
       return NextResponse.json({ error: "Failed to stream PDF" }, { status: 500 });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("General error:", error);
     return NextResponse.json({ error: `Internal server error: ${(error as Error).message}` }, { status: 500 });
   }

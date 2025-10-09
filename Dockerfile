@@ -68,6 +68,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --prefer-offline --no-audit --no-fund && \
     npm cache clean --force
 
+RUN npx puppeteer browsers install chrome
+
 # Copy application code
 COPY . .
 

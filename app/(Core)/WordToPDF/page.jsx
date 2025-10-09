@@ -16,8 +16,9 @@ const PDFViewer = dynamic(() => import("../../../components/Core/PDFViewer"), {
         </div>
     )
 });
+
 const WordDocxToPdf = () => {
-    const [docxFile, setDocxFile] = useState(null);
+    const [wordFile, setWordFile] = useState(null); // Renamed from docxFile for clarity
     const [dragActive, setDragActive] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [convertedPdfBlob, setConvertedPdfBlob] = useState(null);
@@ -51,13 +52,16 @@ const WordDocxToPdf = () => {
     };
 
     const validateFile = (file) => {
-        // if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        setDocxFile(file);
+        const allowedTypes = [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        if (!allowedTypes.includes(file.type)) {
+            showToastError('Please upload a valid Word (.docx) file.');
+            return;
+        }
+        setWordFile(file);
         setConvertedPdfBlob(null);
         setPdfUrl(null);
-        // } else {
-        //     showToastError('Please upload a valid .docx file.');
-        // }
     };
 
     const showToastError = useCallback((message) => {
@@ -65,7 +69,6 @@ const WordDocxToPdf = () => {
             variant: "destructive",
             title: (
                 <div className="flex items-center w-full gap-3">
-                    {/* subtle check icon */}
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-red-400 flex-shrink-0" viewBox="0 0 20 20"
                         fill="currentColor"
                         aria-hidden="true">
@@ -95,17 +98,16 @@ const WordDocxToPdf = () => {
         }
     }, [convertedPdfBlob, showToastError]);
 
-
     const handleConvert = useCallback(async () => {
-        if (!docxFile) {
-            showToastError('No .docx file selected.');
+        if (!wordFile) {
+            showToastError('No Word file selected.');
             return;
         }
 
         setIsProcessing(true);
 
         const formData = new FormData();
-        formData.append('file', docxFile);
+        formData.append('file', wordFile);
 
         try {
             const response = await fetch('/api/WordToPDF', {
@@ -125,7 +127,6 @@ const WordDocxToPdf = () => {
             toast({
                 title: (
                     <div className="flex items-center w-full gap-3">
-                        {/* subtle check icon */}
                         <svg
                             className="w-5 h-5 text-emerald-400 flex-shrink-0"
                             viewBox="0 0 20 20"
@@ -144,7 +145,7 @@ const WordDocxToPdf = () => {
                                 PDF ready to download
                             </div>
                             <div className="text-xs md:text-sm text-emerald-200/80">
-                                Your compressed PDF is available. Click Download to save it.
+                                Your converted PDF is available. Click Download to save it.
                             </div>
                         </div>
                     </div>
@@ -155,7 +156,6 @@ const WordDocxToPdf = () => {
                         altText="Download PDF"
                         className="ml-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 min-h-12 text-sm font-semibold text-slate-900 shadow-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     >
-                        {/* download icon */}
                         <svg
                             className="w-4 h-4"
                             viewBox="0 0 24 24"
@@ -176,14 +176,12 @@ const WordDocxToPdf = () => {
                     "flex items-center justify-between gap-3 w-full max-w-[640px] bg-gradient-to-r from-slate-900/60 to-slate-800/40 border border-emerald-500/10 p-3 md:p-4 rounded-2xl shadow-lg backdrop-blur-md",
             });
         } catch (err) {
-            console.error('Error converting .docx to PDF:', err);
-            showToastError('Failed to convert the .docx file.');
+            console.error('Error converting Word to PDF:', err);
+            showToastError('Failed to convert the Word file.');
         } finally {
             setIsProcessing(false);
         }
-    }, [docxFile, downloadPDF, showToastError, toast]);
-
-
+    }, [wordFile, downloadPDF, showToastError, toast]);
 
     return (
         <div
@@ -196,18 +194,19 @@ const WordDocxToPdf = () => {
                 <div className="flex flex-col md:pl-4 w-full text-center lg:text-left">
                     <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">Convert Word to PDF</h2>
                     <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
-                        Easily convert your Word (.docx) files to PDF with just a few clicks.
+                        Easily convert your Word .docx files to PDF with just a few clicks.
                     </p>
                 </div>
                 <button
-                    disabled={isProcessing || !docxFile || !convertedPdfBlob}
+                    disabled={isProcessing || !wordFile || !convertedPdfBlob}
                     onClick={downloadPDF}
                     className="flex min-w-fit w-fit md:pr-4 disabled:opacity-40 disabled:cursor-not-allowed justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0"
+                    aria-label="Download converted PDF"
                 >
                     <span className="relative flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                         <Image
                             src="/images/ButtonUtils/download.svg"
-                            alt="logo"
+                            alt="Download icon"
                             width={28}
                             height={28}
                             className="brightness-200"
@@ -254,14 +253,15 @@ const WordDocxToPdf = () => {
                                     </h3>
                                     <div className="w-full flex justify-center items-center flex-row">
                                         <button
-                                            disabled={isProcessing || !docxFile || !convertedPdfBlob}
+                                            disabled={isProcessing || !wordFile || !convertedPdfBlob}
                                             onClick={() => setPreviewOpen((prev) => !prev)}
                                             className="flex w-full justify-center md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+                                            aria-label="Toggle PDF preview"
                                         >
                                             <span className="relative px-4 md:px-8 flex justify-end items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                                                 <Image
                                                     src={`${previewOpen ? '/images/ButtonUtils/eye1.svg' : '/images/ButtonUtils/eye2.svg'}`}
-                                                    alt="logo"
+                                                    alt="Preview icon"
                                                     width={28}
                                                     height={28}
                                                     className="brightness-200"
@@ -271,16 +271,17 @@ const WordDocxToPdf = () => {
                                                 </span>
                                             </span>
                                         </button>
-                                        {!isProcessing && docxFile && (
+                                        {!isProcessing && wordFile && (
                                             <button
-                                                disabled={!docxFile || isProcessing}
+                                                disabled={!wordFile || isProcessing}
                                                 onClick={handleConvert}
                                                 className="flex pl-2 min-w-32 md:min-w-44 items-center justify-normal md:justify-end disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl group"
+                                                aria-label="Convert file to PDF"
                                             >
                                                 <span className="relative px-4 md:px-8 flex justify-around items-center w-fit before:g7 g4 min-h-fit py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden">
                                                     <Image
                                                         src="/images/ButtonUtils/process.svg"
-                                                        alt="logo"
+                                                        alt="Convert icon"
                                                         width={28}
                                                         height={28}
                                                         className="brightness-200"
@@ -292,8 +293,9 @@ const WordDocxToPdf = () => {
                                             </button>
                                         )}
                                         {isProcessing && (
-                                            <div>
+                                            <div className="flex items-center">
                                                 <div className="w-6 ml-4 flex justify-self-center sm:w-8 h-6 sm:h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                <span className="ml-2 text-sm text-p5">Converting...</span>
                                             </div>
                                         )}
                                     </div>
@@ -306,6 +308,9 @@ const WordDocxToPdf = () => {
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                         onClick={() => document.getElementById('fileInput')?.click()}
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-label="Upload Word file"
                                     >
                                         <div className="rounded-[16px] bg-s0/40 p-5 shadow-sm shadow-purple-200/50">
                                             <input
@@ -317,34 +322,65 @@ const WordDocxToPdf = () => {
                                             />
                                             <Image
                                                 src="/images/ButtonUtils/add.svg"
-                                                alt="Add File"
+                                                alt="Add file icon"
                                                 width={24}
                                                 height={24}
                                                 className="brightness-125"
                                             />
                                         </div>
                                         <p className="font-normal text-[16px] leading-[140%] brightness-75 text-p5">
-                                            {docxFile ? docxFile.name : 'Click here to upload .docx file'}
+                                            {wordFile ? wordFile.name : 'Click here or drag to upload Word .docx file'}
                                         </p>
                                     </div>
-
                                 </div>
                             </div>
 
                             {previewOpen && (
-                                <div className="bg-p5/5 w-full font-normal p-1 rounded-lg pt-4 flex cursor-pointer flex-col text-white text-center backdrop-blur-[12px]">
-                                    <h2 className="font-bold mb-4 text-center text-[30px] leading-[140%] text-p5">
-                                        PDF Preview
-                                    </h2>
-                                    {pdfUrl ? (
-                                        <PDFViewer file={pdfUrl} />
-                                    ) : (
-                                        <div className="font-normal text-[16px] leading-[140%] flex justify-center text-p5">
-                                            Convert the .docx file to preview the PDF.
+                                <div className='px-3 w-full md:px-12'>
+                                    <div className="mt-2 mb-4 w-full text-center  md:px-0 pt-3 bg-gray-900/30 border border-gray-700/50 rounded-xl shadow-2xl backdrop-blur-lg">
+                                        <div className='flex flex-row pb-4 px-12 justify-between items-center'>
+                                            <div className="flex-1">
+                                                <h3 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-300 tracking-tight">
+                                                    PDF Preview
+                                                </h3>
+                                                <p className="text-sm text-gray-400 mt-1">Review your document before processing</p>
+                                            </div>
+                                            <button
+                                                disabled={!pdfUrl}
+                                                onClick={() => setPreviewOpen((prev) => !prev)}
+                                                className="ml-4 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                                                aria-label="Close preview"
+                                            >
+                                                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-red-600/60 hover:bg-red-600/70 backdrop-blur-lg border border-red-700 text-gray-300 hover:text-white transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                    </svg>
+                                                </span>
+                                            </button>
                                         </div>
-                                    )}
+
+                                        {pdfUrl ? (
+                                            <div className="overflow-hidden">
+                                                <PDFViewer file={pdfUrl} />
+                                            </div>
+                                        ) : (
+                                            <div className="py-12 text-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-500">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                                </svg>
+                                                <p className="mt-4 text-gray-400 font-medium">No files uploaded</p>
+                                                <p className="text-sm text-gray-500 mt-1">Upload PDFs to preview and merge</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
+
                         </div>
                     </div>
                 </div>
