@@ -1,20 +1,15 @@
-# **PDF Manipulator**
+
+# 🌟 **PDF Manipulator**
 
 **A feature-rich PDF management tool for seamless editing, merging, splitting, compression, and more!** 
 
-
-**🚀 Demo on Koyeb.com:**  [Explore the App](https://adjacent-filia-vrajvyas-6f3d840f.koyeb.app/)  
-
-**🚀 Contingency Live Demo on ONRender.com:**  [Explore the App](https://pdf-manipulator-gdqt.onrender.com/)  
+[![Koyeb Demo](https://img.shields.io/badge/Koyeb-Live%20Demo-brightgreen?style=for-the-badge&logo=koyeb)](https://adjacent-filia-vrajvyas-6f3d840f.koyeb.app/)  [![OnRender Demo](https://img.shields.io/badge/OnRender-Backup%20Demo-orange?style=for-the-badge&logo=render)](https://pdf-manipulator-gdqt.onrender.com/)  
 
 ---
 
-
-## **Overview**
+## ✨ **Overview**
 
 PDF Manipulator is a web-based tool designed for effortless PDF management. From editing to merging, compressing, splitting, converting Word files to PDFs, and even extracting images from PDF files, this app combines efficiency with simplicity. With its fully responsive design, user-friendly drag-and-drop interface, and modern aesthetics, this app caters to the needs of professionals, students, and anyone who frequently works with PDFs and Word documents.
-
----
 
 ## **Features**
 
