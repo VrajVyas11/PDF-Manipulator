@@ -34,7 +34,7 @@ app/context
 # misc
 .DS_Store
 *.pem
-PDFAnnotator.jsx
+PDFEditorSimpleText.jsx
 # debug
 npm-debug.log*
 yarn-debug.log*

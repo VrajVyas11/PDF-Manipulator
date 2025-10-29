@@ -1,13 +1,14 @@
 "use client"
 import React, { useState } from 'react';
-// import PDFEditorSimpleText from "../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx";
+// import PDFAnnotator from "../../../components/Core/PDFEditor/PDFAnnotator.jsx";
 import PDFEditorComplex from "../../../components/Core/PDFEditor/PDFEditorComplex.jsx";
 import Image from 'next/image.js';
 import dynamic from "next/dynamic";
-const PDFEditorSimpleText = dynamic(() => import("../../../components/Core/PDFEditor/PDFEditorSimpleText.jsx"), {
+
+const PDFAnnotator = dynamic(() => import("../../../components/Core/PDFEditor/PDFAnnotator.jsx"), {
   ssr: false,
   loading: () => (
-      <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         <p className="text-sm text-gray-400">Loading PDF Editor...</p>
@@ -22,15 +23,21 @@ function PDFEditor() {
     setIsBackendBased(toggle);
   };
 
+  // Dynamic title & description based on selection
+  const title = isBackendBased ? 'PDF Annotator' : 'PDF Editor';
+  const description = isBackendBased
+    ? 'Full-featured PDF annotation suite — highlights, ink, shapes, text editing, stamps, and precise annotation controls for advanced workflows.'
+    : 'Effortlessly edit and manage complex PDFs with our robust editor — ideal for multi-page documents, forms, and advanced layout needs.';
+
   return (
     <div className="flex  flex-col w-full ">
       <div className="flex flex-col lg:px-0 lg:flex-row justify-center mt-5 mb-10 items-center w-full">
         <div className="flex flex-col  md:pl-4 w-full text-center lg:text-left">
           <h2 className="text-[30px] font-bold md:text-[38px] leading-[110%] text-p4">
-            PDF Editor
+            {title}
           </h2>
           <p className="font-normal text-[16px] leading-[140%] mt-4 text-p5">
-            Effortlessly edit your PDFs with just a few clicks, enhancing your documents for seamless sharing and storage.
+            {description}
           </p>
         </div>
         <div
@@ -59,7 +66,7 @@ function PDFEditor() {
               className="brightness-200"
             />
             <span className="font-semibold text-16 flex gap-4 p-4 pr-0 text-p5">
-              Simple PDFs
+              PDF Annotator
             </span>
           </span>
         </div>
@@ -89,7 +96,7 @@ function PDFEditor() {
         ></div>
         {isBackendBased ? (
           <div>
-            <PDFEditorSimpleText />
+            <PDFAnnotator />
           </div>
         ) : (
           <PDFEditorComplex />
