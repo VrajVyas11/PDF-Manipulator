@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, {
 	useState,
@@ -48,7 +47,7 @@ import { RotatePluginPackage, useRotate, Rotate } from
 import { PrintPluginPackage, usePrintCapability } from
 	'@embedpdf/plugin-print/react';
 import { SpreadPluginPackage } from '@embedpdf/plugin-spread/react';
-import { SearchLayer, SearchPluginPackage,  useSearchCapability } from
+import { SearchLayer, SearchPluginPackage, useSearchCapability } from
 	'@embedpdf/plugin-search/react';
 import {
 	AnnotationPluginPackage,
@@ -74,7 +73,6 @@ import {
 	Highlighter,
 	MousePointer,
 	Hand,
-	Grid,
 	Download,
 	Trash2,
 	Image as ImageIcon,
@@ -99,6 +97,9 @@ import {
 	AlignVerticalJustifyCenter,
 	AlignVerticalJustifyStart,
 	AlignVerticalJustifyEnd,
+	ChevronDown as DropdownIcon,
+	Shapes as ShapesIcon,
+	Layers,
 } from 'lucide-react';
 
 // Import models for types
@@ -131,6 +132,7 @@ const PDFAnnotator = () => {
 	const [annotationMode, setAnnotationMode] = useState('select');
 	const [urlInput, setUrlInput] = useState(pdfUrl);
 	const [showUrlDialog, setShowUrlDialog] = useState(false);
+	const [toolDropdown, setToolDropdown] = useState(null); // 'shapes', 'lines', 'markup', etc.
 
 	const fileInputRef = useRef(null); // upload PDF
 	const annotationApiRef = useRef(null);
@@ -157,8 +159,8 @@ const PDFAnnotator = () => {
 			createPluginRegistration(PanPluginPackage),
 			createPluginRegistration(ScrollPluginPackage),
 			createPluginRegistration(ThumbnailPluginPackage, {
-				width: 120,
-				gap: 8,
+				width: 96,
+				gap: 6,
 			}),
 			createPluginRegistration(ZoomPluginPackage, {
 				initialZoom: 1.0,
@@ -200,15 +202,15 @@ const PDFAnnotator = () => {
 
 	if (error) {
 		return (
-			<div className="flex items-center justify-center h-screen bg-gray-900 text-red-300">
-				<div className="text-center p-8 bg-gray-800 rounded-xl border border-red-600/30 shadow-xl">
-					<p className="text-xl mb-2 font-bold text-red-300">Error loading PDF engine</p>
-					<p className="text-sm text-gray-400">{error.message}</p>
+			<div className="flex items-center justify-center h-screen bg-black text-cyan-300/80">
+				<div className="text-center p-10 bg-black/30 border border-cyan-500/20 rounded-2xl shadow-2xl backdrop-blur-xl">
+					<p className="text-xl mb-3 font-bold text-cyan-400">PDF Engine Error</p>
+					<p className="text-sm text-gray-400 mb-5">{error.message}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="mt-4 px-6 py-2 bg-blue-800 hover:bg-blue-900 rounded-lg transition-all duration-200 font-medium text-blue-200"
+						className="px-6 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-xl transition-all duration-300 font-semibold text-cyan-100 border border-cyan-500/30 backdrop-blur-sm"
 					>
-						Reload Page
+						Reload
 					</button>
 				</div>
 			</div>
@@ -217,31 +219,30 @@ const PDFAnnotator = () => {
 
 	if (isLoading || !engine) {
 		return (
-			<div className="flex items-center justify-center h-screen bg-gray-900">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-					<p className="text-gray-300 text-lg font-medium">Loading PDF Engine...</p>
-					<p className="text-gray-500 text-sm mt-2">
-						Please wait while we initialize the viewer
-					</p>
+			<div className="flex items-center justify-center h-screen bg-black">
+				<div className="text-center bg-black/30 backdrop-blur-xl p-10 rounded-2xl border border-cyan-500/20">
+					<div className="animate-pulse rounded-full h-16 w-16 border-2 border-cyan-500 mx-auto mb-5"></div>
+					<p className="text-cyan-300 text-lg font-semibold">Initializing Viewer</p>
+					<p className="text-gray-500 text-sm mt-2">Stand by for cosmic launch</p>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex flex-col h-screen bg-gray-900 text-gray-100 font-sans">
+		<div className="flex flex-col h-screen bg-black text-white font-mono">
 			<style>{`
         .custom-sticky-note {
-          background: #1f2937;
-          border: 1px solid rgba(255,255,255,0.12);
-          box-shadow: 0 8px 22px rgba(0,0,0,0.35);
-          transform: rotate(-1.5deg);
+          background: rgba(15, 23, 42, 0.7);
+          border: 1px solid rgba(100, 116, 139, 0.3);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+          transform: rotate(-2deg);
           padding: 8px;
-          border-radius: 6px;
-          color: #f3f4f6;
-          font-size: 13px;
-          line-height: 1.2;
+          border-radius: 10px;
+          color: #e2e8f0;
+          font-size: 12px;
+          line-height: 1.3;
+          backdrop-filter: blur(20px);
         }
         .pdf-page-container {
           -webkit-user-select: text;
@@ -250,34 +251,34 @@ const PDFAnnotator = () => {
         .pdf-page-container * {
           -webkit-user-drag: none;
         }
-        .thumbnails-pane-hidden { opacity: 0; visibility: hidden; transform: translateX(-8px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
-        .thumbnails-pane-visible { opacity: 1; visibility: visible; transform: translateX(0); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
+        .thumbnails-pane-hidden { opacity: 0; visibility: hidden; transform: translateX(-8px); transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .thumbnails-pane-visible { opacity: 1; visibility: visible; transform: translateX(0); transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
       `}</style>
 
-			<div className="flex items-center justify-between bg-gray-800 border-b border-gray-700/50 px-6 py-3 shadow">
-				<div className="flex items-center space-x-4">
+			<header className="flex items-center justify-between bg-black/40 backdrop-blur-xl border-b border-slate-800/50 px-6 py-3 shadow-2xl sticky top-0 z-50">
+				<div className="flex items-center space-x-5">
 					<button
 						onClick={() => setShowSidebar(!showSidebar)}
-						className="p-2 hover:bg-gray-700/50 rounded-lg transition-all duration-200"
-						title="Toggle Sidebar"
+						className="p-2 hover:bg-slate-800/30 rounded-xl transition-all duration-300 border border-slate-700/30"
+						title="Orbit Control"
 					>
-						<Menu size={20} className="text-gray-300" />
+						<Menu size={18} className="text-cyan-400" />
 					</button>
 					<div className="flex items-center space-x-2">
-						<File size={20} className="text-blue-400" />
-						<span className="font-bold text-sm tracking-tight text-blue-200">PDF Annotator Pro</span>
-						<span className="text-xs text-gray-500 ml-2">Dark Mode</span>
+						<File size={18} className="text-cyan-500" />
+						<span className="font-extrabold text-base tracking-wide text-slate-200">Nebula Annotator</span>
+						<span className="text-xs text-cyan-400/60 px-2 py-1 bg-slate-800/30 rounded-full">Void Edition</span>
 					</div>
 				</div>
 
-				<div className="flex items-center space-x-2">
+				<div className="flex items-center space-x-3">
 					<button
 						onClick={() => fileInputRef.current?.click()}
-						className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg font-medium text-blue-100"
-						title="Upload PDF"
+						className="px-5 py-2 bg-cyan-900/40 hover:bg-cyan-800/40 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2 font-semibold text-cyan-200 border border-cyan-600/30 backdrop-blur-xl shadow-xl"
+						title="Import Artifact"
 					>
-						<Download size={16} />
-						<span>Upload PDF</span>
+						<Download size={14} />
+						<span>Import</span>
 					</button>
 					<input
 						ref={fileInputRef}
@@ -288,70 +289,68 @@ const PDFAnnotator = () => {
 					/>
 					<button
 						onClick={() => setShowUrlDialog(!showUrlDialog)}
-						className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2"
-						title="Load from URL"
+						className="px-5 py-2 bg-slate-800/40 hover:bg-slate-700/40 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2 border border-slate-700/30 backdrop-blur-xl"
+						title="Warp to URL"
 					>
-						<Hash size={16} />
-						<span>Load URL</span>
+						<Hash size={14} className="text-cyan-400" />
+						<span>Warp</span>
 					</button>
 				</div>
-			</div>
+			</header>
 
 			{showUrlDialog && (
-				<div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 border border-gray-700/50 px-6 py-4 rounded-xl z-50 max-w-md w-full mx-4 shadow-2xl backdrop-blur-sm">
-					<div className="flex items-center space-x-3">
+				<div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900/80 border border-cyan-500/20 px-8 py-6 rounded-2xl z-50 max-w-md w-full mx-4 shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 duration-300">
+					<div className="flex items-center space-x-4">
 						<input
 							type="text"
 							value={urlInput}
 							onChange={(e) => setUrlInput(e.target.value)}
-							placeholder="https://example.com/doc.pdf"
-							className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:outline-none focus:border-blue-500/50 text-sm transition-all duration-200 text-gray-200"
+							placeholder="Enter cosmic coordinates (URL)"
+							className="flex-1 px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-cyan-400/50 text-sm transition-all duration-300 text-slate-200 backdrop-blur-xl"
 							onKeyPress={(e) => e.key === 'Enter' && handleUrlLoad()}
 						/>
 						<button
 							onClick={handleUrlLoad}
-							className="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-all duration-200 font-medium shadow-md text-blue-100"
+							className="px-6 py-3 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-xl text-sm transition-all duration-300 font-semibold text-cyan-200 border border-cyan-600/30 shadow-lg"
 						>
-							Load
+							Warp
 						</button>
 						<button
 							onClick={() => setShowUrlDialog(false)}
-							className="p-2 hover:bg-gray-700/50 rounded-lg transition-all duration-200"
+							className="p-3 hover:bg-slate-800/30 rounded-xl transition-all duration-300"
 						>
-							<X size={18} className="text-gray-400" />
+							<X size={16} className="text-slate-400" />
 						</button>
 					</div>
 				</div>
 			)}
 
 			<EmbedPDF engine={engine} plugins={plugins}>
-				<div className="flex flex-1 overflow-hidden">
+				<div className="flex flex-1 overflow-hidden relative">
 					{showSidebar && (
-						<div className="w-64 bg-gray-800 border-r border-gray-700/50 flex flex-col overflow-hidden shadow-lg">
-							<div className="flex border-b border-gray-700/50">
+						<aside className="w-52 bg-slate-900/60 border-r border-cyan-500/10 flex flex-col overflow-hidden shadow-2xl backdrop-blur-2xl z-40">
+							<nav className="flex border-b border-slate-800/50">
 								<button
 									onClick={() => setSidebarTab('thumbnails')}
-									className={`flex-1 px-4 py-4 text-sm font-semibold transition-all duration-200 ${sidebarTab === 'thumbnails' ? 'bg-gray-700/50 text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:bg-gray-700/30'}`}
+									className={`flex-1 flex flex-col justify-center items-center gap-2 px-6  py-4 text-sm font-bold transition-all duration-300 ${sidebarTab === 'thumbnails' ? 'bg-cyan-900/20 text-cyan-300 border-b-2 border-cyan-400' : 'text-slate-400 hover:bg-slate-800/20'}`}
 								>
-									<Grid size={16} className="inline mr-2" />
-									Thumbnails
+									<Layers size={24} className="inline " />
+									Pages
 								</button>
 								<button
 									onClick={() => setSidebarTab('styles')}
-									className={`flex-1 px-4 py-4 text-sm font-semibold transition-all duration-200 ${sidebarTab === 'styles' ? 'bg-gray-700/50 text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:bg-gray-700/30'}`}
+									className={`flex-1 flex flex-col justify-center items-center gap-2 px-6 py-4 text-sm font-bold transition-all duration-300 ${sidebarTab === 'styles' ? 'bg-cyan-900/20 text-cyan-300 border-b-2 border-cyan-400' : 'text-slate-400 hover:bg-slate-800/20'}`}
 								>
-									<PaletteIcon size={16} className="inline mr-2" />
+									<PaletteIcon size={24} className="inline" />
 									Styles
 								</button>
-							</div>
+							</nav>
 
-							<div className="flex-1 overflow-y-auto p-3">
+							<div className="flex-1 overflow-y-auto ">
 								{sidebarTab === 'thumbnails' ? (
 									<div
-										className={
-											true ? 'thumbnails-pane-visible' : 'thumbnails-pane-hidden'
-										}
-										style={{ minHeight: 40 }}
+										className={"flex w-full h-full"}
+										style={{ minHeight: 32 }}
 									>
 										<ThumbnailsPanel />
 									</div>
@@ -362,11 +361,11 @@ const PDFAnnotator = () => {
 									/>
 								)}
 							</div>
-						</div>
+						</aside>
 					)}
 
-					<div className="flex-1 flex flex-col overflow-hidden">
-						<div className="bg-gray-800 border-b border-gray-700/50 px-6 py-3 shadow">
+					<main className="flex-1 h-auto flex flex-col overflow-hidden relative">
+						<div className="bg-slate-900/40 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 shadow-2xl z-30">
 							<MainToolbar
 								showSearch={showSearch}
 								setShowSearch={setShowSearch}
@@ -378,16 +377,18 @@ const PDFAnnotator = () => {
 								setSelectedAnnotation={setSelectedAnnotation}
 								setSidebarTab={setSidebarTab}
 								setShowSidebar={setShowSidebar}
+								toolDropdown={toolDropdown}
+								setToolDropdown={setToolDropdown}
 							/>
 						</div>
 
 						{showSearch && (
-							<div className="px-6 py-3 border-b border-gray-700/50 bg-gray-800/50">
+							<div className="px-6 py-5 border-b border-slate-800/50 bg-slate-900/40 backdrop-blur-xl absolute inset-0 z-20 pointer-events-none">
 								<SearchRenderer />
 							</div>
 						)}
 
-						<div className="flex-1 overflow-hidden bg-gray-900">
+						<div className="flex-1 overflow-hidden bg-black/50 backdrop-blur-sm relative z-10">
 							<GlobalPointerProvider draggable={false}>
 								<Viewport draggable={false}>
 									<Scroller
@@ -398,11 +399,12 @@ const PDFAnnotator = () => {
 													width,
 													height,
 													position: 'relative',
-													margin: '12px',
-													boxShadow: '0 4px 20px -4px rgba(0,0,0,0.8)',
+													margin: '16px',
+													boxShadow: '0 16px 48px -10px rgba(0,0,0,0.8)',
 													backgroundColor: '#ffffff',
-													borderRadius: 12,
+													borderRadius: 16,
 													overflow: 'hidden',
+													border: '1px solid rgba(100, 116, 139, 0.1)',
 												}}
 												onDragStart={(e) => e.preventDefault()}
 											>
@@ -446,7 +448,7 @@ const PDFAnnotator = () => {
 															pageWidth={width}
 															pageHeight={height}
 															rotation={rotation}
-															selectionOutlineColor="#3B82F6"
+															selectionOutlineColor="#06b6d4"
 														/>
 													</PagePointerProvider>
 												</Rotate>
@@ -456,7 +458,7 @@ const PDFAnnotator = () => {
 								</Viewport>
 							</GlobalPointerProvider>
 						</div>
-					</div>
+					</main>
 				</div>
 			</EmbedPDF>
 		</div>
@@ -467,19 +469,18 @@ const PDFAnnotator = () => {
 const ThumbnailsPanel = React.memo(() => {
 	const { state, provides } = useScroll();
 	return (
-		<ThumbnailsPane>
+		<ThumbnailsPane className=' relative w-full flex justify-center items-center'>
 			{(meta) => {
 				const isActive = state.currentPage === meta.pageIndex + 1;
 				return (
 					<div
 						key={meta.pageIndex}
 						style={{
-							position: 'absolute',
-							top: meta.top,
+							position: 'relative',
 							height: meta.wrapperHeight,
 							cursor: 'pointer',
 						}}
-						className={`border rounded-xl overflow-hidden hover:border-blue-400/50 transition-all duration-200 bg-gray-800/50 shadow-md hover:shadow-lg ${isActive ? 'border-blue-400 ring-2 ring-blue-400/20' : 'border-gray-700/50'}`}
+						className={`border my-4 w-full flex flex-col justify-center items-center rounded-2xl overflow-hidden hover:border-cyan-400/30 transition-all duration-400 ease-out bg-slate-900/40 shadow-2xl hover:shadow-cyan-500/10 ${isActive ? 'border-cyan-400/40 ring-2 ring-cyan-400/20 bg-cyan-900/20 scale-105' : 'border-slate-700/30'}`}
 						onClick={() =>
 							provides?.scrollToPage({ pageNumber: meta.pageIndex + 1 })
 						}
@@ -489,12 +490,12 @@ const ThumbnailsPanel = React.memo(() => {
 								width: meta.width,
 								height: meta.height,
 							}}
-							className="bg-white overflow-hidden rounded-t-xl"
+							className="bg-white overflow-hidden rounded-t-2xl"
 						>
 							<ThumbImg meta={meta} />
 						</div>
-						<div className="px-2 py-2 text-xs text-center text-gray-400 font-medium bg-gray-800/50">
-							Page {meta.pageIndex + 1}
+						<div className="px-2 py-2 text-xs text-center text-cyan-400/70 font-bold bg-slate-900/40 backdrop-blur-xl">
+							page {meta.pageIndex + 1}
 						</div>
 					</div>
 				);
@@ -550,10 +551,10 @@ const StylesPanel = ({ selectedAnnotation, annotationMode }) => {
 	const computedTitle = typeof title === 'function' ? title(commonProps) : title;
 
 	return (
-		<div className="h-full overflow-y-auto p-4 bg-gray-800 text-gray-200">
+		<div className="h-full overflow-y-auto p-6 bg-slate-900/60 backdrop-blur-2xl rounded-xl text-slate-200">
 			{computedTitle && (
-				<h2 className="text-md mb-4 font-medium text-blue-300">
-					{computedTitle} {selectedAnnotation ? 'Styles' : 'Defaults'}
+				<h2 className="text-lg mb-6 font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-3 tracking-wide">
+					{computedTitle} {selectedAnnotation ? 'Forge' : 'Defaults'}
 				</h2>
 			)}
 			<Sidebar {...commonProps} />
@@ -571,6 +572,8 @@ const MainToolbar = ({
 	setSelectedAnnotation,
 	setSidebarTab,
 	setShowSidebar,
+	toolDropdown,
+	setToolDropdown,
 }) => {
 	const { state: scrollState, provides: scrollApi } = useScroll();
 	const { provides: zoomApi, state: zoomState } = useZoom();
@@ -656,8 +659,8 @@ const MainToolbar = ({
 					const id = annotation.id ?? annotation.object?.id;
 					if (api.updateAnnotation && id != null) {
 						await api.updateAnnotation(pageIndex, id, {
-							backgroundColor: '#1f2937',
-							borderColor: 'rgba(255,255,255,0.12)',
+							backgroundColor: 'rgba(15, 23, 42, 0.7)',
+							borderColor: 'rgba(100, 116, 139, 0.3)',
 						});
 					}
 				} catch { }
@@ -785,202 +788,106 @@ const MainToolbar = ({
 
 	if (!totalPages) {
 		return (
-			<div className="flex items-center justify-center py-3 text-gray-500 text-sm w-full">
-				Loading document...
+			<div className="flex items-center justify-center py-4 text-slate-400 text-sm w-full">
+				Assembling fragments...
 			</div>
 		);
 	}
 
+	const ToolDropdown = ({ group, onSelect, onClose }) => {
+		const groups = {
+			shapes: [
+				{ mode: 'circle', icon: Circle, label: 'Orb' },
+				{ mode: 'square', icon: Square, label: 'Cube' },
+				{ mode: 'polygon', icon: CornerDownRight, label: 'Prism' },
+			],
+			lines: [
+				{ mode: 'line', icon: CornerDownRight, label: 'Line' },
+				{ mode: 'lineArrow', icon: ArrowUpRight, label: 'Arrow' },
+				{ mode: 'polyline', icon: CornerDownRight, label: 'Polyline' },
+			],
+			markup: [
+				{ mode: 'highlight', icon: Highlighter, label: 'Highlight' },
+				{ mode: 'underline', icon: Underline, label: 'Underline' },
+				{ mode: 'strikeout', icon: X, label: 'Strikeout' },
+				{ mode: 'squiggly', icon: Waves, label: 'Squiggly' },
+			],
+			ink: [
+				{ mode: 'ink', icon: Pencil, label: 'Pencil' },
+				{ mode: 'inkHighlighter', icon: Highlighter, label: 'Highlighter' },
+			],
+		};
+
+		return (
+			<div className="absolute top-full left-0 mt-2  bg-slate-800/80 border border-slate-700/30 rounded-xl shadow-2xl z-50 min-w-[200px] overflow-hidden">
+				{groups[group]?.map(({ mode, icon: Icon, label }) => (
+					<button
+						key={mode}
+						onClick={() => {
+							onSelect(mode);
+							onClose();
+						}}
+						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-cyan-900/30 text-cyan-300' : ''
+							}`}
+					>
+						<Icon size={14} />
+						<span>{label}</span>
+					</button>
+				))}
+			</div>
+		);
+	};
+
 	return (
 		<>
-			<div className="flex items-center justify-between flex-wrap gap-3">
-				<div className="flex items-center space-x-2">
-					<div className="flex items-center space-x-1 bg-gray-700/50 rounded-lg px-3 py-1.5 shadow-inner">
+			<div className="flex items-center justify-between flex-wrap gap-5">
+				<div className="flex items-center space-x-3">
+
+					<button
+						onClick={() => scrollApi?.scrollToPreviousPage()}
+						disabled={currentPage <= 1}
+						className="p-3 hover:bg-slate-800/30 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-xl border border-slate-700/30 backdrop-blur-xl"
+						title="Ascend"
+					>
+						<ChevronUp size={14} className="text-slate-300" />
+					</button>
+					<div className="flex items-center space-x-2 bg-slate-800/50 rounded-xl px-4 py-2 shadow-xl border border-slate-700/30 backdrop-blur-xl">
 						<input
 							type="number"
 							value={currentPage}
 							min={1}
 							max={totalPages}
 							onChange={handlePageChange}
-							className="w-14 bg-transparent text-center text-sm focus:outline-none text-blue-400 font-mono"
+							className="w-8 bg-transparent text-center text-sm focus:outline-none text-cyan-300 font-mono"
 						/>
-						<span className="text-xs text-gray-500">/ {totalPages}</span>
+						<span className="text-xs text-slate-400">of {totalPages}</span>
 					</div>
-					<button
-						onClick={() => scrollApi?.scrollToPreviousPage()}
-						disabled={currentPage <= 1}
-						className="p-2 hover:bg-gray-700/50 rounded-lg transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shadow-md"
-						title="Previous Page"
-					>
-						<ChevronUp size={16} className="text-gray-300" />
-					</button>
 					<button
 						onClick={() => scrollApi?.scrollToNextPage()}
 						disabled={currentPage >= totalPages}
-						className="p-2 hover:bg-gray-700/50 rounded-lg transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shadow-md"
-						title="Next Page"
+						className="p-3 hover:bg-slate-800/30 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-xl border border-slate-700/30 backdrop-blur-xl"
+						title="Descend"
 					>
-						<ChevronDown size={16} className="text-gray-300" />
-					</button>
-				</div>
-
-				<div className="flex items-center space-x-1 bg-gray-700/50 rounded-xl p-1.5 shadow-inner overflow-x-auto">
-					<button
-						onClick={() => setAnnotationMode('select')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'select' ? 'bg-blue-600/20 text-blue-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Select Tool"
-					>
-						<MousePointer size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('pan')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'pan' ? 'bg-blue-600/20 text-blue-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Pan/Hand Tool"
-					>
-						<Hand size={16} />
-					</button>
-					<div className="w-px h-6 bg-gray-700/50 mx-1 flex-shrink-0" />
-
-					<button
-						onClick={() => setAnnotationMode('highlight')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'highlight' ? 'bg-yellow-600/20 text-yellow-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Highlight Text"
-					>
-						<Highlighter size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('underline')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'underline' ? 'bg-blue-600/20 text-blue-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Underline Text"
-					>
-						<Underline size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('strikeout')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'strikeout' ? 'bg-red-600/20 text-red-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Strikeout Text"
-					>
-						<X size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('squiggly')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'squiggly' ? 'bg-purple-600/20 text-purple-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Squiggly Text"
-					>
-						<Waves size={16} />
+						<ChevronDown size={14} className="text-slate-300" />
 					</button>
 
-					<button
-						onClick={() => setAnnotationMode('ink')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'ink' ? 'bg-green-600/20 text-green-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Pen/Ink"
-					>
-						<Pencil size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('inkHighlighter')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'inkHighlighter' ? 'bg-yellow-600/20 text-yellow-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Ink Highlighter"
-					>
-						<Highlighter size={16} />
-					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
-					<button
-						onClick={() => setAnnotationMode('circle')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'circle' ? 'bg-indigo-600/20 text-indigo-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Circle"
-					>
-						<Circle size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('square')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'square' ? 'bg-indigo-600/20 text-indigo-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Square"
-					>
-						<Square size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('lineArrow')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'lineArrow' ? 'bg-gray-600/20 text-gray-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Arrow"
-					>
-						<ArrowUpRight size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('polygon')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'polygon' ? 'bg-gray-600/20 text-gray-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Polygon"
-					>
-						<CornerDownRight size={16} />
-					</button>
-
-					<button
-						onClick={() => setAnnotationMode('freeText')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${annotationMode === 'freeText' ? 'bg-blue-600/20 text-blue-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Add Text/Free Text"
-					>
-						<Type size={16} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('stamp')}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 hover:bg-gray-700/30 text-gray-300 ${annotationMode === 'stamp' ? 'bg-blue-600/20 text-blue-300 shadow-md' : ''}`}
-						title="Insert Image/Stamp (Opens File Picker)"
-					>
-						<ImageIcon size={16} />
-					</button>
-
-					<button
-						onClick={handleDeleteSelected}
-						className="p-2 rounded-lg transition-all duration-200 flex-shrink-0 hover:bg-red-600/20 text-red-300 shadow-md"
-						title="Delete Selected"
-					>
-						<Trash2 size={16} />
-					</button>
-
-					<div className="w-px h-6 bg-gray-700/50 mx-1 flex-shrink-0" />
-
-					<button
-						onClick={handleUndo}
-						disabled={!canUndo}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 shadow-md ${canUndo ? 'hover:bg-gray-700/30 text-gray-300' : 'opacity-40 cursor-not-allowed text-gray-600'}`}
-						title="Undo"
-					>
-						<Undo size={16} />
-					</button>
-					<button
-						onClick={handleRedo}
-						disabled={!canRedo}
-						className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 shadow-md ${canRedo ? 'hover:bg-gray-700/30 text-gray-300' : 'opacity-40 cursor-not-allowed text-gray-600'}`}
-						title="Redo"
-					>
-						<Redo size={16} />
-					</button>
-				</div>
-
-				<div className="flex items-center space-x-2">
-					<button
-						onClick={() => setShowSearch(!showSearch)}
-						className={`p-2 rounded-lg transition-all duration-200 ${showSearch ? 'bg-blue-600/20 text-blue-300 shadow-md' : 'hover:bg-gray-700/30 text-gray-300'}`}
-						title="Search in Document"
-					>
-						<Search size={18} />
-					</button>
-
-					<div className="flex items-center space-x-1 bg-gray-700/50 rounded-lg shadow-inner">
+					<div className="flex items-center space-x-2 bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 backdrop-blur-xl">
 						<button
 							onClick={() => zoomApi?.zoomOut()}
-							className="p-2 hover:bg-gray-700/30 rounded-l-lg transition-all duration-200"
-							title="Zoom Out"
+							className="p-3 hover:bg-slate-700/30 rounded-l-xl transition-all duration-300"
+							title="Contract"
 						>
-							<ZoomOut size={16} className="text-gray-300" />
+							<ZoomOut size={14} className="text-slate-300" />
 						</button>
 						<select
 							value={Math.round(zoom * 100)}
 							onChange={(e) =>
 								zoomApi?.requestZoom(parseInt(e.target.value, 10) / 100)
 							}
-							className="bg-transparent px-3 py-1.5 text-sm focus:outline-none cursor-pointer text-blue-400 font-mono"
-							style={{ appearance: 'none', width: '60px' }}
+							className="bg-transparent px-4 py-2 text-sm focus:outline-none cursor-pointer text-cyan-300 font-mono"
+							style={{ appearance: 'none', width: 'fit-content' }}
 						>
 							{zoomLevels.map((level) => (
 								<option key={level} value={Math.round(level * 100)}>
@@ -990,357 +897,481 @@ const MainToolbar = ({
 						</select>
 						<button
 							onClick={() => zoomApi?.zoomIn()}
-							className="p-2 hover:bg-gray-700/30 rounded-r-lg transition-all duration-200"
-							title="Zoom In"
+							className="p-3 hover:bg-slate-700/30 rounded-r-xl transition-all duration-300"
+							title="Expand"
 						>
-							<ZoomIn size={16} className="text-gray-300" />
+							<ZoomIn size={14} className="text-slate-300" />
 						</button>
 					</div>
 
 					<button
 						onClick={() => rotateApi?.rotateForward()}
-						className="p-2 hover:bg-gray-700/30 rounded-lg transition-all duration-200"
-						title="Rotate Clockwise"
+						className="p-3 hover:bg-slate-700/30 rounded-xl transition-all duration-300"
+						title="Spin"
 					>
-						<RotateIcon size={18} className="text-gray-300" />
+						<RotateIcon size={16} className="text-slate-300" />
 					</button>
 					<button
 						onClick={() => printApi?.print()}
-						className="p-2 hover:bg-gray-700/30 rounded-lg transition-all duration-200"
-						title="Print Document"
+						className="p-3 hover:bg-slate-700/30 rounded-xl transition-all duration-300"
+						title="Manifest"
 					>
-						<Printer size={18} className="text-gray-300" />
+						<Printer size={16} className="text-slate-300" />
+					</button>
+				</div>
+
+				<div className="flex items-center w-full justify-between space-x-2 bg-slate-800/50 rounded-2xl p-2 shadow-xl border border-slate-700/30 backdrop-blur-xl">
+					<button
+						onClick={() => setShowSearch(!showSearch)}
+						className={`p-3 rounded-xl transition-all duration-300 ${showSearch ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						title="Scan Void"
+					>
+						<Search size={16} />
+					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={() => setAnnotationMode('select')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						title="Selector"
+					>
+						<MousePointer size={14} />
+					</button>
+					<button
+						onClick={() => setAnnotationMode('pan')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						title="Drift"
+					>
+						<Hand size={14} />
+					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					{/* Grouped Tool Buttons */}
+					<div className="relative flex items-center space-x-2 ">
+						{/* Markup Group */}
+						<div className="relative">
+							<button
+								onClick={() => setToolDropdown(toolDropdown === 'markup' ? null : 'markup')}
+								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'markup' ? 'bg-amber-900/30 text-amber-300 shadow-lg border border-amber-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								title="Text Markup"
+							>
+								<Highlighter size={14} />
+								{toolDropdown === 'markup' && <DropdownIcon size={12} className="ml-1" />}
+							</button>
+							{toolDropdown === 'markup' && (
+								<ToolDropdown group="markup" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+							)}
+						</div>
+
+						{/* Ink Group */}
+						<div className="relative">
+							<button
+								onClick={() => setToolDropdown(toolDropdown === 'ink' ? null : 'ink')}
+								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'ink' ? 'bg-emerald-900/30 text-emerald-300 shadow-lg border border-emerald-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								title="Ink Tools"
+							>
+								<Pencil size={14} />
+								{toolDropdown === 'ink' && <DropdownIcon size={12} className="ml-1" />}
+							</button>
+							{toolDropdown === 'ink' && (
+								<ToolDropdown group="ink" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+							)}
+						</div>
+
+						{/* Shapes Group */}
+						<div className="relative">
+							<button
+								onClick={() => setToolDropdown(toolDropdown === 'shapes' ? null : 'shapes')}
+								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'shapes' ? 'bg-indigo-900/30 text-indigo-300 shadow-lg border border-indigo-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								title="Shapes"
+							>
+								<ShapesIcon size={14} />
+								{toolDropdown === 'shapes' && <DropdownIcon size={12} className="ml-1" />}
+							</button>
+							{toolDropdown === 'shapes' && (
+								<ToolDropdown group="shapes" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+							)}
+						</div>
+
+						{/* Lines Group */}
+						<div className="relative">
+							<button
+								onClick={() => setToolDropdown(toolDropdown === 'lines' ? null : 'lines')}
+								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'lines' ? 'bg-slate-700/30 text-slate-300 shadow-lg border border-slate-600/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								title="Lines"
+							>
+								<ArrowUpRight size={14} />
+								{toolDropdown === 'lines' && <DropdownIcon size={12} className="ml-1" />}
+							</button>
+							{toolDropdown === 'lines' && (
+								<ToolDropdown group="lines" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+							)}
+						</div>
+
+						<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+						<button
+							onClick={() => setAnnotationMode('freeText')}
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+							title="Inscribe"
+						>
+							<Type size={14} />
+						</button>
+						<button
+							onClick={() => setAnnotationMode('stamp')}
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-slate-700/30 text-slate-300 ${annotationMode === 'stamp' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : ''}`}
+							title="Imprint"
+						>
+							<ImageIcon size={14} />
+						</button>
+
+					</div>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={handleUndo}
+						disabled={!canUndo}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 shadow-lg border border-slate-700/30 ${canUndo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
+						title="Rewind"
+					>
+						<Undo size={14} />
+					</button>
+					<button
+						onClick={handleRedo}
+						disabled={!canRedo}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 shadow-lg border border-slate-700/30 ${canRedo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
+						title="Fast Forward"
+					>
+						<Redo size={14} />
+					</button>
+
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={handleDeleteSelected}
+						className="p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-red-900/30 text-red-300 shadow-lg border border-red-600/30"
+						title="Vaporize"
+					>
+						<Trash2 size={14} />
 					</button>
 				</div>
 			</div>
-
-			{/* Removed ContextualToolbar, moved to sidebar */}
 		</>
 	);
 };
 
 function HitLine({ hit, onClick, active }) {
-  const { before, match, after, truncatedLeft, truncatedRight } = hit.context;
-  const ref = useRef(null);
+	const { before, match, after, truncatedLeft, truncatedRight } = hit.context;
+	const ref = useRef(null);
 
-  useEffect(() => {
-    if (active && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [active]);
+	useEffect(() => {
+		if (active && ref.current) {
+			ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}, [active]);
 
-  return (
-    <button
-      ref={ref}
-      onClick={() => onClick(hit)}
-      className={`w-full text-left rounded-lg p-3 transition-all duration-200
+	return (
+		<button
+			ref={ref}
+			onClick={() => onClick(hit)}
+			className={`w-full text-left rounded-xl p-4 transition-all duration-400 ease-out
         relative overflow-hidden border
-        bg-gradient-to-b from-black/30 to-white/2 backdrop-blur-md
-        shadow-[0_6px_20px_rgba(2,6,23,0.6)]
-        ${
-          active
-            ? 'border-blue-400/40 ring-1 ring-blue-400/30 bg-blue-900/25 text-blue-200'
-            : 'border-gray-700/60 hover:border-gray-500/60 hover:bg-gray-800/40'
-        }`}
-      aria-current={active ? 'true' : 'false'}
-    >
-      <div className="flex items-start gap-3">
-        <div className="min-w-0 flex-1 text-sm leading-tight text-gray-200">
-          <div className="truncate">
-            {truncatedLeft && <span className="text-gray-400">… </span>}
-            <span className="text-gray-300">{before}</span>
-            <span className="font-semibold text-blue-300 mx-1">{match}</span>
-            <span className="text-gray-300">{after}</span>
-            {truncatedRight && <span className="text-gray-400"> …</span>}
-          </div>
-        </div>
-        <div className="ml-auto flex-shrink-0 text-xs text-gray-400">
-          Pg {hit.pageIndex + 1}
-        </div>
-      </div>
-    </button>
-  );
+        bg-slate-900/50 backdrop-blur-2xl
+        shadow-2xl
+        ${active
+					? 'border-cyan-400/40 ring-2 ring-cyan-400/30 bg-cyan-900/30 text-cyan-200 scale-105'
+					: 'border-slate-700/30 hover:border-cyan-400/30 hover:bg-slate-800/30'
+				}`}
+			aria-current={active ? 'true' : 'false'}
+		>
+			<div className="flex items-start gap-4">
+				<div className="min-w-0 flex-1 text-sm leading-tight text-slate-200">
+					<div className="truncate">
+						{truncatedLeft && <span className="text-slate-400">… </span>}
+						<span className="text-slate-300">{before}</span>
+						<span className="font-bold text-cyan-300 mx-1">{match}</span>
+						<span className="text-slate-300">{after}</span>
+						{truncatedRight && <span className="text-slate-400"> …</span>}
+					</div>
+				</div>
+				<div className="ml-auto flex-shrink-0 text-xs text-cyan-400/70 font-bold">
+					Echo {hit.pageIndex + 1}
+				</div>
+			</div>
+		</button>
+	);
 }
 
 export const Checkbox = ({ label, checked, onChange }) => {
-  return (
-    <label className="inline-flex items-center gap-3 cursor-pointer select-none text-sm text-gray-300">
-      <span
-        className={`relative flex h-5 w-5 items-center justify-center rounded-sm
-          transition-all duration-150
-          ${checked ? 'bg-blue-400/90 border-none shadow-[0_4px_14px_rgba(59,130,246,0.15)]' : 'bg-gray-800 border border-gray-600/60'}`}
-      >
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="absolute inset-0 m-0 h-full w-full opacity-0 cursor-pointer"
-          aria-checked={checked}
-        />
-        <svg
-          viewBox="0 0 24 24"
-          className={`h-3 w-3 transition-opacity duration-150 ${checked ? 'opacity-100 text-white' : 'opacity-0'}`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </span>
-      <span className="select-none">{label}</span>
-    </label>
-  );
+	return (
+		<label className="inline-flex items-center gap-3 cursor-pointer select-none text-sm text-slate-300">
+			<span
+				className={`relative flex h-5 w-5 items-center justify-center rounded-lg
+          transition-all duration-300 backdrop-blur-xl
+          ${checked ? 'bg-cyan-900/50 border border-cyan-500/30 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/50 border border-slate-700/30'}`}
+			>
+				<input
+					type="checkbox"
+					checked={checked}
+					onChange={(e) => onChange(e.target.checked)}
+					className="absolute inset-0 m-0 h-full w-full opacity-0 cursor-pointer"
+					aria-checked={checked}
+				/>
+				<svg
+					viewBox="0 0 24 24"
+					className={`h-3 w-3 transition-opacity duration-300 ${checked ? 'opacity-100 text-cyan-200' : 'opacity-0'}`}
+					fill="none"
+					stroke="currentColor"
+					strokeWidth={3}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<polyline points="20 6 9 17 4 12" />
+				</svg>
+			</span>
+			<span className="select-none">{label}</span>
+		</label>
+	);
 };
 
 export function Button({
-  id,
-  children,
-  onClick,
-  active = false,
-  disabled = false,
-  className = '',
-  tooltip,
-  ref,
-  ...props
+	id,
+	children,
+	onClick,
+	active = false,
+	disabled = false,
+	className = '',
+	tooltip,
+	ref,
+	...props
 }) {
-  return (
-    <button
-      id={id}
-      ref={ref}
-      onClick={onClick}
-      disabled={disabled}
-      title={tooltip}
-      className={`flex h-9 min-w-[36px] items-center justify-center gap-2 rounded-md px-3 text-sm transition-all
-        ${active ? 'bg-blue-900/30 text-blue-300 ring-1 ring-blue-400/30 shadow-sm' : 'bg-transparent text-gray-300 hover:bg-gray-800/40 hover:text-white'}
+	return (
+		<button
+			id={id}
+			ref={ref}
+			onClick={onClick}
+			disabled={disabled}
+			title={tooltip}
+			className={`flex h-9 min-w-[36px] items-center justify-center gap-2 rounded-xl px-3 text-sm transition-all duration-300 backdrop-blur-xl border border-slate-700/30
+        ${active ? 'bg-cyan-900/40 text-cyan-300 ring-2 ring-cyan-400/30 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-cyan-300'}
         ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+			{...props}
+		>
+			{children}
+		</button>
+	);
 }
 
 const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+	const [debouncedValue, setDebouncedValue] = useState(value);
 
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
+	useEffect(() => {
+		const handler = setTimeout(() => setDebouncedValue(value), delay);
+		return () => clearTimeout(handler);
+	}, [value, delay]);
 
-  return debouncedValue;
+	return debouncedValue;
 };
 
 export const SearchRenderer = () => {
-  const inputRef = useRef(null);
-  const [inputValue, setInputValue] = useState('');
-  const [results, setResults] = useState([]);
-  const [flags, setFlags] = useState([]);
-  const [activeResultIndex, setActiveResultIndex] = useState(-1);
-  const { provides: search } = useSearchCapability?.() ?? {};
-  const { provides: scroll } = useScrollCapability?.() ?? {};
-  const debouncedValue = useDebounce(inputValue, 120);
+	const inputRef = useRef(null);
+	const [inputValue, setInputValue] = useState('');
+	const [results, setResults] = useState([]);
+	const [flags, setFlags] = useState([]);
+	const [activeResultIndex, setActiveResultIndex] = useState(-1);
+	const { provides: search } = useSearchCapability?.() ?? {};
+	const { provides: scroll } = useScrollCapability?.() ?? {};
+	const debouncedValue = useDebounce(inputValue, 120);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+	useEffect(() => {
+		inputRef.current?.focus();
+	}, []);
 
-  useEffect(() => {
-    if (debouncedValue === '') {
-      search?.stopSearch();
-      setResults([]);
-      setActiveResultIndex(-1);
-    } else {
-      const newResults = search?.searchAllPages(debouncedValue)?.state?.result?.results ?? [];
-      setResults(newResults);
-      setActiveResultIndex(newResults.length > 0 ? 0 : -1);
-    }
-  }, [debouncedValue, search]);
+	useEffect(() => {
+		if (debouncedValue === '') {
+			search?.stopSearch();
+			setResults([]);
+			setActiveResultIndex(-1);
+		} else {
+			const newResults = search?.searchAllPages(debouncedValue)?.state?.result?.results ?? [];
+			setResults(newResults);
+			setActiveResultIndex(newResults.length > 0 ? 0 : -1);
+		}
+	}, [debouncedValue, search]);
 
-  const scrollToItem = useCallback(
-    (index) => {
-      const item = results[index];
-      if (!item || index < 0) return;
+	const scrollToItem = useCallback(
+		(index) => {
+			const item = results[index];
+			if (!item || index < 0) return;
 
-      const minCoordinates = item.rects.reduce(
-        (min, rect) => ({
-          x: Math.min(min.x, rect.origin.x),
-          y: Math.min(min.y, rect.origin.y),
-        }),
-        { x: Infinity, y: Infinity }
-      );
+			const minCoordinates = item.rects.reduce(
+				(min, rect) => ({
+					x: Math.min(min.x, rect.origin.x),
+					y: Math.min(min.y, rect.origin.y),
+				}),
+				{ x: Infinity, y: Infinity }
+			);
 
-      scroll?.scrollToPage({
-        pageNumber: item.pageIndex + 1,
-        pageCoordinates: minCoordinates,
-        center: true,
-      });
-    },
-    [results, scroll]
-  );
+			scroll?.scrollToPage({
+				pageNumber: item.pageIndex + 1,
+				pageCoordinates: minCoordinates,
+				center: true,
+			});
+		},
+		[results, scroll]
+	);
 
-  useEffect(() => {
-    if (activeResultIndex >= 0) scrollToItem(activeResultIndex);
-  }, [activeResultIndex, scrollToItem]);
+	useEffect(() => {
+		if (activeResultIndex >= 0) scrollToItem(activeResultIndex);
+	}, [activeResultIndex, scrollToItem]);
 
-  const handleInputChange = (e) => setInputValue(e.target.value);
+	const handleInputChange = (e) => setInputValue(e.target.value);
 
-  const handleFlagChange = useCallback(
-    (flag, checked) => {
-      setFlags((prev) => {
-        let newFlags = [...prev];
-        if (checked) {
-          if (!newFlags.includes(flag)) newFlags.push(flag);
-        } else {
-          newFlags = newFlags.filter((f) => f !== flag);
-        }
-        search?.setFlags(newFlags);
-        return newFlags;
-      });
-    },
-    [search]
-  );
+	const handleFlagChange = useCallback(
+		(flag, checked) => {
+			setFlags((prev) => {
+				let newFlags = [...prev];
+				if (checked) {
+					if (!newFlags.includes(flag)) newFlags.push(flag);
+				} else {
+					newFlags = newFlags.filter((f) => f !== flag);
+				}
+				search?.setFlags(newFlags);
+				return newFlags;
+			});
+		},
+		[search]
+	);
 
-  const clearInput = () => {
-    setInputValue('');
-    search?.stopSearch();
-    setResults([]);
-    setActiveResultIndex(-1);
-    inputRef.current?.focus();
-  };
+	const clearInput = useCallback(() => {
+		setInputValue('');
+		search?.stopSearch();
+		setResults([]);
+		setActiveResultIndex(-1);
+		inputRef.current?.focus();
+	}, [search]);
 
-  function groupByPage(resultsArr) {
-    return resultsArr.reduce((map, r, i) => {
-      (map[r.pageIndex] ??= []).push({ hit: r, index: i });
-      return map;
-    }, {});
-  }
+	function groupByPage(resultsArr) {
+		return resultsArr.reduce((map, r, i) => {
+			(map[r.pageIndex] ??= []).push({ hit: r, index: i });
+			return map;
+		}, {});
+	}
 
-  const grouped = groupByPage(results);
-  const totalResults = results.length;
+	const grouped = groupByPage(results);
+	const totalResults = results.length;
 
-  // keyboard navigation: up/down + Enter to open + Esc to clear
-  useEffect(() => {
-    const onKey = (ev) => {
-      if (ev.key === 'ArrowDown') {
-        ev.preventDefault();
-        if (results.length === 0) return;
-        setActiveResultIndex((s) => (s < results.length - 1 ? s + 1 : s));
-      } else if (ev.key === 'ArrowUp') {
-        ev.preventDefault();
-        setActiveResultIndex((s) => (s > 0 ? s - 1 : s));
-      } else if (ev.key === 'Enter') {
-        if (activeResultIndex >= 0 && results[activeResultIndex]) {
-          ev.preventDefault();
-          search?.goToResult(activeResultIndex);
-        }
-      } else if (ev.key === 'Escape') {
-        clearInput();
-      }
-    };
+	// keyboard navigation: up/down + Enter to open + Esc to clear
+	useEffect(() => {
+		const onKey = (ev) => {
+			if (ev.key === 'ArrowDown') {
+				ev.preventDefault();
+				if (results.length === 0) return;
+				setActiveResultIndex((s) => (s < results.length - 1 ? s + 1 : s));
+			} else if (ev.key === 'ArrowUp') {
+				ev.preventDefault();
+				setActiveResultIndex((s) => (s > 0 ? s - 1 : s));
+			} else if (ev.key === 'Enter') {
+				if (activeResultIndex >= 0 && results[activeResultIndex]) {
+					ev.preventDefault();
+					search?.goToResult(activeResultIndex);
+				}
+			} else if (ev.key === 'Escape') {
+				clearInput();
+			}
+		};
 
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [results, activeResultIndex, search]);
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	}, [results, activeResultIndex, search, clearInput]);
 
-  return (
-    <div className="flex h-full flex-col bg-[radial-gradient(ellipse_at_top_left,_#01050a,_#030312)] text-gray-200">
-      <div
-        className="p-5"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.02)',
-        }}
-      >
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-            </svg>
-          </div>
+	return (
+		<div className="flex h-full absolute top-40 left-0 w-full z-50 pointer-events-auto flex-col bg-slate-900/60 backdrop-blur-2xl text-slate-200 rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl max-h-[80vh] max-w-4xl mx-auto">
+			<div className="p-6 border-b border-slate-800/50 flex-shrink-0">
+				<div className="relative">
+					<div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+						<svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+							<path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+						</svg>
+					</div>
 
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search (press ↑/↓ to navigate, Enter to open)"
-            value={inputValue}
-            onInput={handleInputChange}
-            className="w-full rounded-lg border border-gray-700 bg-gradient-to-b from-black/40 to-white/1 py-3 pl-12 pr-12 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-400/40 focus:border-blue-400"
-            aria-label="Search"
-          />
+					<input
+						ref={inputRef}
+						type="text"
+						placeholder="Scan the void (↑/↓ navigate, Enter lock)"
+						value={inputValue}
+						onInput={handleInputChange}
+						className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 py-4 pl-12 pr-12 text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40 transition-all duration-300 backdrop-blur-xl"
+						aria-label="Scan"
+					/>
 
-          {inputValue ? (
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-200"
-              onClick={clearInput}
-              aria-label="Clear search"
-            >
-              <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          ) : null}
-        </div>
+					{inputValue ? (
+						<button
+							type="button"
+							className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-200"
+							onClick={clearInput}
+							aria-label="Purge scan"
+						>
+							<svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+								<path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+							</svg>
+						</button>
+					) : null}
+				</div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-4">
-            <Checkbox
-              label="Case sensitive"
-              checked={flags.includes(MatchFlag.MatchCase)}
-              onChange={(checked) => handleFlagChange(MatchFlag.MatchCase, checked)}
-            />
-            <Checkbox
-              label="Whole word"
-              checked={flags.includes(MatchFlag.MatchWholeWord)}
-              onChange={(checked) => handleFlagChange(MatchFlag.MatchWholeWord, checked)}
-            />
-          </div>
+				<div className="mt-5 flex flex-wrap items-center gap-5">
+					<div className="flex items-center gap-5">
+						<Checkbox
+							label="Case lock"
+							checked={flags.includes(MatchFlag.MatchCase)}
+							onChange={(checked) => handleFlagChange(MatchFlag.MatchCase, checked)}
+						/>
+						<Checkbox
+							label="Full echo"
+							checked={flags.includes(MatchFlag.MatchWholeWord)}
+							onChange={(checked) => handleFlagChange(MatchFlag.MatchWholeWord, checked)}
+						/>
+					</div>
 
-          <div className="ml-auto text-sm text-gray-400">{totalResults} results</div>
-        </div>
-      </div>
+					<div className="ml-auto text-sm text-cyan-400/70 font-bold">{totalResults} echoes</div>
+				</div>
+			</div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-5">
-        <div
-          className="flex flex-col gap-3 overflow-y-auto pr-2"
-          style={{ maxHeight: 'calc(100% - 20px)' }}
-        >
-          {totalResults === 0 ? (
-            <div className="mt-6 text-center text-sm text-gray-400">No results</div>
-          ) : (
-            Object.entries(grouped).map(([page, hits]) => (
-              <div key={page} className="mt-1 first:mt-0">
-                <div className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-white/2 to-black/0 px-3 py-1 text-xs text-gray-300">
-                  <span className="inline-block h-2 w-2 rounded-full bg-blue-400/60 shadow-[0_4px_12px_rgba(59,130,246,0.12)]" />
-                  Page {Number(page) + 1}
-                </div>
+			<div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-6">
+				<div
+					className="flex flex-col gap-4 overflow-y-auto pr-2"
+					style={{ maxHeight: 'calc(100% - 16px)' }}
+				>
+					{totalResults === 0 ? (
+						<div className="mt-8 text-center text-sm text-slate-400">Void empty</div>
+					) : (
+						Object.entries(grouped).map(([page, hits]) => (
+							<div key={page} className="mt-2 first:mt-0">
+								<div className="inline-flex items-center gap-2 rounded-xl bg-slate-800/50 px-4 py-2 text-sm text-slate-300 border border-slate-700/30 backdrop-blur-xl">
+									<span className="inline-block h-2 w-2 rounded-full bg-cyan-400/80 shadow-lg shadow-cyan-500/20" />
+									Echo {Number(page) + 1}
+								</div>
 
-                <div className="mt-2 flex flex-col gap-2">
-                  {hits.map(({ hit, index }) => (
-                    <HitLine
-                      key={index}
-                      hit={hit}
-                      active={index === activeResultIndex}
-                      onClick={() => {
-                        setActiveResultIndex(index);
-                        search?.goToResult(index);
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  );
+								<div className="mt-3 flex flex-col gap-3">
+									{hits.map(({ hit, index }) => (
+										<HitLine
+											key={index}
+											hit={hit}
+											active={index === activeResultIndex}
+											onClick={() => {
+												setActiveResultIndex(index);
+												search?.goToResult(index);
+											}}
+										/>
+									))}
+								</div>
+							</div>
+						))
+					)}
+				</div>
+			</div>
+		</div>
+	);
 };
 
 // useDropdown hook
@@ -1382,12 +1413,15 @@ const Slider = ({
 }) => (
 	<input
 		type="range"
-		className="range-sm mb-2 h-1 w-full cursor-pointer appearance-none rounded-lg bg-gray-700"
+		className="range-sm mb-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-700/50"
 		value={value}
 		min={min}
 		max={max}
 		step={step}
 		onInput={(e) => onChange(parseFloat(e.target.value))}
+		style={{
+			background: `linear-gradient(to right, #06b6d4 ${((value - min) / (max - min)) * 100}%, #475569 ${((value - min) / (max - min)) * 100}%)`,
+		}}
 	/>
 );
 
@@ -1407,15 +1441,14 @@ const ColorSwatch = ({
 		? {
 			backgroundColor: '#fff',
 			backgroundImage:
-				'linear-gradient(45deg, transparent 40%, red 40%, red 60%, transparent 60%)',
-			backgroundSize: '100% 100%',
+				'repeating-conic-gradient(from 0deg at 0% 0%, #e2e8f0 0deg, #e2e8f0 90deg, transparent 90deg, transparent 180deg)',
 		}
 		: { backgroundColor: color };
 
 	return (
 		<button
 			title={color}
-			className={`h-5 w-5 rounded-full border border-gray-600 ${active ? 'outline outline-2 outline-offset-2 outline-blue-500' : ''}`}
+			className={`h-6 w-6 rounded-lg border-2 border-slate-700/30 backdrop-blur-xl shadow-lg transition-all duration-300 ${active ? 'ring-2 ring-cyan-400/50 scale-110 shadow-cyan-500/20' : 'hover:scale-105 hover:border-cyan-400/30'}`}
 			style={baseStyle}
 			onClick={() => onSelect(color)}
 		/>
@@ -1434,15 +1467,15 @@ const STROKES = [
 ];
 
 const renderStrokeSvg = (dash) => (
-	<svg width="80" height="8" viewBox="0 0 80 8">
+	<svg width="72" height="8" viewBox="0 0 72 8" className="text-cyan-300">
 		<line
 			x1="0"
 			y1="4"
-			x2="80"
+			x2="72"
 			y2="4"
 			style={{
 				strokeDasharray: dash?.join(' '),
-				stroke: '#f3f4f6',
+				stroke: '#0ea5e9',
 				strokeWidth: '2',
 			}}
 		/>
@@ -1456,7 +1489,7 @@ const StrokeStyleSelect = ({ value, onChange }) => (
 		options={STROKES}
 		getOptionKey={(s) => s.id + (s.dash?.join('-') || '')}
 		renderValue={(v) => renderStrokeSvg(v.dash)}
-		renderOption={(s) => <div className="px-1 py-2">{renderStrokeSvg(s.dash)}</div>}
+		renderOption={(s) => <div className="px-2 py-3">{renderStrokeSvg(s.dash)}</div>}
 	/>
 );
 
@@ -1499,15 +1532,15 @@ const LineEndingIcon = ({ ending, position }) => {
 	};
 	const marker = MARKERS[ending];
 	const lineEndX = LINE_ENDPOINT_ADJUSTMENTS[ending] ?? 77;
-	const groupTransform = position === 'start' ? 'rotate(180 40 10)' : '';
+	const groupTransform = position === 'start' ? 'rotate(180 40 5)' : '';
 
 	return (
-		<svg width="80" height="20" viewBox="0 0 80 20" className="text-gray-200">
+		<svg width="72" height="16" viewBox="0 0 72 16" className="text-cyan-300">
 			<g transform={groupTransform}>
-				<line x1="4" y1="10" x2={lineEndX} y2="10" stroke="currentColor" strokeWidth="1.5" />
+				<line x1="4" y1="8" x2={lineEndX} y2="8" stroke="currentColor" strokeWidth="1.5" />
 				{marker && (
 					<g
-						transform="translate(0, 10)"
+						transform="translate(0, 8)"
 						fill="currentColor"
 						stroke="currentColor"
 						strokeWidth="1.5"
@@ -1526,10 +1559,10 @@ const LineEndingSelect = ({ value, onChange, position }) => (
 		onChange={onChange}
 		options={ENDINGS}
 		getOptionKey={(e) => e}
-		triggerClass="px-3 py-1"
+		triggerClass="px-4 py-3"
 		renderValue={(v) => <LineEndingIcon ending={v} position={position} />}
 		renderOption={(e) => (
-			<div className="px-1 py-1">
+			<div className="px-2 py-3">
 				<LineEndingIcon ending={e} position={position} />
 			</div>
 		)}
@@ -1543,9 +1576,9 @@ const FontFamilySelect = ({ value, onChange }) => (
 		onChange={onChange}
 		options={STANDARD_FONT_FAMILIES}
 		getOptionKey={(f) => f}
-		triggerClass="px-2 py-1 text-sm"
-		renderValue={(v) => <span>{standardFontFamilyLabel(v)}</span>}
-		renderOption={(f) => <div className="px-2 py-1">{standardFontFamilyLabel(f)}</div>}
+		triggerClass="px-3 py-3 text-sm"
+		renderValue={(v) => <span className="text-slate-200">{standardFontFamilyLabel(v)}</span>}
+		renderOption={(f) => <div className="px-3 py-3 text-slate-200">{standardFontFamilyLabel(f)}</div>}
 	/>
 );
 
@@ -1563,18 +1596,18 @@ const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 14,
 			<input
 				type="number"
 				min="1"
-				className="w-full rounded border border-gray-600 bg-gray-700 px-2 py-1 pr-7 text-sm text-gray-200"
+				className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 pr-8 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40"
 				value={value}
 				onInput={handleInput}
 				onClick={() => setOpen(true)}
 			/>
 			<button
 				type="button"
-				className="absolute inset-y-0 right-1 flex items-center"
+				className="absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400"
 				onClick={() => setOpen(!open)}
 				tabIndex={-1}
 			>
-				<svg className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+				<svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 					<path
 						fillRule="evenodd"
 						d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
@@ -1584,20 +1617,20 @@ const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 14,
 			</button>
 
 			{open && (
-				<div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border bg-gray-700 shadow-lg border-gray-600">
+				<div className="absolute z-10 mt-2 max-h-40 w-full overflow-y-auto rounded-xl border bg-slate-800/50 shadow-2xl border-slate-700/30 backdrop-blur-2xl">
 					{options.map((sz) => {
 						const isSelected = sz === value;
 						return (
 							<button
 								ref={isSelected ? selectedItemRef : null}
 								key={sz}
-								className={`block w-full px-2 py-1 text-left text-sm hover:bg-gray-600 text-gray-200 ${isSelected ? 'bg-gray-600' : ''}`}
+								className={`block w-full px-3 py-3 text-left text-sm hover:bg-slate-700/30 text-slate-200 ${isSelected ? 'bg-cyan-900/30' : ''}`}
 								onClick={() => {
 									onChange(sz);
 									setOpen(false);
 								}}
 							>
-								{sz}
+								{sz}px
 							</button>
 						);
 					})}
@@ -1615,7 +1648,7 @@ const GenericSelect = ({
 	getOptionKey,
 	renderValue,
 	renderOption,
-	triggerClass = 'px-3 py-2',
+	triggerClass = 'px-4 py-3',
 }) => {
 	const { open, setOpen, rootRef, selectedItemRef } = useDropdown();
 
@@ -1623,12 +1656,12 @@ const GenericSelect = ({
 		<div ref={rootRef} className="relative inline-block w-full">
 			<button
 				type="button"
-				className={`flex w-full items-center justify-between gap-2 rounded border border-gray-600 bg-gray-700 ${triggerClass} text-gray-200`}
+				className={`flex w-full items-center justify-between gap-2 rounded-xl border border-slate-700/50 bg-slate-800/50 ${triggerClass} text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40 transition-all duration-300`}
 				onClick={() => setOpen(!open)}
 			>
 				{renderValue(value)}
 				<svg
-					className="h-4 w-4 text-gray-400"
+					className="h-4 w-4 text-slate-400"
 					viewBox="0 0 20 20"
 					fill="currentColor"
 				>
@@ -1641,14 +1674,14 @@ const GenericSelect = ({
 			</button>
 
 			{open && (
-				<div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded border bg-gray-700 p-1 shadow-lg border-gray-600">
+				<div className="absolute z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-xl border bg-slate-800/50 p-2 shadow-2xl border-slate-700/30 backdrop-blur-2xl">
 					{options.map((option) => {
 						const isSelected = getOptionKey(option) === getOptionKey(value);
 						return (
 							<button
 								ref={isSelected ? selectedItemRef : null}
 								key={getOptionKey(option)}
-								className={`block w-full rounded text-left hover:bg-gray-600 text-gray-200 ${isSelected ? 'bg-gray-600' : ''}`}
+								className={`block w-full rounded-lg text-left hover:bg-slate-700/30 text-slate-200 transition-all duration-300 ${isSelected ? 'bg-cyan-900/30' : ''}`}
 								onClick={() => {
 									onChange(option);
 									setOpen(false);
@@ -1666,10 +1699,10 @@ const GenericSelect = ({
 
 // EmptyState Component
 const EmptyState = () => (
-	<div className="flex flex-col items-center gap-2 p-4 text-gray-500">
-		<Palette size={48} className="text-gray-500" />
-		<div className="max-w-[150px] text-center text-sm text-gray-500">
-			Select an annotation or tool to see styles
+	<div className="flex flex-col items-center gap-5 p-8 text-slate-400/60 backdrop-blur-xl rounded-xl border border-slate-700/30">
+		<Palette size={48} className="text-slate-400/60" />
+		<div className="max-w-[200px] text-center text-sm text-slate-400/60">
+			Invoke an ether or select a fragment to forge styles
 		</div>
 	</div>
 );
@@ -1811,39 +1844,39 @@ const FreeTextSidebar = ({
 	return (
 		<>
 			{/* font family + style */}
-			<section className="mb-6">
-				<label className="mb-2 block text-sm font-medium text-gray-200">Font</label>
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Glyph Forge</label>
 
 				{/* Family + size */}
-				<div className="mb-3 flex gap-2">
+				<div className="mb-5 flex gap-3">
 					<FontFamilySelect value={fontFamily} onChange={onFamilyChange} />
-					<div className="w-36">
+					<div className="w-40">
 						<FontSizeInputSelect value={fontSize} onChange={changeFontSize} />
 					</div>
 				</div>
 
 				{/* Bold / Italic toggles */}
-				<div className="flex gap-2">
+				<div className="flex gap-3">
 					<button
 						type="button"
-						title="Bold"
+						title="Forge Bold"
 						disabled={
 							!standardFontIsBold(makeStandardFont(fontFamily, { bold: true, italic: false }))
 						}
 						onClick={toggleBold}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm font-bold ${bold ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm font-bold backdrop-blur-xl shadow-lg transition-all duration-300 ${bold ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
 					>
 						<Bold size={18} />
 					</button>
 
 					<button
 						type="button"
-						title="Italic"
+						title="Forge Italic"
 						disabled={
 							!standardFontIsItalic(makeStandardFont(fontFamily, { bold: false, italic: true }))
 						}
 						onClick={toggleItalic}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm italic ${italic ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm italic backdrop-blur-xl shadow-lg transition-all duration-300 ${italic ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
 					>
 						<Italic size={18} />
 					</button>
@@ -1851,38 +1884,38 @@ const FreeTextSidebar = ({
 			</section>
 
 			{/* text alignment */}
-			<section className="mb-6">
-				<label className="mb-2 block text-sm font-medium text-gray-200">Text alignment</label>
-				<div className="flex gap-2">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Flow Align</label>
+				<div className="flex gap-3">
 					<button
 						type="button"
-						title="Align left"
+						title="Left Drift"
 						onClick={() => changeTextAlign(PdfTextAlignment.Left)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${textAlign === PdfTextAlignment.Left ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Left ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignLeft size={18} />
 					</button>
 					<button
 						type="button"
-						title="Align center"
+						title="Core Balance"
 						onClick={() => changeTextAlign(PdfTextAlignment.Center)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${textAlign === PdfTextAlignment.Center ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Center ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignCenter size={18} />
 					</button>
 					<button
 						type="button"
-						title="Align right"
+						title="Right Drift"
 						onClick={() => changeTextAlign(PdfTextAlignment.Right)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${textAlign === PdfTextAlignment.Right ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Right ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignRight size={18} />
 					</button>
 					<button
 						type="button"
-						title="Justify"
+						title="Full Span"
 						onClick={() => changeTextAlign(PdfTextAlignment.Justify)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${textAlign === PdfTextAlignment.Justify ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Justify ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignJustify size={18} />
 					</button>
@@ -1890,30 +1923,30 @@ const FreeTextSidebar = ({
 			</section>
 
 			{/* vertical alignment */}
-			<section className="mb-6">
-				<label className="mb-2 block text-sm font-medium text-gray-200">Vertical alignment</label>
-				<div className="flex gap-2">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Depth Align</label>
+				<div className="flex gap-3">
 					<button
 						type="button"
-						title="Align top"
+						title="Apex"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Top)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${verticalAlign === PdfVerticalAlignment.Top ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Top ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyStart size={18} />
 					</button>
 					<button
 						type="button"
-						title="Align middle"
+						title="Nexus"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Middle)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${verticalAlign === PdfVerticalAlignment.Middle ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Middle ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyCenter size={18} />
 					</button>
 					<button
 						type="button"
-						title="Align bottom"
+						title="Abyss"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Bottom)}
-						className={`h-9 w-9 rounded border border-gray-600 px-2 py-1 text-sm ${verticalAlign === PdfVerticalAlignment.Bottom ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'} disabled:opacity-40`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Bottom ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyEnd size={18} />
 					</button>
@@ -1921,9 +1954,9 @@ const FreeTextSidebar = ({
 			</section>
 
 			{/* font colour */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Font colour</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Ether Hue</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fontColor} onSelect={changeFontColor} />
 					))}
@@ -1931,9 +1964,9 @@ const FreeTextSidebar = ({
 			</section>
 
 			{/* background colour */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Background colour</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Void Veil</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch
 							key={c}
@@ -1942,19 +1975,14 @@ const FreeTextSidebar = ({
 							onSelect={changeBackgroundColor}
 						/>
 					))}
-					<ColorSwatch
-						color="transparent"
-						active={backgroundColor === 'transparent'}
-						onSelect={changeBackgroundColor}
-					/>
 				</div>
 			</section>
 
 			{/* opacity */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Opacity</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
-				<span className="text-xs text-gray-500">{Math.round(opacity * 100)}%</span>
+				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 		</>
 	);
@@ -2051,143 +2079,63 @@ const LineSidebar = ({
 	return (
 		<>
 			{/* stroke color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Stroke color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
 					))}
-					<ColorSwatch
-						color="transparent"
-						active={stroke === 'transparent'}
-						onSelect={changeStroke}
-					/>
 				</div>
 			</section>
 
 			{/* opacity */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Opacity</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
-				<span className="text-xs text-gray-500">{Math.round(opacity * 100)}%</span>
+				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke style */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Stroke style</label>
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke width */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Stroke width</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={10} step={1} onChange={setWidth} />
-				<span className="text-xs text-gray-500">{strokeW}</span>
+				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
 
 			{/* line endings in a grid */}
-			<section className="mb-6">
-				<div className="grid grid-cols-2 gap-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Termini</label>
+				<div className="grid grid-cols-2 gap-6">
 					<div>
-						<label className="mb-3 block text-sm font-medium text-gray-200">
-							Line start
-						</label>
+						<div className="text-xs text-slate-400/70 mb-2 font-bold">Origin</div>
 						<LineEndingSelect value={startEnding} onChange={changeStartEnding} position="start" />
 					</div>
 					<div>
-						<label className="mb-3 block text-sm font-medium text-gray-200">
-							Line end
-						</label>
+						<div className="text-xs text-slate-400/70 mb-2 font-bold">Terminus</div>
 						<LineEndingSelect value={endEnding} onChange={changeEndEnding} position="end" />
 					</div>
 				</div>
 			</section>
 
 			{/* fill color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Fill color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Core Hue</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
 					))}
-					<ColorSwatch color="transparent" active={fill === 'transparent'} onSelect={changeFill} />
 				</div>
 			</section>
 		</>
 	);
 };
 
-// InkSidebar Component (converted to React)
-const InkSidebar = ({
-	selected,
-	activeTool,
-	colorPresets,
-}) => {
-	const { provides: annotation } = useAnnotationCapability();
-	if (!annotation) return null;
-
-	const anno = selected?.object;
-	const defaults = activeTool?.defaults;
-
-	const baseColor = anno?.color ?? defaults?.color ?? '#ffffff';
-	const baseOpacity = anno?.opacity ?? defaults?.opacity ?? 1;
-	const baseStroke = anno?.strokeWidth ?? defaults?.strokeWidth ?? 2;
-
-	const [color, setColor] = useState(baseColor);
-	const [opacity, setOpacity] = useState(baseOpacity);
-	const [stroke, setStroke] = useState(baseStroke);
-
-	useEffect(() => setColor(baseColor), [baseColor]);
-	useEffect(() => setOpacity(baseOpacity), [baseOpacity]);
-	useEffect(() => setStroke(baseStroke), [baseStroke]);
-	const applyPatch = useCallback((patch) => {
-		if (!annotation) return;
-		if (anno) {
-			annotation.updateAnnotation(anno.pageIndex, anno.id, patch);
-		} else if (activeTool) {
-			annotation.setToolDefaults(activeTool.id, patch);
-		}
-	}, [activeTool, anno, annotation])
-
-	const debOpacity = useDebounce(opacity, 300);
-	const debStroke = useDebounce(stroke, 300);
-	useEffect(() => applyPatch({ opacity: debOpacity }), [applyPatch, debOpacity]);
-	useEffect(() => applyPatch({ strokeWidth: debStroke }), [applyPatch, debStroke]);
-
-	const changeColor = (c) => {
-		setColor(c);
-		applyPatch({ color: c });
-	};
-
-
-	return (
-		<>
-			{/* color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
-					{colorPresets.map((c) => (
-						<ColorSwatch key={c} color={c} active={c === color} onSelect={changeColor} />
-					))}
-				</div>
-			</section>
-
-			{/* opacity */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Opacity</label>
-				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
-				<span className="text-xs text-gray-500">{Math.round(opacity * 100)}%</span>
-			</section>
-
-			{/* stroke-width */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Stroke width</label>
-				<Slider value={stroke} min={1} max={30} step={1} onChange={setStroke} />
-				<span className="text-xs text-gray-500">{stroke}px</span>
-			</section>
-		</>
-	);
-};
 
 // TextMarkupSidebar Component (converted to React)
 const TextMarkupSidebar = ({
@@ -2243,9 +2191,9 @@ const TextMarkupSidebar = ({
 	return (
 		<>
 			{/* color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Echo Tint</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === color} onSelect={changeColor} />
 					))}
@@ -2253,17 +2201,17 @@ const TextMarkupSidebar = ({
 			</section>
 
 			{/* opacity */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Opacity</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
-				<span className="text-xs text-gray-500">{Math.round(opacity * 100)}%</span>
+				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* blend mode */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Blend mode</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Fusion Mode</label>
 				<select
-					className="w-full rounded border border-gray-600 bg-gray-700 px-2 py-1 text-sm text-gray-200"
+					className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40"
 					value={blend}
 					onChange={(e) => changeBlend(parseInt(e.target.value, 10))}
 				>
@@ -2345,27 +2293,26 @@ const ShapeSidebar = ({
 	return (
 		<>
 			{/* fill color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Fill color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Core Hue</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
 					))}
-					<ColorSwatch color="transparent" active={fill === 'transparent'} onSelect={changeFill} />
 				</div>
 			</section>
 
 			{/* opacity */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Opacity</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
-				<span className="text-xs text-gray-500">{Math.round(opacity * 100)}%</span>
+				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke color */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Stroke color</label>
-				<div className="grid grid-cols-6 gap-x-1 gap-y-4">
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
 					))}
@@ -2373,16 +2320,16 @@ const ShapeSidebar = ({
 			</section>
 
 			{/* stroke style */}
-			<section className="mb-6">
-				<label className="mb-3 block text-sm font-medium text-gray-200">Stroke style</label>
+			<section className="mb-8">
+				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke-width */}
-			<section className="mb-6">
-				<label className="mb-1 block text-sm font-medium text-gray-200">Stroke width</label>
+			<section className="mb-8">
+				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={30} step={1} onChange={setWidth} />
-				<span className="text-xs text-gray-500">{strokeW}px</span>
+				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
 		</>
 	);
@@ -2393,26 +2340,26 @@ const PolygonSidebar = ShapeSidebar;
 
 // StampSidebar Component (converted to React)
 const StampSidebar = () => {
-	return <div className="text-sm text-gray-500">There are no styles for stamps.</div>;
+	return <div className="text-sm text-slate-400/60 p-5 backdrop-blur-xl rounded-xl border border-slate-700/30">Imprints defy ether customization.</div>;
 };
 
 // Sidebar Registry
 const SIDEbars = {
-	[PdfAnnotationSubtype.FREETEXT]: { component: FreeTextSidebar, title: 'Free Text' },
+	[PdfAnnotationSubtype.FREETEXT]: { component: FreeTextSidebar, title: 'Inscription' },
 	[PdfAnnotationSubtype.LINE]: {
 		component: LineSidebar,
-		title: (p) => (p.activeTool?.id === 'lineArrow' ? 'Arrow' : 'Line'),
+		title: (p) => (p.activeTool?.id === 'lineArrow' ? 'Vector' : 'Thread'),
 	},
-	[PdfAnnotationSubtype.POLYLINE]: { component: LineSidebar, title: 'Polyline' },
-	[PdfAnnotationSubtype.INK]: { component: InkSidebar, title: 'Ink' },
-	[PdfAnnotationSubtype.HIGHLIGHT]: { component: TextMarkupSidebar, title: 'Highlight' },
-	[PdfAnnotationSubtype.UNDERLINE]: { component: TextMarkupSidebar, title: 'Underline' },
-	[PdfAnnotationSubtype.STRIKEOUT]: { component: TextMarkupSidebar, title: 'Strikeout' },
-	[PdfAnnotationSubtype.SQUIGGLY]: { component: TextMarkupSidebar, title: 'Squiggly' },
-	[PdfAnnotationSubtype.CIRCLE]: { component: ShapeSidebar, title: 'Circle' },
-	[PdfAnnotationSubtype.SQUARE]: { component: ShapeSidebar, title: 'Square' },
-	[PdfAnnotationSubtype.POLYGON]: { component: PolygonSidebar, title: 'Polygon' },
-	[PdfAnnotationSubtype.STAMP]: { component: StampSidebar, title: 'Stamp' },
+	[PdfAnnotationSubtype.POLYLINE]: { component: LineSidebar, title: 'Lattice' },
+	[PdfAnnotationSubtype.INK]: { component: TextMarkupSidebar, title: 'Etch' },
+	[PdfAnnotationSubtype.HIGHLIGHT]: { component: TextMarkupSidebar, title: 'Illuminate' },
+	[PdfAnnotationSubtype.UNDERLINE]: { component: TextMarkupSidebar, title: 'Underscore' },
+	[PdfAnnotationSubtype.STRIKEOUT]: { component: TextMarkupSidebar, title: 'Obliterate' },
+	[PdfAnnotationSubtype.SQUIGGLY]: { component: TextMarkupSidebar, title: 'Waver' },
+	[PdfAnnotationSubtype.CIRCLE]: { component: ShapeSidebar, title: 'Orb' },
+	[PdfAnnotationSubtype.SQUARE]: { component: ShapeSidebar, title: 'Cube' },
+	[PdfAnnotationSubtype.POLYGON]: { component: PolygonSidebar, title: 'Prism' },
+	[PdfAnnotationSubtype.STAMP]: { component: StampSidebar, title: 'Imprint' },
 };
 
 export default PDFAnnotator;
