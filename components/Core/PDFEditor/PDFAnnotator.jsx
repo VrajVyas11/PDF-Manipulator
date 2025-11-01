@@ -65,21 +65,22 @@ import {
 	Search,
 	ChevronUp,
 	ChevronDown,
-	File,
+	// File,
 	Menu,
+	FileSearch,
 	X,
 	Type,
 	Pencil,
 	Highlighter,
 	MousePointer,
 	Hand,
-	Download,
+	// Download,
 	Trash2,
 	Image as ImageIcon,
 	RotateCw as RotateIcon,
 	Undo,
 	Redo,
-	Hash,
+	// Hash,
 	Waves,
 	Circle,
 	Square,
@@ -100,6 +101,7 @@ import {
 	ChevronDown as DropdownIcon,
 	Shapes as ShapesIcon,
 	Layers,
+	FileText,
 } from 'lucide-react';
 
 // Import models for types
@@ -120,6 +122,7 @@ import {
 	standardFontFamilyLabel,
 	MatchFlag
 } from '@embedpdf/models';
+import Image from 'next/image';
 
 const PDFAnnotator = () => {
 	const [pdfUrl, setPdfUrl] = useState(
@@ -128,13 +131,13 @@ const PDFAnnotator = () => {
 	const [showSidebar, setShowSidebar] = useState(true);
 	const [sidebarTab, setSidebarTab] = useState('thumbnails'); // 'thumbnails' or 'styles'
 	const [searchQuery, setSearchQuery] = useState('');
-	const [showSearch, setShowSearch] = useState(false);
+	// const [showSearch, setShowSearch] = useState(false);
 	const [annotationMode, setAnnotationMode] = useState('select');
 	const [urlInput, setUrlInput] = useState(pdfUrl);
 	const [showUrlDialog, setShowUrlDialog] = useState(false);
 	const [toolDropdown, setToolDropdown] = useState(null); // 'shapes', 'lines', 'markup', etc.
 
-	const fileInputRef = useRef(null); // upload PDF
+	// const fileInputRef = useRef(null); // upload PDF
 	const annotationApiRef = useRef(null);
 	const [selectedAnnotation, setSelectedAnnotation] = useState(null);
 
@@ -180,13 +183,13 @@ const PDFAnnotator = () => {
 
 	const { engine, isLoading, error } = usePdfiumEngine();
 
-	const handleFileUpload = useCallback((event) => {
-		const file = event.target.files?.[0];
-		if (file && file.type === 'application/pdf') {
-			const url = URL.createObjectURL(file);
-			setPdfUrl(url);
-		}
-	}, []);
+	// const handleFileUpload = useCallback((event) => {
+	// 	const file = event.target.files?.[0];
+	// 	if (file && file.type === 'application/pdf') {
+	// 		const url = URL.createObjectURL(file);
+	// 		setPdfUrl(url);
+	// 	}
+	// }, []);
 
 	const handleUrlLoad = useCallback(() => {
 		if (urlInput.trim()) {
@@ -197,18 +200,17 @@ const PDFAnnotator = () => {
 
 	useEffect(() => {
 		setSearchQuery('');
-		setShowSearch(false);
 	}, [pdfUrl]);
 
 	if (error) {
 		return (
-			<div className="flex items-center justify-center h-screen bg-black text-cyan-300/80">
-				<div className="text-center p-10 bg-black/30 border border-cyan-500/20 rounded-2xl shadow-2xl backdrop-blur-xl">
-					<p className="text-xl mb-3 font-bold text-cyan-400">PDF Engine Error</p>
+			<div className="flex items-center justify-center h-screen bg-black text-blue-300/80">
+				<div className="text-center p-10 bg-black/30 border border-blue-500/20 rounded-2xl shadow-2xl backdrop-blur-xl">
+					<p className="text-xl mb-3 font-bold text-blue-400">PDF Engine Error</p>
 					<p className="text-sm text-gray-400 mb-5">{error.message}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className="px-6 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-xl transition-all duration-300 font-semibold text-cyan-100 border border-cyan-500/30 backdrop-blur-sm"
+						className="px-6 py-2 bg-blue-900/50 hover:bg-blue-800/50 rounded-xl transition-all duration-300 font-semibold text-blue-100 border border-blue-500/30 backdrop-blur-sm"
 					>
 						Reload
 					</button>
@@ -220,9 +222,9 @@ const PDFAnnotator = () => {
 	if (isLoading || !engine) {
 		return (
 			<div className="flex items-center justify-center h-screen bg-black">
-				<div className="text-center bg-black/30 backdrop-blur-xl p-10 rounded-2xl border border-cyan-500/20">
-					<div className="animate-pulse rounded-full h-16 w-16 border-2 border-cyan-500 mx-auto mb-5"></div>
-					<p className="text-cyan-300 text-lg font-semibold">Initializing Viewer</p>
+				<div className="text-center bg-black/30 backdrop-blur-xl p-10 rounded-2xl border border-blue-500/20">
+					<div className="animate-pulse rounded-full h-16 w-16 border-2 border-blue-500 mx-auto mb-5"></div>
+					<p className="text-blue-300 text-lg font-semibold">Initializing Viewer</p>
 					<p className="text-gray-500 text-sm mt-2">Stand by for cosmic launch</p>
 				</div>
 			</div>
@@ -230,88 +232,21 @@ const PDFAnnotator = () => {
 	}
 
 	return (
-		<div className="flex flex-col h-screen bg-black text-white font-mono">
-			<style>{`
-        .custom-sticky-note {
-          background: rgba(15, 23, 42, 0.7);
-          border: 1px solid rgba(100, 116, 139, 0.3);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-          transform: rotate(-2deg);
-          padding: 8px;
-          border-radius: 10px;
-          color: #e2e8f0;
-          font-size: 12px;
-          line-height: 1.3;
-          backdrop-filter: blur(20px);
-        }
-        .pdf-page-container {
-          -webkit-user-select: text;
-          user-select: text;
-        }
-        .pdf-page-container * {
-          -webkit-user-drag: none;
-        }
-        .thumbnails-pane-hidden { opacity: 0; visibility: hidden; transform: translateX(-8px); transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .thumbnails-pane-visible { opacity: 1; visibility: visible; transform: translateX(0); transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
-      `}</style>
-
-			<header className="flex items-center justify-between bg-black/40 backdrop-blur-xl border-b border-slate-800/50 px-6 py-3 shadow-2xl sticky top-0 z-50">
-				<div className="flex items-center space-x-5">
-					<button
-						onClick={() => setShowSidebar(!showSidebar)}
-						className="p-2 hover:bg-slate-800/30 rounded-xl transition-all duration-300 border border-slate-700/30"
-						title="Orbit Control"
-					>
-						<Menu size={18} className="text-cyan-400" />
-					</button>
-					<div className="flex items-center space-x-2">
-						<File size={18} className="text-cyan-500" />
-						<span className="font-extrabold text-base tracking-wide text-slate-200">Nebula Annotator</span>
-						<span className="text-xs text-cyan-400/60 px-2 py-1 bg-slate-800/30 rounded-full">Void Edition</span>
-					</div>
-				</div>
-
-				<div className="flex items-center space-x-3">
-					<button
-						onClick={() => fileInputRef.current?.click()}
-						className="px-5 py-2 bg-cyan-900/40 hover:bg-cyan-800/40 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2 font-semibold text-cyan-200 border border-cyan-600/30 backdrop-blur-xl shadow-xl"
-						title="Import Artifact"
-					>
-						<Download size={14} />
-						<span>Import</span>
-					</button>
-					<input
-						ref={fileInputRef}
-						type="file"
-						accept="application/pdf"
-						onChange={handleFileUpload}
-						className="hidden"
-					/>
-					<button
-						onClick={() => setShowUrlDialog(!showUrlDialog)}
-						className="px-5 py-2 bg-slate-800/40 hover:bg-slate-700/40 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2 border border-slate-700/30 backdrop-blur-xl"
-						title="Warp to URL"
-					>
-						<Hash size={14} className="text-cyan-400" />
-						<span>Warp</span>
-					</button>
-				</div>
-			</header>
-
+		<div className="flex relative flex-col rounded-3xl over mt-12 overflow-hidden h-screen bg-black text-white font-mono">
 			{showUrlDialog && (
-				<div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900/80 border border-cyan-500/20 px-8 py-6 rounded-2xl z-50 max-w-md w-full mx-4 shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 duration-300">
+				<div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900/80 border border-blue-500/20 px-8 py-6 rounded-2xl z-50 max-w-md w-full mx-4 shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 duration-300">
 					<div className="flex items-center space-x-4">
 						<input
 							type="text"
 							value={urlInput}
 							onChange={(e) => setUrlInput(e.target.value)}
 							placeholder="Enter cosmic coordinates (URL)"
-							className="flex-1 px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-cyan-400/50 text-sm transition-all duration-300 text-slate-200 backdrop-blur-xl"
+							className="flex-1 px-5 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:outline-none focus:border-blue-400/50 text-sm transition-all duration-300 text-slate-200 backdrop-blur-xl"
 							onKeyPress={(e) => e.key === 'Enter' && handleUrlLoad()}
 						/>
 						<button
 							onClick={handleUrlLoad}
-							className="px-6 py-3 bg-cyan-900/50 hover:bg-cyan-800/50 rounded-xl text-sm transition-all duration-300 font-semibold text-cyan-200 border border-cyan-600/30 shadow-lg"
+							className="px-6 py-3 bg-blue-900/50 hover:bg-blue-800/50 rounded-xl text-sm transition-all duration-300 font-semibold text-blue-200 border border-blue-600/30 shadow-lg"
 						>
 							Warp
 						</button>
@@ -327,48 +262,117 @@ const PDFAnnotator = () => {
 
 			<EmbedPDF engine={engine} plugins={plugins}>
 				<div className="flex flex-1 overflow-hidden relative">
-					{showSidebar && (
-						<aside className="w-52 bg-slate-900/60 border-r border-cyan-500/10 flex flex-col overflow-hidden shadow-2xl backdrop-blur-2xl z-40">
-							<nav className="flex border-b border-slate-800/50">
-								<button
-									onClick={() => setSidebarTab('thumbnails')}
-									className={`flex-1 flex flex-col justify-center items-center gap-2 px-6  py-4 text-sm font-bold transition-all duration-300 ${sidebarTab === 'thumbnails' ? 'bg-cyan-900/20 text-cyan-300 border-b-2 border-cyan-400' : 'text-slate-400 hover:bg-slate-800/20'}`}
-								>
-									<Layers size={24} className="inline " />
-									Pages
-								</button>
-								<button
-									onClick={() => setSidebarTab('styles')}
-									className={`flex-1 flex flex-col justify-center items-center gap-2 px-6 py-4 text-sm font-bold transition-all duration-300 ${sidebarTab === 'styles' ? 'bg-cyan-900/20 text-cyan-300 border-b-2 border-cyan-400' : 'text-slate-400 hover:bg-slate-800/20'}`}
-								>
-									<PaletteIcon size={24} className="inline" />
-									Styles
-								</button>
+					{showSidebar ? (
+						<aside className="w-60 bg-slate-900/60 rounded-3xl rounded-r-none border-r border-blue-500/10 flex flex-col overflow-hidden shadow-2xl backdrop-blur-2xl z-40">
+							<nav className="flex flex-col border-b border-slate-800/50">
+								<div className='flex flex-row text-lg p-4 gap-3  justify-start items-center font-pacifico'>
+									<button
+										onClick={() => setShowSidebar(!showSidebar)}
+										className="p-2 flex justify-center hover:bg-slate-800/30 rounded-full transition-all duration-300 border border-slate-700/30"
+										title="Orbit Control"
+									>
+										<Menu size={25} className="text-blue-400" />
+									</button>
+									{/* <Image src={"/images/options/edit.svg"} alt='edit' width={300} height={300} className='bg-gray-700/30 h-11 w-11 p-2 rounded-full' /> */}
+									PDF Annotator
+
+								</div>
+								<div className="flex !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] rounded-full mx-auto w-[85%] flex-row mb-3 gap-0 sm:gap-4 justify-between items-center">
+									{[
+										{
+											id: "thumbnails",
+											label: "thumbnails",
+											shortLabel: "Thumbnails",
+											icon: Layers,
+										},
+										{
+											id: "styles",
+											label: "styles",
+											shortLabel: "Styles",
+											icon: PaletteIcon,
+										},
+										{
+											id: "search",
+											label: "search",
+											shortLabel: "Search",
+											icon: Search,
+										},
+									].map((tab) => (
+										<button
+											key={tab.id}
+											onClick={() => setSidebarTab(tab.id)}
+											className={`px-2 min-h-fit font-semibold py-4 text-xs sm:text-sm w-full  justify-center relative z-50 tracking-wider rounded-full flex items-center gap-2 duration-0 transition-all ${sidebarTab !== tab.id
+												? "" : " !shadow-[inset_0_0_5px_rgba(100,100,255,0.7)] bg-gray-950/70 backdrop-blur-md  text-white "
+												}`}
+										>
+											<tab.icon strokeWidth={3} size={18} className="sm:w-5 sm:h-5" />
+										</button>
+									))}
+								</div>
 							</nav>
 
-							<div className="flex-1 overflow-y-auto ">
-								{sidebarTab === 'thumbnails' ? (
-									<div
-										className={"flex w-full h-full"}
-										style={{ minHeight: 32 }}
-									>
-										<ThumbnailsPanel />
-									</div>
-								) : (
-									<StylesPanel
-										selectedAnnotation={selectedAnnotation}
-										annotationMode={annotationMode}
-									/>
-								)}
+							<div className="flex-1 overflow-y-auto  ">
+								{
+									sidebarTab === 'thumbnails' ? (
+										<div
+											className={"flex w-full h-full"}
+											style={{ minHeight: 32 }}
+										>
+											<ThumbnailsPanel />
+										</div>
+									) : sidebarTab === 'styles' ? (
+										<StylesPanel
+											selectedAnnotation={selectedAnnotation}
+											annotationMode={annotationMode}
+										/>
+									) : (
+										<SearchRenderer />
+									)
+								}
 							</div>
+						</aside>
+					) : (
+						<aside className="w-fit bg-slate-900/60 rounded-3xl rounded-r-none  border-r border-blue-500/10 flex flex-col overflow-hidden shadow-2xl backdrop-blur-2xl z-40">
+							<nav className="flex flex-col p-3 gap-4 border-b border-slate-800/50">
+
+								<button
+									onClick={() => setShowSidebar(!showSidebar)}
+									className="p-2 flex justify-center hover:bg-slate-800/30 rounded-full transition-all duration-300 border border-slate-700/30"
+									title="Orbit Control"
+								>
+									<Menu size={25} className="text-blue-400" />
+								</button>
+								<Image src={"/images/options/edit.svg"} alt='edit' width={300} height={300} className='bg-blue-700/10 brightness-200 h-12 w-12 p-3 rounded-full' />
+
+								<button
+									onClick={() => { setSidebarTab('thumbnails'); setShowSidebar(true) }}
+									className="p-2 mt-8 flex justify-center hover:bg-slate-800/30 rounded-xl transition-all duration-300 border border-slate-700/30"
+									title="Page Control"
+								>
+									<Layers strokeWidth={2.5} size={25} className="text-white" />
+								</button>
+								<button
+									onClick={() => { setSidebarTab('styles'); setShowSidebar(true) }}
+									className="p-2 flex justify-center hover:bg-slate-800/30 rounded-xl transition-all duration-300 border border-slate-700/30"
+									title="Style Control"
+								>
+									<PaletteIcon strokeWidth={2.5} size={25} className="text-white" />
+								</button>
+								<button
+									onClick={() => { setSidebarTab('search'); setShowSidebar(true) }}
+									className="p-2 flex justify-center hover:bg-slate-800/30 rounded-xl transition-all duration-300 border border-slate-700/30"
+									title="Scan Void"
+								>
+									<Search strokeWidth={2.5} size={25} className="text-white" />
+								</button>
+							</nav>
 						</aside>
 					)}
 
-					<main className="flex-1 h-auto flex flex-col overflow-hidden relative">
-						<div className="bg-slate-900/40 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 shadow-2xl z-30">
+
+					<main className="flex-1 h-auto flex  flex-col overflow-hidden relative">
+						<div className="bg-slate-900/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 shadow-2xl z-30">
 							<MainToolbar
-								showSearch={showSearch}
-								setShowSearch={setShowSearch}
 								searchQuery={searchQuery}
 								setSearchQuery={setSearchQuery}
 								annotationMode={annotationMode}
@@ -382,13 +386,7 @@ const PDFAnnotator = () => {
 							/>
 						</div>
 
-						{showSearch && (
-							<div className="px-6 py-5 border-b border-slate-800/50 bg-slate-900/40 backdrop-blur-xl absolute inset-0 z-20 pointer-events-none">
-								<SearchRenderer />
-							</div>
-						)}
-
-						<div className="flex-1 overflow-hidden bg-black/50 backdrop-blur-sm relative z-10">
+						<div className="flex-1 overflow-hidden bg-black backdrop-blur-sm relative z-10">
 							<GlobalPointerProvider draggable={false}>
 								<Viewport draggable={false}>
 									<Scroller
@@ -469,7 +467,9 @@ const PDFAnnotator = () => {
 const ThumbnailsPanel = React.memo(() => {
 	const { state, provides } = useScroll();
 	return (
-		<ThumbnailsPane className=' relative w-full flex justify-center items-center'>
+		<ThumbnailsPane
+			style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(24, 78, 132,0.8) rgba(0, 0, 0, 0.1)' }}
+			className=' relative w-full !flex-row !flex !justify-center !items-center'>
 			{(meta) => {
 				const isActive = state.currentPage === meta.pageIndex + 1;
 				return (
@@ -477,24 +477,24 @@ const ThumbnailsPanel = React.memo(() => {
 						key={meta.pageIndex}
 						style={{
 							position: 'relative',
-							height: meta.wrapperHeight,
+							// height: meta.wrapperHeight,
 							cursor: 'pointer',
 						}}
-						className={`border my-4 w-full flex flex-col justify-center items-center rounded-2xl overflow-hidden hover:border-cyan-400/30 transition-all duration-400 ease-out bg-slate-900/40 shadow-2xl hover:shadow-cyan-500/10 ${isActive ? 'border-cyan-400/40 ring-2 ring-cyan-400/20 bg-cyan-900/20 scale-105' : 'border-slate-700/30'}`}
+						className={`border  w-fit my-4 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  flex flex-col justify-center items-center rounded-xl overflow-hidden hover:border-blue-400/30 transition-all duration-400 ease-out bg-slate-900/40 hover:shadow-blue-500/10 ${isActive ? 'border-blue-400/40 ring-2 ring-blue-400/20 bg-blue-900/20 scale-105' : 'border-slate-700/30'}`}
 						onClick={() =>
 							provides?.scrollToPage({ pageNumber: meta.pageIndex + 1 })
 						}
 					>
 						<div
 							style={{
-								width: meta.width,
-								height: meta.height,
+								width: meta.width * 1.4,
+								height: meta.height * 1.3,
 							}}
-							className="bg-white overflow-hidden rounded-t-2xl"
+							className="bg-white bg-contain overflow-hidden rounded-t-xl"
 						>
-							<ThumbImg meta={meta} />
+							<ThumbImg className='h-full w-full ' meta={meta} />
 						</div>
-						<div className="px-2 py-2 text-xs text-center text-cyan-400/70 font-bold bg-slate-900/40 backdrop-blur-xl">
+						<div className="px-2 py-2 text-xs text-center text-white/70 font-bold bg-slate-900/40 backdrop-blur-xl">
 							page {meta.pageIndex + 1}
 						</div>
 					</div>
@@ -553,7 +553,7 @@ const StylesPanel = ({ selectedAnnotation, annotationMode }) => {
 	return (
 		<div className="h-full overflow-y-auto p-6 bg-slate-900/60 backdrop-blur-2xl rounded-xl text-slate-200">
 			{computedTitle && (
-				<h2 className="text-lg mb-6 font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-3 tracking-wide">
+				<h2 className="text-lg mb-6 font-extrabold text-blue-300 border-b border-blue-500/20 pb-3 tracking-wide">
 					{computedTitle} {selectedAnnotation ? 'Forge' : 'Defaults'}
 				</h2>
 			)}
@@ -564,8 +564,6 @@ const StylesPanel = ({ selectedAnnotation, annotationMode }) => {
 
 // Main Toolbar Component
 const MainToolbar = ({
-	showSearch,
-	setShowSearch,
 	annotationMode,
 	setAnnotationMode,
 	annotationApiRef,
@@ -827,7 +825,7 @@ const MainToolbar = ({
 							onSelect(mode);
 							onClose();
 						}}
-						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-cyan-900/30 text-cyan-300' : ''
+						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-blue-900/30 text-blue-300' : ''
 							}`}
 					>
 						<Icon size={14} />
@@ -858,7 +856,7 @@ const MainToolbar = ({
 							min={1}
 							max={totalPages}
 							onChange={handlePageChange}
-							className="w-8 bg-transparent text-center text-sm focus:outline-none text-cyan-300 font-mono"
+							className="w-8 bg-transparent text-center text-sm focus:outline-none text-blue-300 font-mono"
 						/>
 						<span className="text-xs text-slate-400">of {totalPages}</span>
 					</div>
@@ -886,7 +884,7 @@ const MainToolbar = ({
 							onChange={(e) =>
 								zoomApi?.requestZoom(parseInt(e.target.value, 10) / 100)
 							}
-							className="bg-transparent px-4 py-2 text-sm focus:outline-none cursor-pointer text-cyan-300 font-mono"
+							className="bg-transparent px-4 py-2 text-sm focus:outline-none cursor-pointer text-blue-300 font-mono"
 							style={{ appearance: 'none', width: 'fit-content' }}
 						>
 							{zoomLevels.map((level) => (
@@ -921,25 +919,19 @@ const MainToolbar = ({
 				</div>
 
 				<div className="flex items-center w-full justify-between space-x-2 bg-slate-800/50 rounded-2xl p-2 shadow-xl border border-slate-700/30 backdrop-blur-xl">
-					<button
-						onClick={() => setShowSearch(!showSearch)}
-						className={`p-3 rounded-xl transition-all duration-300 ${showSearch ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
-						title="Scan Void"
-					>
-						<Search size={16} />
-					</button>
+
 					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
 					<button
 						onClick={() => setAnnotationMode('select')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
 						title="Selector"
 					>
 						<MousePointer size={14} />
 					</button>
 					<button
 						onClick={() => setAnnotationMode('pan')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
 						title="Drift"
 					>
 						<Hand size={14} />
@@ -1012,14 +1004,14 @@ const MainToolbar = ({
 
 						<button
 							onClick={() => setAnnotationMode('freeText')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
 							title="Inscribe"
 						>
 							<Type size={14} />
 						</button>
 						<button
 							onClick={() => setAnnotationMode('stamp')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-slate-700/30 text-slate-300 ${annotationMode === 'stamp' ? 'bg-cyan-900/30 text-cyan-300 shadow-lg border border-cyan-400/30' : ''}`}
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-slate-700/30 text-slate-300 ${annotationMode === 'stamp' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : ''}`}
 							title="Imprint"
 						>
 							<ImageIcon size={14} />
@@ -1074,28 +1066,25 @@ function HitLine({ hit, onClick, active }) {
 		<button
 			ref={ref}
 			onClick={() => onClick(hit)}
-			className={`w-full text-left rounded-xl p-4 transition-all duration-400 ease-out
+			className={`w-full text-left rounded-xl p-3 transition-all duration-400 ease-out
         relative overflow-hidden border
         bg-slate-900/50 backdrop-blur-2xl
         shadow-2xl
         ${active
-					? 'border-cyan-400/40 ring-2 ring-cyan-400/30 bg-cyan-900/30 text-cyan-200 scale-105'
-					: 'border-slate-700/30 hover:border-cyan-400/30 hover:bg-slate-800/30'
+					? 'border-blue-400/40 ring-1 ring-blue-400/30 bg-blue-900/30 text-blue-200'
+					: 'border-slate-700/30 border-l-4 border-l-blue-400/30  hover:border-blue-400/30 hover:bg-slate-800/30'
 				}`}
 			aria-current={active ? 'true' : 'false'}
 		>
 			<div className="flex items-start gap-4">
-				<div className="min-w-0 flex-1 text-sm leading-tight text-slate-200">
+				<div className="min-w-0 flex-1 text-xs leading-tight text-slate-200">
 					<div className="truncate">
 						{truncatedLeft && <span className="text-slate-400">… </span>}
-						<span className="text-slate-300">{before}</span>
-						<span className="font-bold text-cyan-300 mx-1">{match}</span>
+						<span className="text-slate-300">{before.slice(-15)}</span>
+						<span className="font-bold text-blue-300 mx-1">{match}</span>
 						<span className="text-slate-300">{after}</span>
 						{truncatedRight && <span className="text-slate-400"> …</span>}
 					</div>
-				</div>
-				<div className="ml-auto flex-shrink-0 text-xs text-cyan-400/70 font-bold">
-					Echo {hit.pageIndex + 1}
 				</div>
 			</div>
 		</button>
@@ -1104,11 +1093,11 @@ function HitLine({ hit, onClick, active }) {
 
 export const Checkbox = ({ label, checked, onChange }) => {
 	return (
-		<label className="inline-flex items-center gap-3 cursor-pointer select-none text-sm text-slate-300">
+		<label className="flex items-center gap-3 cursor-pointer select-none text-slate-300">
 			<span
-				className={`relative flex h-5 w-5 items-center justify-center rounded-lg
+				className={`relative flex h-5 w-5 items-center justify-center rounded-[7px]
           transition-all duration-300 backdrop-blur-xl
-          ${checked ? 'bg-cyan-900/50 border border-cyan-500/30 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/50 border border-slate-700/30'}`}
+          ${checked ? 'bg-blue-900/50 border border-blue-500/30 shadow-lg shadow-blue-500/20' : 'bg-slate-800/50 border border-slate-700/30'}`}
 			>
 				<input
 					type="checkbox"
@@ -1119,7 +1108,7 @@ export const Checkbox = ({ label, checked, onChange }) => {
 				/>
 				<svg
 					viewBox="0 0 24 24"
-					className={`h-3 w-3 transition-opacity duration-300 ${checked ? 'opacity-100 text-cyan-200' : 'opacity-0'}`}
+					className={`h-3 w-3 transition-opacity duration-300 ${checked ? 'opacity-100 text-blue-200' : 'opacity-0'}`}
 					fill="none"
 					stroke="currentColor"
 					strokeWidth={3}
@@ -1129,7 +1118,7 @@ export const Checkbox = ({ label, checked, onChange }) => {
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
 			</span>
-			<span className="select-none">{label}</span>
+			<span className="select-none text-xs tracking-tight">{label}</span>
 		</label>
 	);
 };
@@ -1153,7 +1142,7 @@ export function Button({
 			disabled={disabled}
 			title={tooltip}
 			className={`flex h-9 min-w-[36px] items-center justify-center gap-2 rounded-xl px-3 text-sm transition-all duration-300 backdrop-blur-xl border border-slate-700/30
-        ${active ? 'bg-cyan-900/40 text-cyan-300 ring-2 ring-cyan-400/30 shadow-lg shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-cyan-300'}
+        ${active ? 'bg-blue-900/40 text-blue-300 ring-2 ring-blue-400/30 shadow-lg shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-blue-300'}
         ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`}
 			{...props}
 		>
@@ -1286,13 +1275,11 @@ export const SearchRenderer = () => {
 	}, [results, activeResultIndex, search, clearInput]);
 
 	return (
-		<div className="flex h-full absolute top-40 left-0 w-full z-50 pointer-events-auto flex-col bg-slate-900/60 backdrop-blur-2xl text-slate-200 rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl max-h-[80vh] max-w-4xl mx-auto">
-			<div className="p-6 border-b border-slate-800/50 flex-shrink-0">
-				<div className="relative">
-					<div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-						<svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-							<path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-						</svg>
+		<div className="flex h-full w-full z-50 pointer-events-auto flex-col text-slate-200  border border-blue-500/10 overflow-hidden shadow-2xl  max-w-4xl mx-auto">
+			<div className="py-6   border-b border-slate-800/50 flex-shrink-0">
+				<div className="relative px-3">
+					<div className="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none">
+						<Search className=' h-5 w-5' />
 					</div>
 
 					<input
@@ -1301,14 +1288,14 @@ export const SearchRenderer = () => {
 						placeholder="Scan the void (↑/↓ navigate, Enter lock)"
 						value={inputValue}
 						onInput={handleInputChange}
-						className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 py-4 pl-12 pr-12 text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40 transition-all duration-300 backdrop-blur-xl"
+						className="w-full rounded-xl  !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  bg-slate-900/10 py-4 pl-12 pr-10 text-sm text-slate-200 placeholder-slate-400 focus:outline-none  transition-all duration-300 "
 						aria-label="Scan"
 					/>
 
 					{inputValue ? (
 						<button
 							type="button"
-							className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-200"
+							className="absolute inset-y-0 right-0 flex items-center pr-6 text-slate-400 hover:text-slate-200"
 							onClick={clearInput}
 							aria-label="Purge scan"
 						>
@@ -1320,7 +1307,7 @@ export const SearchRenderer = () => {
 				</div>
 
 				<div className="mt-5 flex flex-wrap items-center gap-5">
-					<div className="flex items-center gap-5">
+					<div className="flex items-center gap-2 mx-auto justify-center">
 						<Checkbox
 							label="Case lock"
 							checked={flags.includes(MatchFlag.MatchCase)}
@@ -1333,36 +1320,46 @@ export const SearchRenderer = () => {
 						/>
 					</div>
 
-					<div className="ml-auto text-sm text-cyan-400/70 font-bold">{totalResults} echoes</div>
+					<div className="mx-auto text-sm text-blue-400/70 font-bold">{totalResults} Instances Found</div>
 				</div>
 			</div>
 
-			<div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-6">
+			<div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden  py-3 pl-2">
 				<div
 					className="flex flex-col gap-4 overflow-y-auto pr-2"
-					style={{ maxHeight: 'calc(100% - 16px)' }}
+					style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(24, 78, 132,0.8) rgba(0, 0, 0, 0.1)', maxHeight: 'calc(100%)' }}
 				>
 					{totalResults === 0 ? (
-						<div className="mt-8 text-center text-sm text-slate-400">Void empty</div>
+						<div className="mt-8 flex justify-center items-center gap-4 text-center text-sm text-slate-400"><FileSearch className='w-5 h-5' />Found  Nothing</div>
 					) : (
 						Object.entries(grouped).map(([page, hits]) => (
-							<div key={page} className="mt-2 first:mt-0">
-								<div className="inline-flex items-center gap-2 rounded-xl bg-slate-800/50 px-4 py-2 text-sm text-slate-300 border border-slate-700/30 backdrop-blur-xl">
-									<span className="inline-block h-2 w-2 rounded-full bg-cyan-400/80 shadow-lg shadow-cyan-500/20" />
-									Echo {Number(page) + 1}
-								</div>
+							<div key={page} className="mt-2  relative first:mt-0">
+								{/* <hr className=' w-24 top-0 rotate-90 -left-12  absolute border border-blue-400/30'/>  */}
+								<div className='flex  w-fit pr-3 border-[1px] border-blue-400/20  mt-2 rounded-xl mb-3 gap-3 items-center'>
 
-								<div className="mt-3 flex flex-col gap-3">
+									<div className="inline-flex min-w-fit items-center gap-2 rounded-xl bg-slate-800/50 px-2 py-2 text-sm text-slate-300 border border-slate-700/30 backdrop-blur-xl">
+										<FileText size={20} className='min-w-fit' />
+										{/* <span className="inline-block  h-2 w-2 rounded-full bg-blue-400/80 shadow-lg shadow-blue-500/20" /> */}
+
+									</div>
+									<span className='whitespace-nowrap'>Page {Number(page) + 1}</span>
+									{/* <hr className=' w-4 border-[1px] border-blue-400/30 border-dashed' /> */}
+								</div>
+								<div className="mt-3 flex flex-col  relative  pl-3 gap-3">
+									<div className='absolute -mt-4 left-0 border-l-[2px] border-blue-400/30 h-full' />
 									{hits.map(({ hit, index }) => (
-										<HitLine
-											key={index}
-											hit={hit}
-											active={index === activeResultIndex}
-											onClick={() => {
-												setActiveResultIndex(index);
-												search?.goToResult(index);
-											}}
-										/>
+										<div key={index} className=' relative'>
+											<hr className='absolute border-blue-400/30  border-[1px] top-[52%] -left-3 w-4' />
+											<HitLine
+												key={index}
+												hit={hit}
+												active={index === activeResultIndex}
+												onClick={() => {
+													setActiveResultIndex(index);
+													search?.goToResult(index);
+												}}
+											/>
+										</div>
 									))}
 								</div>
 							</div>
@@ -1448,7 +1445,7 @@ const ColorSwatch = ({
 	return (
 		<button
 			title={color}
-			className={`h-6 w-6 rounded-lg border-2 border-slate-700/30 backdrop-blur-xl shadow-lg transition-all duration-300 ${active ? 'ring-2 ring-cyan-400/50 scale-110 shadow-cyan-500/20' : 'hover:scale-105 hover:border-cyan-400/30'}`}
+			className={`h-6 w-6 rounded-lg border-2 border-slate-700/30 backdrop-blur-xl shadow-lg transition-all duration-300 ${active ? 'ring-2 ring-blue-400/50 scale-110 shadow-blue-500/20' : 'hover:scale-105 hover:border-blue-400/30'}`}
 			style={baseStyle}
 			onClick={() => onSelect(color)}
 		/>
@@ -1467,7 +1464,7 @@ const STROKES = [
 ];
 
 const renderStrokeSvg = (dash) => (
-	<svg width="72" height="8" viewBox="0 0 72 8" className="text-cyan-300">
+	<svg width="72" height="8" viewBox="0 0 72 8" className="text-blue-300">
 		<line
 			x1="0"
 			y1="4"
@@ -1535,7 +1532,7 @@ const LineEndingIcon = ({ ending, position }) => {
 	const groupTransform = position === 'start' ? 'rotate(180 40 5)' : '';
 
 	return (
-		<svg width="72" height="16" viewBox="0 0 72 16" className="text-cyan-300">
+		<svg width="72" height="16" viewBox="0 0 72 16" className="text-blue-300">
 			<g transform={groupTransform}>
 				<line x1="4" y1="8" x2={lineEndX} y2="8" stroke="currentColor" strokeWidth="1.5" />
 				{marker && (
@@ -1596,7 +1593,7 @@ const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 14,
 			<input
 				type="number"
 				min="1"
-				className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 pr-8 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40"
+				className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 pr-8 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
 				value={value}
 				onInput={handleInput}
 				onClick={() => setOpen(true)}
@@ -1624,7 +1621,7 @@ const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 14,
 							<button
 								ref={isSelected ? selectedItemRef : null}
 								key={sz}
-								className={`block w-full px-3 py-3 text-left text-sm hover:bg-slate-700/30 text-slate-200 ${isSelected ? 'bg-cyan-900/30' : ''}`}
+								className={`block w-full px-3 py-3 text-left text-sm hover:bg-slate-700/30 text-slate-200 ${isSelected ? 'bg-blue-900/30' : ''}`}
 								onClick={() => {
 									onChange(sz);
 									setOpen(false);
@@ -1656,7 +1653,7 @@ const GenericSelect = ({
 		<div ref={rootRef} className="relative inline-block w-full">
 			<button
 				type="button"
-				className={`flex w-full items-center justify-between gap-2 rounded-xl border border-slate-700/50 bg-slate-800/50 ${triggerClass} text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40 transition-all duration-300`}
+				className={`flex w-full items-center justify-between gap-2 rounded-xl border border-slate-700/50 bg-slate-800/50 ${triggerClass} text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40 transition-all duration-300`}
 				onClick={() => setOpen(!open)}
 			>
 				{renderValue(value)}
@@ -1681,7 +1678,7 @@ const GenericSelect = ({
 							<button
 								ref={isSelected ? selectedItemRef : null}
 								key={getOptionKey(option)}
-								className={`block w-full rounded-lg text-left hover:bg-slate-700/30 text-slate-200 transition-all duration-300 ${isSelected ? 'bg-cyan-900/30' : ''}`}
+								className={`block w-full rounded-lg text-left hover:bg-slate-700/30 text-slate-200 transition-all duration-300 ${isSelected ? 'bg-blue-900/30' : ''}`}
 								onClick={() => {
 									onChange(option);
 									setOpen(false);
@@ -1845,7 +1842,7 @@ const FreeTextSidebar = ({
 		<>
 			{/* font family + style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Glyph Forge</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Glyph Forge</label>
 
 				{/* Family + size */}
 				<div className="mb-5 flex gap-3">
@@ -1864,7 +1861,7 @@ const FreeTextSidebar = ({
 							!standardFontIsBold(makeStandardFont(fontFamily, { bold: true, italic: false }))
 						}
 						onClick={toggleBold}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm font-bold backdrop-blur-xl shadow-lg transition-all duration-300 ${bold ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm font-bold backdrop-blur-xl shadow-lg transition-all duration-300 ${bold ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
 					>
 						<Bold size={18} />
 					</button>
@@ -1876,7 +1873,7 @@ const FreeTextSidebar = ({
 							!standardFontIsItalic(makeStandardFont(fontFamily, { bold: false, italic: true }))
 						}
 						onClick={toggleItalic}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm italic backdrop-blur-xl shadow-lg transition-all duration-300 ${italic ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm italic backdrop-blur-xl shadow-lg transition-all duration-300 ${italic ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} disabled:opacity-40 hover:scale-105`}
 					>
 						<Italic size={18} />
 					</button>
@@ -1885,13 +1882,13 @@ const FreeTextSidebar = ({
 
 			{/* text alignment */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Flow Align</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Flow Align</label>
 				<div className="flex gap-3">
 					<button
 						type="button"
 						title="Left Drift"
 						onClick={() => changeTextAlign(PdfTextAlignment.Left)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Left ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Left ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignLeft size={18} />
 					</button>
@@ -1899,7 +1896,7 @@ const FreeTextSidebar = ({
 						type="button"
 						title="Core Balance"
 						onClick={() => changeTextAlign(PdfTextAlignment.Center)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Center ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Center ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignCenter size={18} />
 					</button>
@@ -1907,7 +1904,7 @@ const FreeTextSidebar = ({
 						type="button"
 						title="Right Drift"
 						onClick={() => changeTextAlign(PdfTextAlignment.Right)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Right ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Right ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignRight size={18} />
 					</button>
@@ -1915,7 +1912,7 @@ const FreeTextSidebar = ({
 						type="button"
 						title="Full Span"
 						onClick={() => changeTextAlign(PdfTextAlignment.Justify)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Justify ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${textAlign === PdfTextAlignment.Justify ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignJustify size={18} />
 					</button>
@@ -1924,13 +1921,13 @@ const FreeTextSidebar = ({
 
 			{/* vertical alignment */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Depth Align</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Depth Align</label>
 				<div className="flex gap-3">
 					<button
 						type="button"
 						title="Apex"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Top)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Top ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Top ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyStart size={18} />
 					</button>
@@ -1938,7 +1935,7 @@ const FreeTextSidebar = ({
 						type="button"
 						title="Nexus"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Middle)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Middle ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Middle ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyCenter size={18} />
 					</button>
@@ -1946,7 +1943,7 @@ const FreeTextSidebar = ({
 						type="button"
 						title="Abyss"
 						onClick={() => changeVerticalAlign(PdfVerticalAlignment.Bottom)}
-						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Bottom ? 'bg-cyan-900/40 text-cyan-200 shadow-cyan-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
+						className={`h-11 w-11 rounded-xl border border-slate-700/30 px-2 py-2 text-sm backdrop-blur-xl shadow-lg transition-all duration-300 ${verticalAlign === PdfVerticalAlignment.Bottom ? 'bg-blue-900/40 text-blue-200 shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300'} hover:scale-105`}
 					>
 						<AlignVerticalJustifyEnd size={18} />
 					</button>
@@ -1955,7 +1952,7 @@ const FreeTextSidebar = ({
 
 			{/* font colour */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Ether Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Ether Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fontColor} onSelect={changeFontColor} />
@@ -1965,7 +1962,7 @@ const FreeTextSidebar = ({
 
 			{/* background colour */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Void Veil</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Void Veil</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch
@@ -1980,7 +1977,7 @@ const FreeTextSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
@@ -2080,7 +2077,7 @@ const LineSidebar = ({
 		<>
 			{/* stroke color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
@@ -2090,27 +2087,27 @@ const LineSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Pulse</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke width */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Mass</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={10} step={1} onChange={setWidth} />
 				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
 
 			{/* line endings in a grid */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Termini</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Termini</label>
 				<div className="grid grid-cols-2 gap-6">
 					<div>
 						<div className="text-xs text-slate-400/70 mb-2 font-bold">Origin</div>
@@ -2125,7 +2122,7 @@ const LineSidebar = ({
 
 			{/* fill color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Core Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
@@ -2192,7 +2189,7 @@ const TextMarkupSidebar = ({
 		<>
 			{/* color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Echo Tint</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Echo Tint</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === color} onSelect={changeColor} />
@@ -2202,16 +2199,16 @@ const TextMarkupSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* blend mode */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Fusion Mode</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Fusion Mode</label>
 				<select
-					className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/30 focus:border-cyan-400/40"
+					className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
 					value={blend}
 					onChange={(e) => changeBlend(parseInt(e.target.value, 10))}
 				>
@@ -2294,7 +2291,7 @@ const ShapeSidebar = ({
 		<>
 			{/* fill color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Core Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
@@ -2304,14 +2301,14 @@ const ShapeSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
@@ -2321,13 +2318,13 @@ const ShapeSidebar = ({
 
 			{/* stroke style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Pulse</label>
+				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke-width */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-cyan-300 border-b border-cyan-500/20 pb-2 tracking-wide">Edge Mass</label>
+				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={30} step={1} onChange={setWidth} />
 				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
