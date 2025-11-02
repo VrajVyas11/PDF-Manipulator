@@ -371,7 +371,7 @@ const PDFAnnotator = () => {
 
 
 					<main className="flex-1 h-auto flex  flex-col overflow-hidden relative">
-						<div className="bg-slate-900/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 shadow-2xl z-30">
+						<div className=" z-30">
 							<MainToolbar
 								searchQuery={searchQuery}
 								setSearchQuery={setSearchQuery}
@@ -828,7 +828,7 @@ const MainToolbar = ({
 						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-blue-900/30 text-blue-300' : ''
 							}`}
 					>
-						<Icon size={14} />
+						<Icon strokeWidth={3} size={16} />
 						<span>{label}</span>
 					</button>
 				))}
@@ -838,117 +838,145 @@ const MainToolbar = ({
 
 	return (
 		<>
-			<div className="flex items-center justify-between flex-wrap gap-5">
-				<div className="flex items-center space-x-3">
+			<div className="flex items-center justify-between flex-wrap">
+
+				<div className="flex justify-between w-full items-center space-x-3 bg-gray-950/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 shadow-2xl px-6 pt-5 pb-4">
+					<button
+						onClick={handleUndo}
+						disabled={!canUndo}
+						className={`p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl transition-all duration-300 ${canUndo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
+						title="Undo"
+					>
+						<Undo strokeWidth={3} size={16} />
+					</button>
+					<button
+						onClick={handleRedo}
+						disabled={!canRedo}
+						className={`p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl transition-all duration-300 ${canRedo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
+						title="Redo"
+					>
+						<Redo strokeWidth={3} size={16} />
+					</button>
+
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={handleDeleteSelected}
+						className="p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:!shadow-[inset_0_0_5px_rgba(200,0,0,0.6)] text-red-300  !shadow-[inset_0_0_5px_rgba(200,0,0,0.4)]"
+						title="Vaporize"
+					>
+						<Trash2 size={16} />
+					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
 
 					<button
 						onClick={() => scrollApi?.scrollToPreviousPage()}
 						disabled={currentPage <= 1}
-						className="p-3 hover:bg-slate-800/30 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-xl border border-slate-700/30 backdrop-blur-xl"
+						className="p-3 !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70  text-white  rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed   backdrop-blur-xl"
 						title="Ascend"
 					>
-						<ChevronUp size={14} className="text-slate-300" />
+						<ChevronUp strokeWidth={3} size={16} className="text-slate-300" />
 					</button>
-					<div className="flex items-center space-x-2 bg-slate-800/50 rounded-xl px-4 py-2 shadow-xl border border-slate-700/30 backdrop-blur-xl">
+					<div className="flex items-center space-x-2 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] bg-gray-950/70  text-white rounded-xl px-4 py-2.5  border border-slate-700/30 backdrop-blur-xl">
 						<input
 							type="number"
 							value={currentPage}
 							min={1}
 							max={totalPages}
 							onChange={handlePageChange}
-							className="w-8 bg-transparent text-center text-sm focus:outline-none text-blue-300 font-mono"
+							className="w-5 bg-transparent text-center font-semibold text-xs focus:outline-none text-blue-300"
 						/>
-						<span className="text-xs text-slate-400">of {totalPages}</span>
+						<span className="text-xs font-semibold text-slate-400 pr-2"> / {totalPages}</span>
 					</div>
 					<button
 						onClick={() => scrollApi?.scrollToNextPage()}
 						disabled={currentPage >= totalPages}
-						className="p-3 hover:bg-slate-800/30 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-xl border border-slate-700/30 backdrop-blur-xl"
+						className="p-3 !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70  text-white  rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed   backdrop-blur-xl"
 						title="Descend"
 					>
-						<ChevronDown size={14} className="text-slate-300" />
+						<ChevronDown strokeWidth={3} size={16} className="text-slate-300" />
 					</button>
 
 					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
-					<div className="flex items-center space-x-2 bg-slate-800/50 rounded-xl shadow-xl border border-slate-700/30 backdrop-blur-xl">
+					<div className="flex py-2.5 items-center space-x-2 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl ">
 						<button
 							onClick={() => zoomApi?.zoomOut()}
-							className="p-3 hover:bg-slate-700/30 rounded-l-xl transition-all duration-300"
+							className="px-3 hover:bg-slate-700/30 rounded-l-xl transition-all duration-300"
 							title="Contract"
 						>
-							<ZoomOut size={14} className="text-slate-300" />
+							<ZoomOut strokeWidth={3} size={16} className="text-slate-300" />
 						</button>
 						<select
 							value={Math.round(zoom * 100)}
 							onChange={(e) =>
 								zoomApi?.requestZoom(parseInt(e.target.value, 10) / 100)
 							}
-							className="bg-transparent px-4 py-2 text-sm focus:outline-none cursor-pointer text-blue-300 font-mono"
+							className="bg-transparent px-4  text-sm focus:outline-none cursor-pointer text-blue-300 font-mono"
 							style={{ appearance: 'none', width: 'fit-content' }}
 						>
 							{zoomLevels.map((level) => (
-								<option key={level} value={Math.round(level * 100)}>
+								<option key={level} value={Math.round(level * 100)} className=' bg-black-100'>
 									{Math.round(level * 100)}%
 								</option>
 							))}
 						</select>
 						<button
 							onClick={() => zoomApi?.zoomIn()}
-							className="p-3 hover:bg-slate-700/30 rounded-r-xl transition-all duration-300"
+							className="px-3 hover:bg-slate-700/30 rounded-r-xl transition-all duration-300"
 							title="Expand"
 						>
-							<ZoomIn size={14} className="text-slate-300" />
+							<ZoomIn strokeWidth={3} size={16} className="text-slate-300" />
 						</button>
 					</div>
 
 					<button
 						onClick={() => rotateApi?.rotateForward()}
-						className="p-3 hover:bg-slate-700/30 rounded-xl transition-all duration-300"
+						className="p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] rounded-xl transition-all duration-300"
 						title="Spin"
 					>
-						<RotateIcon size={16} className="text-slate-300" />
+						<RotateIcon strokeWidth={3} size={16} className="text-slate-300" />
 					</button>
 					<button
 						onClick={() => printApi?.print()}
-						className="p-3 hover:bg-slate-700/30 rounded-xl transition-all duration-300"
+						className="p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl transition-all duration-300"
 						title="Manifest"
 					>
-						<Printer size={16} className="text-slate-300" />
+						<Printer strokeWidth={3} size={16} className="text-slate-300" />
 					</button>
+
 				</div>
 
-				<div className="flex items-center w-full justify-between space-x-2 bg-slate-800/50 rounded-2xl p-2 shadow-xl border border-slate-700/30 backdrop-blur-xl">
-
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
+				{/* below toolbar */}
+				<div className="flex justify-between w-fit items-center space-x-4 mx-auto bg-slate-900/40  rounded-b-3xl backdrop-blur-xl border border-t-0 border-slate-800/50 shadow-2xl px-5 py-3 ">
 					<button
 						onClick={() => setAnnotationMode('select')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 						title="Selector"
 					>
-						<MousePointer size={14} />
+						<MousePointer strokeWidth={3} size={14} />
 					</button>
 					<button
 						onClick={() => setAnnotationMode('pan')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 						title="Drift"
 					>
-						<Hand size={14} />
+						<Hand strokeWidth={3} size={14} />
 					</button>
 					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
 					{/* Grouped Tool Buttons */}
-					<div className="relative flex items-center space-x-2 ">
+					{/* <div className="relative flex items-center space-x-2 "> */}
 						{/* Markup Group */}
 						<div className="relative">
 							<button
 								onClick={() => setToolDropdown(toolDropdown === 'markup' ? null : 'markup')}
-								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'markup' ? 'bg-amber-900/30 text-amber-300 shadow-lg border border-amber-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								className={`p-3 px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'markup' || ['squiggly', 'strikeout', 'underline', 'highlight'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,211,77,0.6)] text-amber-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 								title="Text Markup"
 							>
-								<Highlighter size={14} />
-								{toolDropdown === 'markup' && <DropdownIcon size={12} className="ml-1" />}
+								<Highlighter strokeWidth={3} size={14} />
+								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'markup' ? "rotate-180" : ""}`} />
 							</button>
 							{toolDropdown === 'markup' && (
 								<ToolDropdown group="markup" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
@@ -959,11 +987,11 @@ const MainToolbar = ({
 						<div className="relative">
 							<button
 								onClick={() => setToolDropdown(toolDropdown === 'ink' ? null : 'ink')}
-								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'ink' ? 'bg-emerald-900/30 text-emerald-300 shadow-lg border border-emerald-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'ink' || ['ink', 'inkHighlighter'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(110,231,183,0.6)] text-emerald-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 								title="Ink Tools"
 							>
-								<Pencil size={14} />
-								{toolDropdown === 'ink' && <DropdownIcon size={12} className="ml-1" />}
+								<Pencil strokeWidth={3} size={14} />
+								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'ink' ? "rotate-180" : ""}`} />
 							</button>
 							{toolDropdown === 'ink' && (
 								<ToolDropdown group="ink" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
@@ -974,11 +1002,11 @@ const MainToolbar = ({
 						<div className="relative">
 							<button
 								onClick={() => setToolDropdown(toolDropdown === 'shapes' ? null : 'shapes')}
-								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'shapes' ? 'bg-indigo-900/30 text-indigo-300 shadow-lg border border-indigo-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'shapes' || ['circle', 'square', 'polygon'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(147,197,253,0.6)] text-blue-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 								title="Shapes"
 							>
-								<ShapesIcon size={14} />
-								{toolDropdown === 'shapes' && <DropdownIcon size={12} className="ml-1" />}
+								<ShapesIcon strokeWidth={3} size={14} />
+								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'shapes' ? "rotate-180" : ""}`} />
 							</button>
 							{toolDropdown === 'shapes' && (
 								<ToolDropdown group="shapes" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
@@ -989,11 +1017,11 @@ const MainToolbar = ({
 						<div className="relative">
 							<button
 								onClick={() => setToolDropdown(toolDropdown === 'lines' ? null : 'lines')}
-								className={`p-3 rounded-xl min-w-fit flex-row flex transition-all duration-300 flex-shrink-0 ${toolDropdown === 'lines' ? 'bg-slate-700/30 text-slate-300 shadow-lg border border-slate-600/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'lines' || ['line', 'lineArrow', 'polyline'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,165,165,0.6)] text-red-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 								title="Lines"
 							>
-								<ArrowUpRight size={14} />
-								{toolDropdown === 'lines' && <DropdownIcon size={12} className="ml-1" />}
+								<ArrowUpRight strokeWidth={3} size={14} />
+								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'lines' ? "rotate-180" : ""}`} />
 							</button>
 							{toolDropdown === 'lines' && (
 								<ToolDropdown group="lines" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
@@ -1004,48 +1032,21 @@ const MainToolbar = ({
 
 						<button
 							onClick={() => setAnnotationMode('freeText')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : 'hover:bg-slate-700/30 text-slate-300'}`}
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 							title="Inscribe"
 						>
-							<Type size={14} />
+							<Type strokeWidth={3} size={14} />
 						</button>
 						<button
 							onClick={() => setAnnotationMode('stamp')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-slate-700/30 text-slate-300 ${annotationMode === 'stamp' ? 'bg-blue-900/30 text-blue-300 shadow-lg border border-blue-400/30' : ''}`}
-							title="Imprint"
+							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'stamp' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Add Image"
 						>
-							<ImageIcon size={14} />
+							<ImageIcon strokeWidth={3} size={14} />
 						</button>
 
-					</div>
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+					{/* </div> */}
 
-					<button
-						onClick={handleUndo}
-						disabled={!canUndo}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 shadow-lg border border-slate-700/30 ${canUndo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
-						title="Rewind"
-					>
-						<Undo size={14} />
-					</button>
-					<button
-						onClick={handleRedo}
-						disabled={!canRedo}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 shadow-lg border border-slate-700/30 ${canRedo ? 'hover:bg-slate-700/30 text-slate-300' : 'opacity-40 cursor-not-allowed text-slate-500'}`}
-						title="Fast Forward"
-					>
-						<Redo size={14} />
-					</button>
-
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
-					<button
-						onClick={handleDeleteSelected}
-						className="p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:bg-red-900/30 text-red-300 shadow-lg border border-red-600/30"
-						title="Vaporize"
-					>
-						<Trash2 size={14} />
-					</button>
 				</div>
 			</div>
 		</>
@@ -1300,7 +1301,7 @@ export const SearchRenderer = () => {
 							aria-label="Purge scan"
 						>
 							<svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-								<path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+								<path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.416 0L10 8.586l4.293-4.293a1 1 0 111.416 1.416L11.416 10l4.293 4.293a1 1 0 01-1.416 1.416L10 11.416l-4.293 4.293a1 1 0 01-1.416-1.416L8.586 10 4.293 5.707a1 1 0 010-1.416z" clipRule="evenodd" />
 							</svg>
 						</button>
 					) : null}
@@ -1580,7 +1581,7 @@ const FontFamilySelect = ({ value, onChange }) => (
 );
 
 // FontSizeInputSelect Component
-const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 14, 16, 18, 24, 36, 48, 72] }) => {
+const FontSizeInputSelect = ({ value, onChange, options = [8, 9, 10, 11, 12, 16, 16, 18, 24, 36, 48, 72] }) => {
 	const { open, setOpen, rootRef, selectedItemRef } = useDropdown();
 
 	const handleInput = (e) => {
