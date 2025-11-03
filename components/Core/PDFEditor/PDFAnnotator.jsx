@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, {
 	useState,
@@ -56,6 +57,8 @@ import {
 } from '@embedpdf/plugin-annotation/react';
 import { HistoryPluginPackage, useHistoryCapability } from
 	'@embedpdf/plugin-history/react';
+import { CapturePluginPackage, MarqueeCapture, useCaptureCapability } from '@embedpdf/plugin-capture/react'
+import { RedactionPluginPackage, RedactionLayer, useRedactionCapability } from '@embedpdf/plugin-redaction/react'
 
 // Lucide icons for toolbar
 import {
@@ -102,6 +105,11 @@ import {
 	Shapes as ShapesIcon,
 	Layers,
 	FileText,
+	Download,
+	Camera,
+	Tickets,
+	TextCursorInput,
+	SquareDashedMousePointer,
 } from 'lucide-react';
 
 // Import models for types
@@ -177,6 +185,16 @@ const PDFAnnotator = () => {
 			createPluginRegistration(AnnotationPluginPackage, {
 				annotationAuthor: 'User',
 			}),
+			// Register and configure the capture plugin
+			createPluginRegistration(CapturePluginPackage, {
+				scale: 2.0, // Render captured image at 2x resolution
+				imageType: 'image/png',
+				withAnnotations: true,
+			}),
+			// Register and configure the redaction plugin
+			createPluginRegistration(RedactionPluginPackage, {
+				drawBlackBoxes: false, // Draw black boxes over redacted content
+			}),
 		],
 		[pdfUrl]
 	);
@@ -204,7 +222,7 @@ const PDFAnnotator = () => {
 
 	if (error) {
 		return (
-			<div className="flex items-center justify-center h-screen bg-black text-blue-300/80">
+			<div className="flex items-center justify-center h-screen bg-black text-white/80">
 				<div className="text-center p-10 bg-black/30 border border-blue-500/20 rounded-2xl shadow-2xl backdrop-blur-xl">
 					<p className="text-xl mb-3 font-bold text-blue-400">PDF Engine Error</p>
 					<p className="text-sm text-gray-400 mb-5">{error.message}</p>
@@ -224,7 +242,7 @@ const PDFAnnotator = () => {
 			<div className="flex items-center justify-center h-screen bg-black">
 				<div className="text-center bg-black/30 backdrop-blur-xl p-10 rounded-2xl border border-blue-500/20">
 					<div className="animate-pulse rounded-full h-16 w-16 border-2 border-blue-500 mx-auto mb-5"></div>
-					<p className="text-blue-300 text-lg font-semibold">Initializing Viewer</p>
+					<p className="text-white text-lg font-semibold">Initializing Viewer</p>
 					<p className="text-gray-500 text-sm mt-2">Stand by for cosmic launch</p>
 				</div>
 			</div>
@@ -448,6 +466,9 @@ const PDFAnnotator = () => {
 															rotation={rotation}
 															selectionOutlineColor="#06b6d4"
 														/>
+														<MarqueeCapture pageIndex={pageIndex} scale={scale} />
+														<RedactionLayer pageIndex={pageIndex} scale={scale} rotation={rotation} selectionMenu={(props) => <RedactionMenu {...props} />} />
+
 													</PagePointerProvider>
 												</Rotate>
 											</div>
@@ -551,16 +572,40 @@ const StylesPanel = ({ selectedAnnotation, annotationMode }) => {
 	const computedTitle = typeof title === 'function' ? title(commonProps) : title;
 
 	return (
-		<div className="h-full overflow-y-auto p-6 bg-slate-900/60 backdrop-blur-2xl rounded-xl text-slate-200">
+		<div className="h-full overflow-y-auto p-6 rounded-xl text-slate-200">
 			{computedTitle && (
-				<h2 className="text-lg mb-6 font-extrabold text-blue-300 border-b border-blue-500/20 pb-3 tracking-wide">
-					{computedTitle} {selectedAnnotation ? 'Forge' : 'Defaults'}
+				<h2 className="text-lg mb-6 font-extrabold text-white border-b border-blue-500/20 pb-3 tracking-wide">
+					{computedTitle} Styles
 				</h2>
 			)}
 			<Sidebar {...commonProps} />
 		</div>
 	);
 };
+
+
+const RedactionMenu = (props) => {
+	const { provides } = useRedactionCapability();
+	if (!props.selected) return null;
+	console.log(props)
+	return (
+		<div {...props.menuWrapperProps}>
+			<div
+			className='bg-black/40 backdrop-blur-md p-2 rounded-xl flex flex-row justify-center items-center'
+				style={{
+					position: 'absolute',
+					top: props.rect.size.height + 10,
+					left: 0,
+					pointerEvents: 'auto'
+				}}
+			>
+				<button className='bg-red-500 text-xs rounded-[9px] px-4 py-2' onClick={() => provides?.commitPending(props.item.page, props.item.id)}>Add</button>
+				<button className='text-xs rounded-xl px-4 py-2' onClick={() => provides?.removePending(props.item.page, props.item.id)}>Remove</button>
+			</div>
+		</div>
+	);
+};
+
 
 // Main Toolbar Component
 const MainToolbar = ({
@@ -580,10 +625,11 @@ const MainToolbar = ({
 	const { provides: panApi } = usePan();
 	const { provides: annotationApi } = useAnnotationCapability();
 	const { provides: historyApi } = useHistoryCapability();
-
+	const { provides: redactApi } = useRedactionCapability();
 	const [, setSelected] = useState(null);
 	const [canUndo, setCanUndo] = useState(false);
 	const [canRedo, setCanRedo] = useState(false);
+	const { provides: capture } = useCaptureCapability();
 
 	useEffect(() => {
 		if (annotationApi) {
@@ -696,6 +742,22 @@ const MainToolbar = ({
 		}
 	}, [annotationApi, annotationApiRef]);
 
+	const [imageUrl, setImageUrl] = useState(null);
+
+	useEffect(() => {
+		if (!capture) return;
+
+		const unsubscribe = capture.onCaptureArea((result) => {
+			const newUrl = URL.createObjectURL(result.blob);
+			setImageUrl(newUrl);
+		});
+
+		return () => {
+			unsubscribe();
+			if (imageUrl) URL.revokeObjectURL(imageUrl);
+		};
+	}, [capture, imageUrl]);
+
 	const totalPages = scrollState?.totalPages || 0;
 	const currentPage = scrollState?.currentPage || 1;
 
@@ -714,6 +776,7 @@ const MainToolbar = ({
 		polyline: 'polyline',
 		freeText: 'freeText',
 		stamp: 'stamp',
+		capture: 'capture',
 		pan: null,
 		select: null,
 	}), []);
@@ -738,6 +801,16 @@ const MainToolbar = ({
 			}
 		}
 	}, [annotationMode, panApi, annotationApi, setShowSidebar, setSidebarTab, modeMap]);
+	console.log(annotationMode)
+	useEffect(() => {
+		if (annotationMode === 'redactText') {
+			redactApi?.toggleRedactSelection()
+		}
+		else if (annotationMode === 'redactSelection') {
+			redactApi?.toggleMarqueeRedact()
+		}
+	}, [annotationMode, panApi, annotationApi, setShowSidebar, setSidebarTab, modeMap, redactApi]);
+
 
 	const handlePageChange = (e) => {
 		const page = parseInt(e.target.value, 10);
@@ -814,6 +887,10 @@ const MainToolbar = ({
 				{ mode: 'ink', icon: Pencil, label: 'Pencil' },
 				{ mode: 'inkHighlighter', icon: Highlighter, label: 'Highlighter' },
 			],
+			redact: [
+				{ mode: 'redactText', icon: TextCursorInput, label: 'Redact Text' },
+				{ mode: 'redactSelection', icon: SquareDashedMousePointer, label: 'Redact Selection' },
+			]
 		};
 
 		return (
@@ -825,7 +902,7 @@ const MainToolbar = ({
 							onSelect(mode);
 							onClose();
 						}}
-						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-blue-900/30 text-blue-300' : ''
+						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${annotationMode === mode ? 'bg-blue-900/30 text-white' : ''
 							}`}
 					>
 						<Icon strokeWidth={3} size={16} />
@@ -839,7 +916,24 @@ const MainToolbar = ({
 	return (
 		<>
 			<div className="flex items-center justify-between flex-wrap">
-
+				{imageUrl && <div className=' bg-black/80 z-50 flex justify-start items-center h-full w-full absolute inset-0'>
+					<div className='absolute px-7 flex flex-row items-center justify-between top-12 w-full'>
+						<h1 className=' flex flex-row text-xl justify-center items-center gap-3 w-fit'>
+							<Camera strokeWidth={3} className='w-6 h-6 ' />
+							Captured Image
+						</h1>
+						<div className=' gap-12 flex flex-row items-center'>
+							<a
+								href={imageUrl}
+								download={`PDF_Captured_Image.jpg`} className='flex flex-row items-center justify-center gap-3'>
+								<Download strokeWidth={3} className='w-5 h-5' />
+								Download
+							</a>
+							<button onClick={() => { setImageUrl(null); setAnnotationMode("select") }} className=''><X strokeWidth={3} className='w-5 h-5' /></button></div>
+					</div>
+					<Image width={300} height={300} className='w-auto h-auto' src={imageUrl} alt="Captured PDF area" />
+				</div>
+				}
 				<div className="flex justify-between w-full items-center space-x-3 bg-gray-950/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 shadow-2xl px-6 pt-5 pb-4">
 					<button
 						onClick={handleUndo}
@@ -867,6 +961,7 @@ const MainToolbar = ({
 					>
 						<Trash2 size={16} />
 					</button>
+
 					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
 
@@ -885,7 +980,7 @@ const MainToolbar = ({
 							min={1}
 							max={totalPages}
 							onChange={handlePageChange}
-							className="w-5 bg-transparent text-center font-semibold text-xs focus:outline-none text-blue-300"
+							className="w-5 bg-transparent text-center font-semibold text-xs focus:outline-none text-white"
 						/>
 						<span className="text-xs font-semibold text-slate-400 pr-2"> / {totalPages}</span>
 					</div>
@@ -913,7 +1008,7 @@ const MainToolbar = ({
 							onChange={(e) =>
 								zoomApi?.requestZoom(parseInt(e.target.value, 10) / 100)
 							}
-							className="bg-transparent px-4  text-sm focus:outline-none cursor-pointer text-blue-300 font-mono"
+							className="bg-transparent px-4  text-sm focus:outline-none cursor-pointer text-white font-mono"
 							style={{ appearance: 'none', width: 'fit-content' }}
 						>
 							{zoomLevels.map((level) => (
@@ -952,14 +1047,14 @@ const MainToolbar = ({
 				<div className="flex justify-between w-fit items-center space-x-4 mx-auto bg-slate-900/40  rounded-b-3xl backdrop-blur-xl border border-t-0 border-slate-800/50 shadow-2xl px-5 py-3 ">
 					<button
 						onClick={() => setAnnotationMode('select')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 						title="Selector"
 					>
 						<MousePointer strokeWidth={3} size={14} />
 					</button>
 					<button
 						onClick={() => setAnnotationMode('pan')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
 						title="Drift"
 					>
 						<Hand strokeWidth={3} size={14} />
@@ -968,83 +1063,112 @@ const MainToolbar = ({
 
 					{/* Grouped Tool Buttons */}
 					{/* <div className="relative flex items-center space-x-2 "> */}
-						{/* Markup Group */}
-						<div className="relative">
-							<button
-								onClick={() => setToolDropdown(toolDropdown === 'markup' ? null : 'markup')}
-								className={`p-3 px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'markup' || ['squiggly', 'strikeout', 'underline', 'highlight'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,211,77,0.6)] text-amber-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-								title="Text Markup"
-							>
-								<Highlighter strokeWidth={3} size={14} />
-								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'markup' ? "rotate-180" : ""}`} />
-							</button>
-							{toolDropdown === 'markup' && (
-								<ToolDropdown group="markup" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
-							)}
-						</div>
-
-						{/* Ink Group */}
-						<div className="relative">
-							<button
-								onClick={() => setToolDropdown(toolDropdown === 'ink' ? null : 'ink')}
-								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'ink' || ['ink', 'inkHighlighter'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(110,231,183,0.6)] text-emerald-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-								title="Ink Tools"
-							>
-								<Pencil strokeWidth={3} size={14} />
-								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'ink' ? "rotate-180" : ""}`} />
-							</button>
-							{toolDropdown === 'ink' && (
-								<ToolDropdown group="ink" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
-							)}
-						</div>
-
-						{/* Shapes Group */}
-						<div className="relative">
-							<button
-								onClick={() => setToolDropdown(toolDropdown === 'shapes' ? null : 'shapes')}
-								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'shapes' || ['circle', 'square', 'polygon'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(147,197,253,0.6)] text-blue-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-								title="Shapes"
-							>
-								<ShapesIcon strokeWidth={3} size={14} />
-								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'shapes' ? "rotate-180" : ""}`} />
-							</button>
-							{toolDropdown === 'shapes' && (
-								<ToolDropdown group="shapes" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
-							)}
-						</div>
-
-						{/* Lines Group */}
-						<div className="relative">
-							<button
-								onClick={() => setToolDropdown(toolDropdown === 'lines' ? null : 'lines')}
-								className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'lines' || ['line', 'lineArrow', 'polyline'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,165,165,0.6)] text-red-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-								title="Lines"
-							>
-								<ArrowUpRight strokeWidth={3} size={14} />
-								<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'lines' ? "rotate-180" : ""}`} />
-							</button>
-							{toolDropdown === 'lines' && (
-								<ToolDropdown group="lines" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
-							)}
-						</div>
-
-						<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
+					{/* Markup Group */}
+					<div className="relative">
 						<button
-							onClick={() => setAnnotationMode('freeText')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-							title="Inscribe"
+							onClick={() => setToolDropdown(toolDropdown === 'markup' ? null : 'markup')}
+							className={`p-3 px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'markup' || ['squiggly', 'strikeout', 'underline', 'highlight'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,211,77,0.6)] text-amber-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Text Markup"
 						>
-							<Type strokeWidth={3} size={14} />
+							<Highlighter strokeWidth={3} size={14} />
+							<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'markup' ? "rotate-180" : ""}`} />
 						</button>
-						<button
-							onClick={() => setAnnotationMode('stamp')}
-							className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'stamp' ? ' text-blue-300 !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-							title="Add Image"
-						>
-							<ImageIcon strokeWidth={3} size={14} />
-						</button>
+						{toolDropdown === 'markup' && (
+							<ToolDropdown group="markup" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+						)}
+					</div>
 
+					{/* Ink Group */}
+					<div className="relative">
+						<button
+							onClick={() => setToolDropdown(toolDropdown === 'ink' ? null : 'ink')}
+							className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'ink' || ['ink', 'inkHighlighter'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(110,231,183,0.6)] text-emerald-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Ink Tools"
+						>
+							<Pencil strokeWidth={3} size={14} />
+							<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'ink' ? "rotate-180" : ""}`} />
+						</button>
+						{toolDropdown === 'ink' && (
+							<ToolDropdown group="ink" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+						)}
+					</div>
+
+					{/* Shapes Group */}
+					<div className="relative">
+						<button
+							onClick={() => setToolDropdown(toolDropdown === 'shapes' ? null : 'shapes')}
+							className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'shapes' || ['circle', 'square', 'polygon'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(147,197,253,0.6)] text-white  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Shapes"
+						>
+							<ShapesIcon strokeWidth={3} size={14} />
+							<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'shapes' ? "rotate-180" : ""}`} />
+						</button>
+						{toolDropdown === 'shapes' && (
+							<ToolDropdown group="shapes" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+						)}
+					</div>
+
+					{/* Lines Group */}
+					<div className="relative">
+						<button
+							onClick={() => setToolDropdown(toolDropdown === 'lines' ? null : 'lines')}
+							className={`p-3  px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'lines' || ['line', 'lineArrow', 'polyline'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(252,165,165,0.6)] text-red-300  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Lines"
+						>
+							<ArrowUpRight strokeWidth={3} size={14} />
+							<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'lines' ? "rotate-180" : ""}`} />
+						</button>
+						{toolDropdown === 'lines' && (
+							<ToolDropdown group="lines" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+						)}
+					</div>
+
+					<div className="relative">
+						<button
+							onClick={() => setToolDropdown(toolDropdown === 'redact' ? null : 'redact')}
+							className={`p-3 px-4 rounded-xl min-w-fit flex-row flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${toolDropdown === 'redact' || ['redactText', 'redactSelection'].includes(annotationMode) ? ' !shadow-[inset_0_0_5px_rgba(200,234,128,0.6)] text-p3  ' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Area/Text Redaction"
+						>
+							<Tickets strokeWidth={3} size={14} />
+							<DropdownIcon strokeWidth={3} size={12} className={`ml-1 ${toolDropdown === 'redact' ? "rotate-180" : ""}`} />
+						</button>
+						{toolDropdown === 'redact' && (
+							<ToolDropdown group="redact" onSelect={setAnnotationMode} onClose={() => setToolDropdown(null)} />
+						)}
+					</div>
+
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={() => setAnnotationMode('freeText')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'freeText' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						title="Inscribe"
+					>
+						<Type strokeWidth={3} size={14} />
+					</button>
+					<button
+						onClick={() => setAnnotationMode('stamp')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'stamp' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						title="Add Image"
+					>
+						<ImageIcon strokeWidth={3} size={14} />
+					</button>
+
+					<button
+						onClick={() => capture?.toggleMarqueeCapture()}
+						onMouseUp={() => {
+							if (annotationMode === "capture") {
+								setAnnotationMode("select")
+							}
+							else {
+								setAnnotationMode('capture')
+							}
+						}}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'capture' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						title="Capture Image"
+					>
+						{annotationMode === 'capture' ? 'Cancel' : <Camera strokeWidth={3} size={14} />}
+					</button>
 					{/* </div> */}
 
 				</div>
@@ -1082,7 +1206,7 @@ function HitLine({ hit, onClick, active }) {
 					<div className="truncate">
 						{truncatedLeft && <span className="text-slate-400">… </span>}
 						<span className="text-slate-300">{before.slice(-15)}</span>
-						<span className="font-bold text-blue-300 mx-1">{match}</span>
+						<span className="font-bold text-white mx-1">{match}</span>
 						<span className="text-slate-300">{after}</span>
 						{truncatedRight && <span className="text-slate-400"> …</span>}
 					</div>
@@ -1143,7 +1267,7 @@ export function Button({
 			disabled={disabled}
 			title={tooltip}
 			className={`flex h-9 min-w-[36px] items-center justify-center gap-2 rounded-xl px-3 text-sm transition-all duration-300 backdrop-blur-xl border border-slate-700/30
-        ${active ? 'bg-blue-900/40 text-blue-300 ring-2 ring-blue-400/30 shadow-lg shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-blue-300'}
+        ${active ? 'bg-blue-900/40 text-white ring-2 ring-blue-400/30 shadow-lg shadow-blue-500/20' : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-white'}
         ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`}
 			{...props}
 		>
@@ -1411,14 +1535,14 @@ const Slider = ({
 }) => (
 	<input
 		type="range"
-		className="range-sm mb-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-700/50"
+		className="range-sm mb-3 h-3.5  w-full cursor-pointer appearance-none rounded-full bg-slate-700/50"
 		value={value}
 		min={min}
 		max={max}
 		step={step}
 		onInput={(e) => onChange(parseFloat(e.target.value))}
 		style={{
-			background: `linear-gradient(to right, #06b6d4 ${((value - min) / (max - min)) * 100}%, #475569 ${((value - min) / (max - min)) * 100}%)`,
+			background: `linear-gradient(to right, #0055FF80 ${((value - min) / (max - min)) * 100}%, #284247 ${((value - min) / (max - min)) * 100}%)`,
 		}}
 	/>
 );
@@ -1439,14 +1563,15 @@ const ColorSwatch = ({
 		? {
 			backgroundColor: '#fff',
 			backgroundImage:
-				'repeating-conic-gradient(from 0deg at 0% 0%, #e2e8f0 0deg, #e2e8f0 90deg, transparent 90deg, transparent 180deg)',
+				'linear-gradient(45deg, transparent 40%, red 40%, red 60%, transparent 60%)',
+			backgroundSize: '100% 100%',
 		}
 		: { backgroundColor: color };
 
 	return (
 		<button
 			title={color}
-			className={`h-6 w-6 rounded-lg border-2 border-slate-700/30 backdrop-blur-xl shadow-lg transition-all duration-300 ${active ? 'ring-2 ring-blue-400/50 scale-110 shadow-blue-500/20' : 'hover:scale-105 hover:border-blue-400/30'}`}
+			className={`h-7 w-7 rounded-full border border-gray-600 ${active ? 'outline outline-2 outline-offset-2 outline-blue-500' : ''}`}
 			style={baseStyle}
 			onClick={() => onSelect(color)}
 		/>
@@ -1465,7 +1590,7 @@ const STROKES = [
 ];
 
 const renderStrokeSvg = (dash) => (
-	<svg width="72" height="8" viewBox="0 0 72 8" className="text-blue-300">
+	<svg width="72" height="8" viewBox="0 0 72 8" className="text-white">
 		<line
 			x1="0"
 			y1="4"
@@ -1533,7 +1658,7 @@ const LineEndingIcon = ({ ending, position }) => {
 	const groupTransform = position === 'start' ? 'rotate(180 40 5)' : '';
 
 	return (
-		<svg width="72" height="16" viewBox="0 0 72 16" className="text-blue-300">
+		<svg width="72" height="16" viewBox="0 0 72 16" className="text-white">
 			<g transform={groupTransform}>
 				<line x1="4" y1="8" x2={lineEndX} y2="8" stroke="currentColor" strokeWidth="1.5" />
 				{marker && (
@@ -1697,7 +1822,7 @@ const GenericSelect = ({
 
 // EmptyState Component
 const EmptyState = () => (
-	<div className="flex flex-col items-center gap-5 p-8 text-slate-400/60 backdrop-blur-xl rounded-xl border border-slate-700/30">
+	<div className="flex flex-col items-center gap-5 p-8 text-slate-400/60  border-b border-slate-700/30">
 		<Palette size={48} className="text-slate-400/60" />
 		<div className="max-w-[200px] text-center text-sm text-slate-400/60">
 			Invoke an ether or select a fragment to forge styles
@@ -1843,7 +1968,7 @@ const FreeTextSidebar = ({
 		<>
 			{/* font family + style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Glyph Forge</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Glyph Forge</label>
 
 				{/* Family + size */}
 				<div className="mb-5 flex gap-3">
@@ -1883,7 +2008,7 @@ const FreeTextSidebar = ({
 
 			{/* text alignment */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Flow Align</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Flow Align</label>
 				<div className="flex gap-3">
 					<button
 						type="button"
@@ -1922,7 +2047,7 @@ const FreeTextSidebar = ({
 
 			{/* vertical alignment */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Depth Align</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Depth Align</label>
 				<div className="flex gap-3">
 					<button
 						type="button"
@@ -1953,7 +2078,7 @@ const FreeTextSidebar = ({
 
 			{/* font colour */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Ether Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Ether Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fontColor} onSelect={changeFontColor} />
@@ -1963,7 +2088,7 @@ const FreeTextSidebar = ({
 
 			{/* background colour */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Void Veil</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Void Veil</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch
@@ -1978,7 +2103,7 @@ const FreeTextSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
@@ -2078,7 +2203,7 @@ const LineSidebar = ({
 		<>
 			{/* stroke color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
@@ -2088,27 +2213,27 @@ const LineSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke width */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={10} step={1} onChange={setWidth} />
 				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
 
 			{/* line endings in a grid */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Termini</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Termini</label>
 				<div className="grid grid-cols-2 gap-6">
 					<div>
 						<div className="text-xs text-slate-400/70 mb-2 font-bold">Origin</div>
@@ -2123,7 +2248,7 @@ const LineSidebar = ({
 
 			{/* fill color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
@@ -2190,7 +2315,7 @@ const TextMarkupSidebar = ({
 		<>
 			{/* color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Echo Tint</label>
+				<label className="mb-4 block text-sm font-extrabold text-white  pb-2 tracking-wide">Colors</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === color} onSelect={changeColor} />
@@ -2200,16 +2325,16 @@ const TextMarkupSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 flex flex-row justify-between items-center text-sm font-extrabold text-white  pb-2 tracking-wide">Density <span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span></label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpacity} />
-				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
+
 			</section>
 
 			{/* blend mode */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Fusion Mode</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Fusion Mode</label>
 				<select
-					className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
+					className="w-full rounded-xl border border-slate-700/50 bg-slate-950 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
 					value={blend}
 					onChange={(e) => changeBlend(parseInt(e.target.value, 10))}
 				>
@@ -2292,7 +2417,7 @@ const ShapeSidebar = ({
 		<>
 			{/* fill color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Core Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === fill} onSelect={changeFill} />
@@ -2302,14 +2427,14 @@ const ShapeSidebar = ({
 
 			{/* opacity */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Density</label>
 				<Slider value={opacity} min={0.1} max={1} step={0.05} onChange={setOpac} />
 				<span className="text-xs text-slate-400">{Math.round(opacity * 100)}%</span>
 			</section>
 
 			{/* stroke color */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Hue</label>
 				<div className="grid grid-cols-6 gap-2">
 					{colorPresets.map((c) => (
 						<ColorSwatch key={c} color={c} active={c === stroke} onSelect={changeStroke} />
@@ -2319,13 +2444,13 @@ const ShapeSidebar = ({
 
 			{/* stroke style */}
 			<section className="mb-8">
-				<label className="mb-4 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
+				<label className="mb-4 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Pulse</label>
 				<StrokeStyleSelect value={style} onChange={changeStyle} />
 			</section>
 
 			{/* stroke-width */}
 			<section className="mb-8">
-				<label className="mb-2 block text-sm font-extrabold text-blue-300 border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
+				<label className="mb-2 block text-sm font-extrabold text-white border-b border-blue-500/20 pb-2 tracking-wide">Edge Mass</label>
 				<Slider value={strokeW} min={1} max={30} step={1} onChange={setWidth} />
 				<span className="text-xs text-slate-400">{strokeW}px</span>
 			</section>
@@ -2348,16 +2473,16 @@ const SIDEbars = {
 		component: LineSidebar,
 		title: (p) => (p.activeTool?.id === 'lineArrow' ? 'Vector' : 'Thread'),
 	},
-	[PdfAnnotationSubtype.POLYLINE]: { component: LineSidebar, title: 'Lattice' },
-	[PdfAnnotationSubtype.INK]: { component: TextMarkupSidebar, title: 'Etch' },
-	[PdfAnnotationSubtype.HIGHLIGHT]: { component: TextMarkupSidebar, title: 'Illuminate' },
-	[PdfAnnotationSubtype.UNDERLINE]: { component: TextMarkupSidebar, title: 'Underscore' },
-	[PdfAnnotationSubtype.STRIKEOUT]: { component: TextMarkupSidebar, title: 'Obliterate' },
-	[PdfAnnotationSubtype.SQUIGGLY]: { component: TextMarkupSidebar, title: 'Waver' },
-	[PdfAnnotationSubtype.CIRCLE]: { component: ShapeSidebar, title: 'Orb' },
-	[PdfAnnotationSubtype.SQUARE]: { component: ShapeSidebar, title: 'Cube' },
-	[PdfAnnotationSubtype.POLYGON]: { component: PolygonSidebar, title: 'Prism' },
-	[PdfAnnotationSubtype.STAMP]: { component: StampSidebar, title: 'Imprint' },
+	[PdfAnnotationSubtype.POLYLINE]: { component: LineSidebar, title: 'PolyLine' },
+	[PdfAnnotationSubtype.INK]: { component: TextMarkupSidebar, title: 'Ink' },
+	[PdfAnnotationSubtype.HIGHLIGHT]: { component: TextMarkupSidebar, title: 'Highlight' },
+	[PdfAnnotationSubtype.UNDERLINE]: { component: TextMarkupSidebar, title: 'Underline' },
+	[PdfAnnotationSubtype.STRIKEOUT]: { component: TextMarkupSidebar, title: 'Strikethrough' },
+	[PdfAnnotationSubtype.SQUIGGLY]: { component: TextMarkupSidebar, title: 'Squiggly' },
+	[PdfAnnotationSubtype.CIRCLE]: { component: ShapeSidebar, title: 'Circle' },
+	[PdfAnnotationSubtype.SQUARE]: { component: ShapeSidebar, title: 'Aquare' },
+	[PdfAnnotationSubtype.POLYGON]: { component: PolygonSidebar, title: 'Polygon' },
+	[PdfAnnotationSubtype.STAMP]: { component: StampSidebar, title: 'Image' },
 };
 
 export default PDFAnnotator;
