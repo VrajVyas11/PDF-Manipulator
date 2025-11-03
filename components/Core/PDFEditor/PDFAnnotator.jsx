@@ -17,6 +17,7 @@ import { Viewport, ViewportPluginPackage } from
 import {
 	Scroller,
 	ScrollPluginPackage,
+	ScrollStrategy,
 	useScroll,
 	useScrollCapability
 } from '@embedpdf/plugin-scroll/react';
@@ -144,6 +145,7 @@ const PDFAnnotator = () => {
 	const [urlInput, setUrlInput] = useState(pdfUrl);
 	const [showUrlDialog, setShowUrlDialog] = useState(false);
 	const [toolDropdown, setToolDropdown] = useState(null); // 'shapes', 'lines', 'markup', etc.
+	const [scrollLayout, setScrollLayout] = useState(ScrollStrategy.Vertical);
 
 	// const fileInputRef = useRef(null); // upload PDF
 	const annotationApiRef = useRef(null);
@@ -168,7 +170,9 @@ const PDFAnnotator = () => {
 			createPluginRegistration(SelectionPluginPackage),
 			createPluginRegistration(HistoryPluginPackage),
 			createPluginRegistration(PanPluginPackage),
-			createPluginRegistration(ScrollPluginPackage),
+			createPluginRegistration(ScrollPluginPackage, {
+				strategy: scrollLayout
+			}),
 			createPluginRegistration(ThumbnailPluginPackage, {
 				width: 96,
 				gap: 6,
@@ -196,7 +200,7 @@ const PDFAnnotator = () => {
 				drawBlackBoxes: false, // Draw black boxes over redacted content
 			}),
 		],
-		[pdfUrl]
+		[pdfUrl, scrollLayout]
 	);
 
 	const { engine, isLoading, error } = usePdfiumEngine();
@@ -391,6 +395,8 @@ const PDFAnnotator = () => {
 					<main className="flex-1 h-auto flex  flex-col overflow-hidden relative">
 						<div className=" z-30">
 							<MainToolbar
+								scrollLayout={scrollLayout}
+								setScrollLayout={setScrollLayout}
 								searchQuery={searchQuery}
 								setSearchQuery={setSearchQuery}
 								annotationMode={annotationMode}
@@ -591,7 +597,7 @@ const RedactionMenu = (props) => {
 	return (
 		<div {...props.menuWrapperProps}>
 			<div
-			className='bg-black/40 backdrop-blur-md p-2 rounded-xl flex flex-row justify-center items-center'
+				className='bg-black/40 backdrop-blur-md p-2 rounded-xl flex flex-row justify-center items-center'
 				style={{
 					position: 'absolute',
 					top: props.rect.size.height + 10,
@@ -610,6 +616,8 @@ const RedactionMenu = (props) => {
 // Main Toolbar Component
 const MainToolbar = ({
 	annotationMode,
+	scrollLayout,
+	setScrollLayout,
 	setAnnotationMode,
 	annotationApiRef,
 	setSelectedAnnotation,
@@ -912,7 +920,10 @@ const MainToolbar = ({
 			</div>
 		);
 	};
-
+	const handleScrollLayoutToggle = () => {
+		if (scrollLayout === ScrollStrategy.Vertical) setScrollLayout(ScrollStrategy.Horizontal)
+		else setScrollLayout(ScrollStrategy.Vertical)
+	}
 	return (
 		<>
 			<div className="flex items-center justify-between flex-wrap">
@@ -961,9 +972,26 @@ const MainToolbar = ({
 					>
 						<Trash2 size={16} />
 					</button>
-
+					{console.log("hehee", scrollLayout)
+					}
 					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+					<label onMouseUp={handleScrollLayoutToggle} className="inline-flex items-center cursor-pointer">
+						<input type="checkbox" value="" className="sr-only peer" />
+						<div className={`relative w-20 h-9 ${scrollLayout === ScrollStrategy.Horizontal ? ' !shadow-[inset_0_0_5px_rgba(50,100,255,0.2)] ' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] dark:bg-gray-700'} peer-focus:outline-none  rounded-xl  after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:!shadow-[inset_0_0_25px_rgba(50,100,250,1)]   after:rounded-[11px] after:h-8 after:w-8 after:transition-all dark:after:border-gray-600 ${scrollLayout === ScrollStrategy.Vertical ? 'after:-translate-x-0.5 after:border-gray-300' : 'after:translate-x-[130%] after:border-white'}`}></div>
+					</label>
+					{/* <select
+						className="w-full rounded-xl border border-slate-700/50 bg-slate-950 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
+						value={scrollLayout}
+						onChange={(e) => setScrollLayout(e.target.value)}
+					>
 
+						{[ScrollStrategy.Horizontal, ScrollStrategy.Vertical].map((o) => (
+							<option key={o} value={o} >
+								{o}
+							</option>
+						))}
+					</select> */}
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
 
 					<button
 						onClick={() => scrollApi?.scrollToPreviousPage()}

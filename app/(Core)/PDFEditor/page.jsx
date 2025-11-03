@@ -18,14 +18,14 @@ const PDFAnnotator = dynamic(() => import("../../../components/Core/PDFEditor/PD
 });
 
 function PDFEditor() {
-  const [isBackendBased, setIsBackendBased] = useState(false);
+  const [isAnnotation, setIsAnnotation] = useState(true);
   const toggleImplementation = (toggle) => {
-    setIsBackendBased(toggle);
+    setIsAnnotation(toggle);
   };
 
   // Dynamic title & description based on selection
-  const title = isBackendBased ? 'PDF Annotator' : 'PDF Editor';
-  const description = isBackendBased
+  const title = isAnnotation ? 'PDF Annotator' : 'PDF Editor';
+  const description = isAnnotation
     ? 'Full-featured PDF annotation suite — highlights, ink, shapes, text editing, stamps, and precise annotation controls for advanced workflows.'
     : 'Effortlessly edit and manage complex PDFs with our robust editor — ideal for multi-page documents, forms, and advanced layout needs.';
 
@@ -43,21 +43,8 @@ function PDFEditor() {
         <div
           className={`flex w-full px-2 gap-4 justify-center lg:justify-end rounded-2xl group mt-4 lg:mt-0`}
         >
-          <span onClick={() => toggleImplementation(false)}
-            className={`relative ${!isBackendBased ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
-            <Image
-              src="/images/ButtonUtils/zap.svg"
-              alt="logo"
-              width={32}
-              height={32}
-              className="brightness-200"
-            />
-            <span className="font-semibold text-16 flex p-4 pr-0 text-p5">
-              Complex PDFs
-            </span>
-          </span>
-          <span onClick={() => toggleImplementation(true)}
-            className={`relative ${isBackendBased ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
+                    <span onClick={() => toggleImplementation(true)}
+            className={`relative ${isAnnotation ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
             <Image
               src="/images/ButtonUtils/backend.svg"
               alt="logo"
@@ -69,6 +56,20 @@ function PDFEditor() {
               PDF Annotator
             </span>
           </span>
+          <span onClick={() => toggleImplementation(false)}
+            className={`relative ${!isAnnotation ? "brightness-150 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-blue-400 " : ""} cursor-pointer flex justify-around items-center w-fit before:g7 g4 min-h-fit px-4 py-2 rounded-2xl before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500 before:content-[''] group-hover:before:opacity-100 overflow-hidden`}>
+            <Image
+              src="/images/ButtonUtils/zap.svg"
+              alt="logo"
+              width={32}
+              height={32}
+              className="brightness-200"
+            />
+            <span className="font-semibold text-16 flex p-4 pr-0 text-p5">
+              Complex PDFs
+            </span>
+          </span>
+
         </div>
       </div>
       <hr className='border-s3 border-2' />
@@ -94,7 +95,7 @@ function PDFEditor() {
             filter: "blur(150px)",
           }}
         ></div>
-        {isBackendBased ? (
+        {isAnnotation ? (
           <div>
             <PDFAnnotator />
           </div>
