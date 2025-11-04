@@ -43,12 +43,12 @@ import {
 	ThumbnailsPane,
 	ThumbImg,
 } from '@embedpdf/plugin-thumbnail/react';
-import { ZoomPluginPackage, useZoom } from '@embedpdf/plugin-zoom/react';
+import { ZoomPluginPackage, useZoom, ZoomMode } from '@embedpdf/plugin-zoom/react';
 import { RotatePluginPackage, useRotate, Rotate } from
 	'@embedpdf/plugin-rotate/react';
 import { PrintPluginPackage, usePrintCapability } from
 	'@embedpdf/plugin-print/react';
-import { SpreadPluginPackage } from '@embedpdf/plugin-spread/react';
+import { SpreadPluginPackage, SpreadMode, useSpread } from '@embedpdf/plugin-spread/react';
 import { SearchLayer, SearchPluginPackage, useSearchCapability } from
 	'@embedpdf/plugin-search/react';
 import {
@@ -81,7 +81,6 @@ import {
 	// Download,
 	Trash2,
 	Image as ImageIcon,
-	RotateCw as RotateIcon,
 	Undo,
 	Redo,
 	// Hash,
@@ -111,6 +110,15 @@ import {
 	Tickets,
 	TextCursorInput,
 	SquareDashedMousePointer,
+	FileCog,
+	RotateCw,
+	RotateCcw,
+	ArrowUpDown,
+	ArrowLeftRight,
+	BookOpen,
+	Book,
+	Maximize2,
+	Maximize,
 } from 'lucide-react';
 
 // Import models for types
@@ -149,6 +157,8 @@ const PDFAnnotator = () => {
 
 	// const fileInputRef = useRef(null); // upload PDF
 	const annotationApiRef = useRef(null);
+
+	//page change related stuff here
 	const [selectedAnnotation, setSelectedAnnotation] = useState(null);
 
 	// Memoize plugins so they don't re-register on every render
@@ -283,7 +293,7 @@ const PDFAnnotator = () => {
 			)}
 
 			<EmbedPDF engine={engine} plugins={plugins}>
-				<div className="flex flex-1 overflow-hidden relative">
+				<div className="flex flex-1  h-auto overflow-hidden relative">
 					{showSidebar ? (
 						<aside className="w-60 bg-slate-900/60 rounded-3xl rounded-r-none border-r border-blue-500/10 flex flex-col overflow-hidden shadow-2xl backdrop-blur-2xl z-40">
 							<nav className="flex flex-col border-b border-slate-800/50">
@@ -390,8 +400,6 @@ const PDFAnnotator = () => {
 							</nav>
 						</aside>
 					)}
-
-
 					<main className="flex-1 h-auto flex  flex-col overflow-hidden relative">
 						<div className=" z-30">
 							<MainToolbar
@@ -410,7 +418,7 @@ const PDFAnnotator = () => {
 							/>
 						</div>
 
-						<div className="flex-1 overflow-hidden bg-black backdrop-blur-sm relative z-10">
+						<div className="flex-1 overflow-hidden  backdrop-blur-sm relative z-10">
 							<GlobalPointerProvider draggable={false}>
 								<Viewport draggable={false}>
 									<Scroller
@@ -421,12 +429,10 @@ const PDFAnnotator = () => {
 													width,
 													height,
 													position: 'relative',
-													margin: '16px',
-													boxShadow: '0 16px 48px -10px rgba(0,0,0,0.8)',
-													backgroundColor: '#ffffff',
+													margin: '8px',
+													boxShadow: '0 0px 2px 0px rgba(200,200,200,0.8)',
 													borderRadius: 16,
 													overflow: 'hidden',
-													border: '1px solid rgba(100, 116, 139, 0.1)',
 												}}
 												onDragStart={(e) => e.preventDefault()}
 											>
@@ -449,11 +455,11 @@ const PDFAnnotator = () => {
 															pageIndex={pageIndex}
 															scale={1}
 															style={{
-																width: '100%',
-																height: '100%',
+																// width: '100%',
+																// height: '100%',
 																userSelect: 'text',
 																pointerEvents: 'auto',
-																backgroundColor: '#fff',
+																// backgroundColor: '#fff',
 															}}
 														/>
 														<TilingLayer
@@ -474,7 +480,6 @@ const PDFAnnotator = () => {
 														/>
 														<MarqueeCapture pageIndex={pageIndex} scale={scale} />
 														<RedactionLayer pageIndex={pageIndex} scale={scale} rotation={rotation} selectionMenu={(props) => <RedactionMenu {...props} />} />
-
 													</PagePointerProvider>
 												</Rotate>
 											</div>
@@ -483,6 +488,8 @@ const PDFAnnotator = () => {
 								</Viewport>
 							</GlobalPointerProvider>
 						</div>
+
+						<PageControls />
 					</main>
 				</div>
 			</EmbedPDF>
@@ -490,6 +497,52 @@ const PDFAnnotator = () => {
 	);
 };
 
+
+const PageControls = () => {
+	const { state: scrollState, provides: scrollApi } = useScroll();
+	const totalPages = scrollState?.totalPages || 0;
+	const currentPage = scrollState?.currentPage || 1;
+	console.log(scrollState);
+
+	const handlePageChange = (e) => {
+		const page = parseInt(e.target.value, 10);
+		if (page >= 1 && page <= totalPages) {
+			scrollApi?.scrollToPage({ pageNumber: page });
+		}
+	};
+
+	if (!totalPages) return <div className="flex items-center justify-center py-4 text-slate-400">Assembling fragments...</div>;
+
+	return (
+		<div className="absolute w-full flex justify-center gap-4 items-end pb-4 h-full inset-0 pointer-events-none">
+			<button
+				onClick={() => scrollApi?.scrollToPreviousPage()}
+				disabled={currentPage <= 1}
+				className="p-3 relative z-50 pointer-events-auto !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70 text-white rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-xl"
+			>
+				<ChevronUp strokeWidth={3} size={16} className="text-slate-300" />
+			</button>
+			<div className="flex pointer-events-auto relative z-50 w-fit items-center space-x-2 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] bg-gray-950/70 text-white rounded-xl px-4 py-2.5 border border-slate-700/30 backdrop-blur-xl">
+				<input
+					type="number"
+					value={currentPage}
+					min={1}
+					max={totalPages}
+					onChange={handlePageChange}
+					className="w-5 bg-transparent text-center font-semibold text-xs focus:outline-none text-white"
+				/>
+				<span className="text-xs font-semibold text-slate-400 pr-2"> / {totalPages}</span>
+			</div>
+			<button
+				onClick={() => scrollApi?.scrollToNextPage()}
+				disabled={currentPage >= totalPages}
+				className="p-3 pointer-events-auto relative z-50 !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70 text-white rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-xl"
+			>
+				<ChevronDown strokeWidth={3} size={16} className="text-slate-300" />
+			</button>
+		</div>
+	);
+};
 // Thumbnails Panel Component
 const ThumbnailsPanel = React.memo(() => {
 	const { state, provides } = useScroll();
@@ -626,7 +679,6 @@ const MainToolbar = ({
 	toolDropdown,
 	setToolDropdown,
 }) => {
-	const { state: scrollState, provides: scrollApi } = useScroll();
 	const { provides: zoomApi, state: zoomState } = useZoom();
 	const { provides: rotateApi } = useRotate();
 	const { provides: printApi } = usePrintCapability();
@@ -634,10 +686,100 @@ const MainToolbar = ({
 	const { provides: annotationApi } = useAnnotationCapability();
 	const { provides: historyApi } = useHistoryCapability();
 	const { provides: redactApi } = useRedactionCapability();
-	const [, setSelected] = useState(null);
+	const { provides: spread } = useSpread();
 	const [canUndo, setCanUndo] = useState(false);
 	const [canRedo, setCanRedo] = useState(false);
 	const { provides: capture } = useCaptureCapability();
+	const [selectedMode, setSelectedMode] = useState(() => scrollLayout === ScrollStrategy.Vertical ? 'scroll-vertical' : 'scroll-horizontal');
+	const [layoutDropdown, setLayoutDropdown] = useState(null);
+	const [imageUrl, setImageUrl] = useState(null);
+
+	// Zoom-specific state and handlers
+	const [zoomInputValue, setZoomInputValue] = useState('');
+	const [zoomDropdownOpen, setZoomDropdownOpen] = useState(false);
+	const zoomLevels = [0.25, 0.5, 1, 2, 4, 8, 16]; // 25%, 50%, 100%, 200%, 400%, 800%, 1600%
+	const zoom = zoomState?.currentZoomLevel ?? 1;
+	const zoomPercentage = Math.round(zoom * 100);
+
+	useEffect(() => {
+		zoomApi?.requestZoom(ZoomMode.FitPage);
+	}, [zoomApi])
+
+	useEffect(() => {
+		setZoomInputValue(zoomPercentage.toString());
+	}, [zoomPercentage]);
+
+	const handleZoomInputChange = (e) => {
+		const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+		setZoomInputValue(value);
+	};
+
+	const handleZoomSubmit = (e) => {
+		e.preventDefault();
+		const parsedValue = parseFloat(zoomInputValue) / 100;
+		if (!isNaN(parsedValue) && parsedValue > 0) {
+			zoomApi?.requestZoom(parsedValue);
+		}
+		setZoomDropdownOpen(false);
+	};
+
+	const handleZoomSelect = (level) => {
+		zoomApi?.requestZoom(level);
+		setZoomDropdownOpen(false);
+	};
+
+	const handleFitToPage = () => {
+		zoomApi?.requestZoom(ZoomMode.FitPage);
+		setZoomDropdownOpen(false);
+	};
+
+	const handleFitToWidth = () => {
+		zoomApi?.requestZoom(ZoomMode.FitWidth);
+		setZoomDropdownOpen(false);
+	};
+
+	const ZoomDropdown = () => (
+		<div className="absolute top-full  left-0 mt-2 bg-gray-950/95 border border-slate-700/30 rounded-xl shadow-2xl z-50 min-w-[120px] overflow-hidden">
+			{/* Fit options */}
+			<button
+				onClick={handleFitToPage}
+				className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3"
+			>
+				<Maximize2 size={16} strokeWidth={3} />
+				<span>Fit to Page</span>
+			</button>
+			<button
+				onClick={handleFitToWidth}
+				className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3"
+			>
+				<Maximize size={16} strokeWidth={3} />
+				<span>Fit to Width</span>
+			</button>
+			<div className="px-4 py-2 text-xs text-slate-500 uppercase font-semibold border-t border-slate-700/30">Presets</div>
+			{zoomLevels.map((level) => {
+				const percentage = Math.round(level * 100);
+				const isActive = Math.abs(zoom - level) < 0.01;
+				return (
+					<button
+						key={level}
+						onClick={() => handleZoomSelect(level)}
+						className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${isActive ? 'bg-blue-900/30 text-white' : ''}`}
+					>
+						<ZoomIn size={16} strokeWidth={3} />
+						<span>{percentage}%</span>
+					</button>
+				);
+			})}
+		</div>
+	);
+
+	useEffect(() => {
+		if (scrollLayout === ScrollStrategy.Vertical) {
+			setSelectedMode('scroll-vertical');
+		} else if (scrollLayout === ScrollStrategy.Horizontal) {
+			setSelectedMode('scroll-horizontal');
+		}
+	}, [scrollLayout]);
 
 	useEffect(() => {
 		if (annotationApi) {
@@ -651,13 +793,11 @@ const MainToolbar = ({
 		const unsub = annotationApi.onStateChange?.((state) => {
 			if (state?.selectedUid) {
 				const sel = annotationApi.getSelectedAnnotation?.();
-				setSelected(sel);
 				setSelectedAnnotation(sel);
 				// Open styles sidebar when selected
 				setShowSidebar(true);
 				setSidebarTab('styles');
 			} else {
-				setSelected(null);
 				setSelectedAnnotation(null);
 			}
 		});
@@ -750,7 +890,6 @@ const MainToolbar = ({
 		}
 	}, [annotationApi, annotationApiRef]);
 
-	const [imageUrl, setImageUrl] = useState(null);
 
 	useEffect(() => {
 		if (!capture) return;
@@ -766,8 +905,6 @@ const MainToolbar = ({
 		};
 	}, [capture, imageUrl]);
 
-	const totalPages = scrollState?.totalPages || 0;
-	const currentPage = scrollState?.currentPage || 1;
 
 	const modeMap = useMemo(() => ({
 		highlight: 'highlight',
@@ -820,15 +957,6 @@ const MainToolbar = ({
 	}, [annotationMode, panApi, annotationApi, setShowSidebar, setSidebarTab, modeMap, redactApi]);
 
 
-	const handlePageChange = (e) => {
-		const page = parseInt(e.target.value, 10);
-		if (page >= 1 && page <= totalPages) {
-			scrollApi?.scrollToPage({ pageNumber: page });
-		}
-	};
-
-	const zoom = zoomState?.currentZoomLevel ?? 1;
-	const zoomLevels = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
 	const handleDeleteSelected = async () => {
 		try {
@@ -865,13 +993,6 @@ const MainToolbar = ({
 		}
 	};
 
-	if (!totalPages) {
-		return (
-			<div className="flex items-center justify-center py-4 text-slate-400 text-sm w-full">
-				Assembling fragments...
-			</div>
-		);
-	}
 
 	const ToolDropdown = ({ group, onSelect, onClose }) => {
 		const groups = {
@@ -902,7 +1023,7 @@ const MainToolbar = ({
 		};
 
 		return (
-			<div className="absolute top-full left-0 mt-2  bg-slate-800/80 border border-slate-700/30 rounded-xl shadow-2xl z-50 min-w-[200px] overflow-hidden">
+			<div className="absolute top-full left-0 mt-2  bg-gray-950/95 border border-slate-700/30 rounded-xl shadow-2xl z-50 min-w-[200px] overflow-hidden">
 				{groups[group]?.map(({ mode, icon: Icon, label }) => (
 					<button
 						key={mode}
@@ -920,10 +1041,112 @@ const MainToolbar = ({
 			</div>
 		);
 	};
-	const handleScrollLayoutToggle = () => {
-		if (scrollLayout === ScrollStrategy.Vertical) setScrollLayout(ScrollStrategy.Horizontal)
-		else setScrollLayout(ScrollStrategy.Vertical)
-	}
+	// Add this new state in MainToolbar component
+	const [pageMode, setPageMode] = useState('single'); // Initial state for page layout
+
+	// Update handleModeSelect to handle both scroll and page modes
+	const handleModeSelect = (mode) => {
+		if (['scroll-vertical', 'scroll-horizontal'].includes(mode)) {
+			setSelectedMode(mode);
+			if (mode === 'scroll-vertical') {
+				setScrollLayout(ScrollStrategy.Vertical);
+			} else if (mode === 'scroll-horizontal') {
+				setScrollLayout(ScrollStrategy.Horizontal);
+			}
+		} else if (['single', 'double'].includes(mode)) {
+			setPageMode(mode);
+			if (mode === 'single') {
+				spread.setSpreadMode(SpreadMode.None);
+			} else if (mode === 'double') {
+				spread.setSpreadMode(SpreadMode.Odd);
+			}
+			// Apply page layout logic here, e.g., scrollApi?.setPageLayout(mode === 'double' ? 'facing' : 'continuous') or similar API call
+		}
+		setLayoutDropdown(null);
+	};
+
+	// Update isLayoutActive to check both selectedMode and pageMode
+
+	const LayoutDropdown = ({ onSelect, onClose, selectedMode, pageMode, isHorizontal }) => {
+		const rotateOptions = [
+			{ mode: 'rotate-cw', icon: RotateCw, label: 'Rotate Clockwise' },
+			{ mode: 'rotate-ccw', icon: RotateCcw, label: 'Rotate Counterclockwise' },
+		];
+
+		const scrollOptions = [
+			{ mode: 'scroll-vertical', icon: ArrowUpDown, label: 'Scroll Vertical' },
+			{ mode: 'scroll-horizontal', icon: ArrowLeftRight, label: 'Scroll Horizontal' },
+		];
+
+		const pageOptions = [
+			{ mode: 'single', icon: BookOpen, label: 'Single Page' },
+			{ mode: 'double', icon: Book, label: 'Double Page' },
+		];
+
+		const handleRotate = (mode) => {
+			if (mode === 'rotate-cw') {
+				rotateApi?.rotateForward?.();
+			} else if (mode === 'rotate-ccw') {
+				// Assuming API supports backward or simulate by calling forward 3 times for 270 degrees equivalent
+				rotateApi?.rotateForward?.();
+				rotateApi?.rotateForward?.();
+				rotateApi?.rotateForward?.();
+			}
+			onClose();
+		};
+
+		return (
+			<div className="absolute top-full left-0 mt-2 bg-gray-950/95 border border-slate-700/30 rounded-xl shadow-2xl z-50 min-w-[200px] overflow-hidden">
+				<div className="px-4 py-2 text-xs text-slate-500 uppercase font-semibold border-b border-slate-700/30">Rotate Page</div>
+				{rotateOptions.map(({ mode, icon: Icon, label }) => (
+					<button
+						key={mode}
+						onClick={() => handleRotate(mode)}
+						className="w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3"
+					>
+						<Icon strokeWidth={3} size={16} />
+						<span>{label}</span>
+					</button>
+				))}
+				<div className="px-4 py-2 text-xs text-slate-500 uppercase font-semibold border-t border-slate-700/30">Scroll Layout</div>
+				{scrollOptions.map(({ mode, icon: Icon, label }) => {
+					const isActive = selectedMode === mode;
+					return (
+						<button
+							key={mode}
+							onClick={() => {
+								onSelect(mode);
+								onClose();
+							}}
+							className={`w-full px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${isActive ? 'bg-blue-900/30 text-white' : ''}`}
+						>
+							<Icon strokeWidth={3} size={16} />
+							<span>{label}</span>
+						</button>
+					);
+				})}
+
+				<div className="px-4 py-2 text-xs text-slate-500 uppercase font-semibold border-t border-slate-700/30">Page Layout</div>
+				{pageOptions.map(({ mode, icon: Icon, label }) => {
+					const isActive = pageMode === mode;
+					return (
+						<button
+							disabled={isHorizontal}
+							key={mode}
+							onClick={() => {
+								onSelect(mode);
+								onClose();
+							}}
+							className={`w-full disabled:opacity-40 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-700/50 transition-all duration-300 flex items-center space-x-3 ${isActive ? 'bg-blue-900/30 text-white' : ''}`}
+						>
+							<Icon strokeWidth={3} size={16} />
+							<span>{label}</span>
+						</button>
+					);
+				})}
+			</div>
+		);
+	};
 	return (
 		<>
 			<div className="flex items-center justify-between flex-wrap">
@@ -945,7 +1168,102 @@ const MainToolbar = ({
 					<Image width={300} height={300} className='w-auto h-auto' src={imageUrl} alt="Captured PDF area" />
 				</div>
 				}
-				<div className="flex justify-between w-full items-center space-x-3 bg-gray-950/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 shadow-2xl px-6 pt-5 pb-4">
+				<div className="flex z-40 relative justify-between w-full items-center space-x-3 bg-gray-950/40  rounded-tr-3xl backdrop-blur-xl border-b border-slate-800/50 shadow-2xl px-6 pt-5 pb-4">
+					<div className="relative">
+						<button
+							onClick={() => setLayoutDropdown(layoutDropdown === 'layout' ? null : 'layout')}
+							className={`p-3.5 px-4 rounded-xl min-w-fit flex items-center gap-1 transition-all duration-300 flex-shrink-0 ${layoutDropdown === 'layout' ? ' !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] text-blue-300' : 'hover:bg-slate-700/30 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+							title="Layout & Rotate"
+						>
+							<FileCog strokeWidth={3} size={16} />
+							<DropdownIcon strokeWidth={3} size={14} className={`ml-1 ${layoutDropdown === 'layout' ? "rotate-180" : ""}`} />
+						</button>
+						{layoutDropdown === 'layout' && (
+							<LayoutDropdown
+								onSelect={handleModeSelect}
+								onClose={() => setLayoutDropdown(null)}
+								selectedMode={selectedMode}
+								pageMode={pageMode}
+								isHorizontal={selectedMode === 'scroll-horizontal'}
+							/>
+						)}
+					</div>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					{/*  Zoom Section */}
+					<div className="flex py-2.5 pr-4 min-w-fit items-center space-x-1 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] rounded-xl relative">
+						<form onSubmit={handleZoomSubmit} className="flex  gap-1  items-center">
+							<input
+								type="text"
+								inputMode="numeric"
+								pattern="\d*"
+								className="h-6 w-10 border-0 bg-transparent p-0 -mt-0.5 text-right text-sm text-white focus:outline-none"
+								aria-label="Set zoom"
+								value={zoomInputValue}
+								onChange={handleZoomInputChange}
+							/>
+							<span className="text-sm text-slate-400">%</span>
+						</form>
+
+						<div className="relative ">
+							<button
+								onClick={() => setZoomDropdownOpen(!zoomDropdownOpen)}
+								className="p-1 hover:bg-slate-700/30 rounded transition-all duration-300"
+								title="Zoom Options"
+							>
+								<ChevronDown strokeWidth={3} size={12} className={`text-slate-300 transition-transform duration-300 ${zoomDropdownOpen ? 'rotate-180' : ''}`} />
+							</button>
+							{zoomDropdownOpen && <ZoomDropdown />}
+						</div>
+						<button
+							onClick={() => zoomApi?.zoomOut()}
+							className="p-1 hover:bg-slate-700/30 rounded transition-all duration-300"
+							title="Zoom Out"
+						>
+							<ZoomOut strokeWidth={3} size={16} className="text-slate-300" />
+						</button>
+						<button
+							onClick={() => zoomApi?.zoomIn()}
+							className="p-1 mr-5 hover:bg-slate-700/30 rounded transition-all duration-300"
+							title="Zoom In"
+						>
+							<ZoomIn strokeWidth={3} size={16} className="text-slate-300" />
+						</button>
+					</div>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={() => setAnnotationMode('select')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						title="Selector"
+					>
+						<MousePointer strokeWidth={3} size={16} />
+					</button>
+					<button
+						onClick={() => setAnnotationMode('pan')}
+						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
+						title="Drift"
+					>
+						<Hand strokeWidth={3} size={16} />
+					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
+					<button
+						onClick={handleDeleteSelected}
+						className="p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:!shadow-[inset_0_0_5px_rgba(200,0,0,0.6)] text-red-300  !shadow-[inset_0_0_5px_rgba(200,0,0,0.4)]"
+						title="Vaporize"
+					>
+						<Trash2 size={16} />
+					</button>
+					<button
+						onClick={() => printApi?.print()}
+						className="p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl transition-all duration-300"
+						title="Manifest"
+					>
+						<Printer strokeWidth={3} size={16} className="text-slate-300" />
+					</button>
+					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+
 					<button
 						onClick={handleUndo}
 						disabled={!canUndo}
@@ -963,131 +1281,10 @@ const MainToolbar = ({
 						<Redo strokeWidth={3} size={16} />
 					</button>
 
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
-					<button
-						onClick={handleDeleteSelected}
-						className="p-3 rounded-xl transition-all duration-300 flex-shrink-0 hover:!shadow-[inset_0_0_5px_rgba(200,0,0,0.6)] text-red-300  !shadow-[inset_0_0_5px_rgba(200,0,0,0.4)]"
-						title="Vaporize"
-					>
-						<Trash2 size={16} />
-					</button>
-					{console.log("hehee", scrollLayout)
-					}
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-					<label onMouseUp={handleScrollLayoutToggle} className="inline-flex items-center cursor-pointer">
-						<input type="checkbox" value="" className="sr-only peer" />
-						<div className={`relative w-20 h-9 ${scrollLayout === ScrollStrategy.Horizontal ? ' !shadow-[inset_0_0_5px_rgba(50,100,255,0.2)] ' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] dark:bg-gray-700'} peer-focus:outline-none  rounded-xl  after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:!shadow-[inset_0_0_25px_rgba(50,100,250,1)]   after:rounded-[11px] after:h-8 after:w-8 after:transition-all dark:after:border-gray-600 ${scrollLayout === ScrollStrategy.Vertical ? 'after:-translate-x-0.5 after:border-gray-300' : 'after:translate-x-[130%] after:border-white'}`}></div>
-					</label>
-					{/* <select
-						className="w-full rounded-xl border border-slate-700/50 bg-slate-950 px-3 py-3 text-sm text-slate-200 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
-						value={scrollLayout}
-						onChange={(e) => setScrollLayout(e.target.value)}
-					>
-
-						{[ScrollStrategy.Horizontal, ScrollStrategy.Vertical].map((o) => (
-							<option key={o} value={o} >
-								{o}
-							</option>
-						))}
-					</select> */}
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
-					<button
-						onClick={() => scrollApi?.scrollToPreviousPage()}
-						disabled={currentPage <= 1}
-						className="p-3 !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70  text-white  rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed   backdrop-blur-xl"
-						title="Ascend"
-					>
-						<ChevronUp strokeWidth={3} size={16} className="text-slate-300" />
-					</button>
-					<div className="flex items-center space-x-2 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] bg-gray-950/70  text-white rounded-xl px-4 py-2.5  border border-slate-700/30 backdrop-blur-xl">
-						<input
-							type="number"
-							value={currentPage}
-							min={1}
-							max={totalPages}
-							onChange={handlePageChange}
-							className="w-5 bg-transparent text-center font-semibold text-xs focus:outline-none text-white"
-						/>
-						<span className="text-xs font-semibold text-slate-400 pr-2"> / {totalPages}</span>
-					</div>
-					<button
-						onClick={() => scrollApi?.scrollToNextPage()}
-						disabled={currentPage >= totalPages}
-						className="p-3 !shadow-[inset_0_0_5px_rgba(100,100,255,0.6)] bg-gray-950/70  text-white  rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed   backdrop-blur-xl"
-						title="Descend"
-					>
-						<ChevronDown strokeWidth={3} size={16} className="text-slate-300" />
-					</button>
-
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
-
-					<div className="flex py-2.5 items-center space-x-2 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl ">
-						<button
-							onClick={() => zoomApi?.zoomOut()}
-							className="px-3 hover:bg-slate-700/30 rounded-l-xl transition-all duration-300"
-							title="Contract"
-						>
-							<ZoomOut strokeWidth={3} size={16} className="text-slate-300" />
-						</button>
-						<select
-							value={Math.round(zoom * 100)}
-							onChange={(e) =>
-								zoomApi?.requestZoom(parseInt(e.target.value, 10) / 100)
-							}
-							className="bg-transparent px-4  text-sm focus:outline-none cursor-pointer text-white font-mono"
-							style={{ appearance: 'none', width: 'fit-content' }}
-						>
-							{zoomLevels.map((level) => (
-								<option key={level} value={Math.round(level * 100)} className=' bg-black-100'>
-									{Math.round(level * 100)}%
-								</option>
-							))}
-						</select>
-						<button
-							onClick={() => zoomApi?.zoomIn()}
-							className="px-3 hover:bg-slate-700/30 rounded-r-xl transition-all duration-300"
-							title="Expand"
-						>
-							<ZoomIn strokeWidth={3} size={16} className="text-slate-300" />
-						</button>
-					</div>
-
-					<button
-						onClick={() => rotateApi?.rotateForward()}
-						className="p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] rounded-xl transition-all duration-300"
-						title="Spin"
-					>
-						<RotateIcon strokeWidth={3} size={16} className="text-slate-300" />
-					</button>
-					<button
-						onClick={() => printApi?.print()}
-						className="p-3 !shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]  rounded-xl transition-all duration-300"
-						title="Manifest"
-					>
-						<Printer strokeWidth={3} size={16} className="text-slate-300" />
-					</button>
-
 				</div>
 
 				{/* below toolbar */}
-				<div className="flex justify-between w-fit items-center space-x-4 mx-auto bg-slate-900/40  rounded-b-3xl backdrop-blur-xl border border-t-0 border-slate-800/50 shadow-2xl px-5 py-3 ">
-					<button
-						onClick={() => setAnnotationMode('select')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'select' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-						title="Selector"
-					>
-						<MousePointer strokeWidth={3} size={14} />
-					</button>
-					<button
-						onClick={() => setAnnotationMode('pan')}
-						className={`p-3 rounded-xl transition-all duration-300 flex-shrink-0 ${annotationMode === 'pan' ? ' text-white !shadow-[inset_0_0_5px_rgba(100,100,255,0.9)]' : '!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] text-slate-300'}`}
-						title="Drift"
-					>
-						<Hand strokeWidth={3} size={14} />
-					</button>
-					<div className="w-px h-8 bg-slate-700/30 mx-2 flex-shrink-0" />
+				<div className="flex relative z-10 justify-between w-fit items-center space-x-4 mx-auto bg-slate-900/40  rounded-b-3xl backdrop-blur-xl border border-t-0 border-slate-800/50 shadow-2xl px-5 py-3 ">
 
 					{/* Grouped Tool Buttons */}
 					{/* <div className="relative flex items-center space-x-2 "> */}
@@ -1204,7 +1401,6 @@ const MainToolbar = ({
 		</>
 	);
 };
-
 function HitLine({ hit, onClick, active }) {
 	const { before, match, after, truncatedLeft, truncatedRight } = hit.context;
 	const ref = useRef(null);
