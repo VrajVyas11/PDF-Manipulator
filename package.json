@@ -15,6 +15,7 @@
     "@embedpdf/engines": "^1.4.1",
     "@embedpdf/plugin-annotation": "^1.4.1",
     "@embedpdf/plugin-capture": "^1.4.1",
+    "@embedpdf/plugin-export": "^1.4.1",
     "@embedpdf/plugin-interaction-manager": "^1.4.1",
     "@embedpdf/plugin-loader": "^1.4.1",
     "@embedpdf/plugin-pan": "^1.4.1",
