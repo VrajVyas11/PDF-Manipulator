@@ -7,7 +7,7 @@ import { PDFDocument } from "pdf-lib";
 
 function PDFEditorComplex() {
   const [pdf, setPdf] = useState(null);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState();
   const [dragActive, setDragActive] = useState(false);
   const [pdfDimensions, setPdfDimensions] = useState({ width: null, height: null });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -114,11 +114,9 @@ function PDFEditorComplex() {
 
       if (signal.aborted) return;
 
-
       // Prepare form data with timeout
       const formData = new FormData();
       formData.append("pdf", pdf);
-
 
       // Make request with timeout and retry logic
       let attempt = 0;
@@ -148,7 +146,6 @@ function PDFEditorComplex() {
           if (!data.url) {
             throw new Error("Invalid server response: No URL provided");
           }
-
 
           // Fetch HTML with timeout
           const htmlTimeoutPromise = new Promise((_, reject) => 
@@ -352,7 +349,7 @@ function PDFEditorComplex() {
     }
   }, [pdfDimensions.height, pdfDimensions.width, showToastError]);
 
-    // Helper functions for complex operations
+  // Helper functions for complex operations
   const handleListCommand = useCallback((listType, styleType) => {
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
@@ -815,25 +812,23 @@ function PDFEditorComplex() {
     }
   }, [validatePDFFile, showToastError]);
 
-  // Reset function for cleanup
-  // const resetEditor = useCallback(() => {
-  //   setContent("");
-  //   setPdf(null);
-  //   setPdfDimensions({ width: null, height: null });
-  //   setUploadProgress(0);
-    
-  //   if (fileInputRef.current) {
-  //     fileInputRef.current.value = "";
-  //   }
-    
-  //   if (abortControllerRef.current) {
-  //     abortControllerRef.current.abort();
-  //     abortControllerRef.current = null;
-  //   }
-  // }, []);
+  // Focus editor on mount if content exists
+  useEffect(() => {
+    if (content && editorRef.current) {
+      editorRef.current.focus();
+    }
+  }, [content]);
+
+  // Handle mobile touch for drag simulation if needed, but primarily use click
+  const handleTouchStart = useCallback((e) => {
+    // Prevent default scrolling issues on touch
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, []);
 
   return (
-    <div className="flex w-full justify-center items-center flex-col">
+    <div className="flex w-full justify-center items-center flex-col p-2 sm:p-0">
       <div className="w-full pr-0 lg:pr-4 md:mb-4 mb-0">
         <div className="min-h-[200px] rounded-lg p-4 pt-0">
           <div className="flex w-full flex-col justify-center items-center text-center">
@@ -842,7 +837,7 @@ function PDFEditorComplex() {
                 <h3 className="text-[30px] justify-center md:justify-normal flex w-full font-bold md:text-[38px] leading-[110%] text-p5">
                   Upload PDF File
                 </h3>
-                <div className="w-full flex justify-end items-center flex-row">
+                <div className="w-full flex justify-end items-center flex-row gap-2">
                   <button
                     disabled={!content || isProcessing || isDownloading}
                     onClick={downloadPdf}
@@ -893,12 +888,13 @@ function PDFEditorComplex() {
               <div className="w-full md:mt-3 flex flex-col gap-8">
                 <div
                   className={`flex-center ${dragActive ? "scale-105" : ""
-                    } min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center w-full backdrop-blur-lg brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)]`}
+                    } min-w-72 md:min-w-full flex h-48 cursor-pointer flex-col gap-5 rounded-[16px] border border-dashed bg-[#7986AC] bg-opacity-20 border-p1 border-opacity-40 justify-center items-center text-white text-center w-full backdrop-blur-lg brightness-125 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,1)] touch-manipulation`}
                   onDragOver={handleDrag}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
+                  onTouchStart={handleTouchStart}
                 >
                   <div className="rounded-[16px] bg-s0/40 p-5 shadow-sm shadow-purple-200/50">
                     <input
@@ -932,9 +928,9 @@ function PDFEditorComplex() {
         </div>
         {content && (
           <div
-            className={`mt-72 md:mt-60 lg:mt-48 scale-95 md:scale-100 relative w-full flex flex-col items-center border border-gray-300 rounded-lg shadow-lg`}
+            className="mt-10 overflow-hidden  relative w-full flex flex-col items-center border border-gray-300/20 rounded-3xl shadow-lg"
           >
-            <div className="bg-[linear-gradient(#0a1130,#0d1845)] border border-opacity-50 border-p1 rounded-xl rounded-b-none sm-320:-mt-80 sm-374:-mt-72 -mt-96 sm:-mt-80 md:-mt-[227px] lg:-mt-[197px] xl:-mt-[137px] relative z-20 flex w-full flex-wrap justify-center gap-2 p-2 sm:justify-between">
+            <div className="h-fit relative bg-black/30 overflow-visible border border-opacity-50 border-p1/20 rounded-3xl rounded-b-none !z-50 flex w-full flex-wrap justify-center sm:justify-between">
               <Toolbar
                 editor={editorRef}
                 applyStyle={applyStyle}
@@ -948,21 +944,22 @@ function PDFEditorComplex() {
                 setBackgroundColor={(color) => applyStyle("backgroundColor", color)}
               />
             </div>
-
+            <div className=" relative w-full h-auto">
             <div
               ref={editorRef}
               id="containerComplexEditor"
               contentEditable
               dangerouslySetInnerHTML={{ __html: content }}
-              className={`editor-container h-[${pdfDimensions.height ? pdfDimensions.height + 50 : 500
-                }px] w-full max-w-[95%] overflow-auto p-4`}
+              className="editor-container w-full max-w-[95%] p-4 prose prose-sm sm:prose mx-auto touch-manipulation"
               style={{
-                height: `${pdfDimensions.height || 500}px`,
+                minHeight: pdfDimensions.height ? `${pdfDimensions.height + 50}px` : "800px",
                 outline: "none",
                 scrollbarWidth: "thin",
                 scrollbarColor: "rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.1)",
                 lineHeight: "1.6",
                 fontFamily: "inherit",
+                WebkitUserSelect: "text",
+                userSelect: "text",
               }}
               onInput={(e) => {
                 // Auto-save functionality can be added here
@@ -979,7 +976,9 @@ function PDFEditorComplex() {
                   document.execCommand('insertText', false, text);
                 }
               }}
+              onTouchStart={handleTouchStart}
             />
+            </div>
           </div>
         )}
       </div>

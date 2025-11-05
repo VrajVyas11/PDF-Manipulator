@@ -66,7 +66,7 @@ function PDFEditor() {
               className="brightness-200"
             />
             <span className="font-semibold text-16 flex p-4 pr-0 text-p5">
-              Complex PDFs
+              PDF Editor
             </span>
           </span>
 
