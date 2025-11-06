@@ -11,11 +11,11 @@
   }
 }
 
-.jodit-react-container .jodit-container .jodit .jodit_theme_default .jodit-wysiwyg_mode{
+.jodit-react-container .jodit-container .jodit .jodit_theme_default .jodit-wysiwyg_mode {
   background-color: #ffffff00 !important;
 }
-.jodit-toolbar-editor-collection .jodit-toolbar-editor-collection_mode_horizontal .jodit-toolbar-editor-collection_size_middle
-{
+
+.jodit-toolbar-editor-collection .jodit-toolbar-editor-collection_mode_horizontal .jodit-toolbar-editor-collection_size_middle {
   background-color: #ffffff00 !important;
 }
 
@@ -28,22 +28,25 @@
 .jodit-container .jodit-workplace {
   background-color: rgba(255, 255, 255, 0.32) !important;
   color: black;
-  border: none  !important;
+  border: none !important;
   max-height: 100%;
 }
 
-.jodit-status-bar,.jodit-status-bar-link{
+.jodit-status-bar,
+.jodit-status-bar-link {
   background: linear-gradient(#0a1130, #0d1845) !important;
   border-radius: 0 0 3px 3px;
   color: #C4CBF5 !important;
 }
 
-.jodit-container:not(.jodit_inline){
+.jodit-container:not(.jodit_inline) {
   background-color: transparent !important;
 }
 
 
-svg.jodit-icon .jodit, .jodit-container, .jodit-container .jodit-icon{
+svg.jodit-icon .jodit,
+.jodit-container,
+.jodit-container .jodit-icon {
   height: auto;
   isolation: isolate;
   stroke: #C4CBF5 !important;
@@ -54,8 +57,9 @@ svg.jodit-icon .jodit, .jodit-container, .jodit-container .jodit-icon{
   fill: #C4CBF5;
 }
 
-.jodit-toolbar-button__button:hover:not([disabled]), .jodit-toolbar-button__trigger:hover:not([disabled]) {
-  background:linear-gradient(#0a1130c1, #0d1845a4);
+.jodit-toolbar-button__button:hover:not([disabled]),
+.jodit-toolbar-button__trigger:hover:not([disabled]) {
+  background: linear-gradient(#0a1130c1, #0d1845a4);
   opacity: 1;
   outline: 0;
 }
@@ -64,9 +68,9 @@ svg.jodit-icon .jodit, .jodit-container, .jodit-container .jodit-icon{
 
 .ql-container {
   min-height: auto;
-  border: none !important; 
+  border: none !important;
   fill: none;
-  background-color: transparent ;
+  background-color: transparent;
   color: black;
   margin: 0.5rem;
   max-width: 100%;
@@ -77,14 +81,14 @@ svg.jodit-icon .jodit, .jodit-container, .jodit-container .jodit-icon{
   font-size: 16px;
   color: #000000;
   line-height: 1.6;
-  border: none !important; 
+  border: none !important;
 }
 
 .ql-toolbar {
-  background:linear-gradient(#0a1130, #0d1845);
+  background: linear-gradient(#0a1130, #0d1845);
   color: #ffffff;
   z-index: 10;
-  border: none!important;
+  border: none !important;
   padding: 1rem;
   width: 100%;
   backdrop-filter: blur(8px);
@@ -101,7 +105,7 @@ svg.jodit-icon .jodit, .jodit-container, .jodit-container .jodit-icon{
 .ql-toolbar .ql-formats svg .ql-stroke {
   background: #fdfdfd;
   stroke: #eee2e2;
-  border: none!important;
+  border: none !important;
   padding: 0.5rem;
   margin: 0.25rem;
   border-radius: 0.3em;
@@ -132,7 +136,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 2rem;
   background: #356788;
   border-radius: 50%;
-   border: 0.3rem solid #7e99b5;
+  border: 0.3rem solid #7e99b5;
   cursor: pointer;
   appearance: none;
 }
@@ -174,10 +178,11 @@ input[type="range"]::-moz-range-thumb {
     overflow-x: auto;
     /* Enable horizontal scrolling if necessary */
   }
+
   .ql-editor {
     font-size: 8px;
   }
-  
+
   .ql-container {
     padding: 0.5rem;
   }
@@ -265,4 +270,266 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* Professional dark theme: Near-black bases with subtle gradients and blurs */
+:root {
+  --rpv-core__inner-page-background-color: hsl(0, 0%, 8%) !important;
+  /* Near-black page canvas */
+  --rpv-default-layout__body-background-color: hsl(0, 0%, 8%) !important;
+  /* Body area */
+  --rpv-default-layout__toolbar-background-color: hsl(0, 0%, 10%) !important;
+  /* Subtle toolbar lift */
+  --rpv-default-layout__sidebar--opened-background-color: hsl(0, 0%, 8%) !important;
+  /* Sidebar */
+  --rpv-default-layout__sidebar-content--opened-background-color: hsl(0, 0%, 8%) !important;
+  /* Sidebar content */
+  --rpv-core__doc-loading-background-color: hsl(0, 0%, 8%) !important;
+  /* Loading overlay */
+  --rpv-core__modal-body-background-color: hsl(0, 0%, 10%) !important;
+  /* Modals/popovers */
+  --rpv-core__popover-body-background-color: hsl(0, 0%, 10%) !important;
+  /* Popovers */
+  --rpv-thumbnail__container-background-color: hsl(0, 0%, 8%) !important;
+  /* Thumbnails */
+  --rpv-core__text-layer-text--selection-background-color: hsl(210, 20%, 25%) !important;
+  /* Muted selection */
+  --rpv-search__highlight-background-color: hsl(210, 20%, 25%) !important;
+  /* Search highlight */
+  --rpv-search__highlight--current-background-color: hsl(210, 20%, 30%) !important;
+  /* Current search */
+  --rpv-core__menu-item--hover-background-color: hsl(210, 10%, 20%) !important;
+  /* Subtle hover */
+  --rpv-core__minimal-button--hover-background-color: hsl(210, 10%, 20%) !important;
+  /* Button hover */
+  --rpv-thumbnail__item--selected-background-color: hsl(210, 10%, 20%) !important;
+  /* Selected thumbnail */
+}
+
+.rpv-core__viewer--dark {
+  --rpv-core__inner-page-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-default-layout__body-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-default-layout__toolbar-background-color: hsl(0, 0%, 10%) !important;
+  --rpv-default-layout__sidebar--opened-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-default-layout__sidebar-content--opened-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-core__doc-loading-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-core__modal-body-background-color: hsl(0, 0%, 10%) !important;
+  --rpv-core__popover-body-background-color: hsl(0, 0%, 10%) !important;
+  --rpv-thumbnail__container-background-color: hsl(0, 0%, 8%) !important;
+  --rpv-core__text-layer-text--selection-background-color: hsl(210, 20%, 25%) !important;
+  --rpv-search__highlight-background-color: hsl(210, 20%, 25%) !important;
+  --rpv-search__highlight--current-background-color: hsl(210, 20%, 30%) !important;
+  --rpv-core__menu-item--hover-background-color: hsl(210, 10%, 20%) !important;
+  --rpv-core__minimal-button--hover-background-color: hsl(210, 10%, 20%) !important;
+  --rpv-thumbnail__item--selected-background-color: hsl(210, 10%, 20%) !important;
+}
+.rpv-default-layout__sidebar{
+width: fit-content !important;
+  min-width: fit-content !important;
+}
+/* .rpv-thumbnail__list,.rpv-thumbnail__list-container,.rpv-default-layout__sidebar-content,.rpv-default-layout__sidebar-tabs{
+width: fit-content !important;
+  min-width: fit-content !important;
+} */
+.rpv-thumbnail__item--selected{
+    border-radius: 20px !important;
+    padding: 5px !important;
+}
+
+/* Core viewer: Near-black base with subtle elevation */
+.rpv-core__inner-page {
+  background-color: hsl(0, 0%, 8%) !important;
+  /* width: 100% !important; */
+  display: flex !important;
+  padding-top: 15px !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.rpv-default-layout__container,
+.rpv-core__inner-container,
+.rpv-core__viewer {
+  overflow: hidden !important;
+  border-radius: 25px !important;
+}
+
+.rpv-default-layout__toolbar {
+  /* overflow: hidden !important; */
+  border-radius: 25px 25px 0px 0px !important;
+}
+
+.rpv-default-layout__container {
+  background-color: hsl(0, 0%, 8%) !important;
+  border: 1px solid hsl(0, 0%, 15%) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+  box-shadow: 0 2px 10px hsl(0, 0%, 0%, 0.3) !important;
+}
+
+/* Toolbar: Sleek, low-profile */
+.rpv-toolbar {
+  background: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 12%)) !important;
+  border-bottom: 1px solid hsl(0, 0%, 20%) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 25px 25px 0px 0px !important;
+  padding: 4px !important;
+}
+
+.rpv-toolbar__item button {
+  color: hsl(0, 0%, 80%) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: all 0.15s ease !important;
+  padding: 4px 8px !important;
+}
+
+.rpv-toolbar__item button:hover {
+  background-color: hsl(210, 10%, 20%) !important;
+  color: hsl(0, 0%, 100%) !important;
+  border-color: hsl(210, 10%, 25%) !important;
+  transform: none !important;
+  box-shadow: 0 1px 3px hsl(0, 0%, 0%, 0.2) !important;
+}
+
+/* Page layers: Clean, minimal shadows */
+.rpv-core__page-layer {
+  box-shadow: 0 1px 3px hsl(0, 0%, 0%, 0.4) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  margin: 4px !important;
+  border: 1px solid hsl(0, 0%, 20%) !important;
+}
+
+/* Sidebar: Professional, compact */
+.rpv-sidebar {
+  background: linear-gradient(to right, hsl(0, 0%, 8%), hsl(0, 0%, 10%)) !important;
+  border-right: 1px solid hsl(0, 0%, 20%) !important;
+  backdrop-filter: blur(8px) !important;
+  padding: 4px !important;
+}
+
+.rpv-sidebar__tab {
+  color: hsl(0, 0%, 70%) !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: all 0.15s ease !important;
+}
+
+.rpv-sidebar__tab--selected {
+  background-color: hsl(210, 10%, 20%) !important;
+  color: hsl(0, 0%, 100%) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px hsl(0, 0%, 0%, 0.2) !important;
+}
+
+/* Thumbnails: Sleek cards */
+.rpv-thumbnail__container {
+  background-color: hsl(0, 0%, 10%) !important;
+  border: 1px solid hsl(0, 0%, 20%) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: all 0.15s ease !important;
+  margin: 2px !important;
+}
+
+.rpv-thumbnail__container:hover {
+  border-color: hsl(210, 10%, 25%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px hsl(0, 0%, 0%, 0.3) !important;
+}
+
+/* Search popover: Minimal overlay */
+.rpv-search__popover {
+  background: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 12%)) !important;
+  border: 1px solid hsl(0, 0%, 20%) !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px hsl(0, 0%, 0%, 0.4) !important;
+}
+
+.rpv-search__input {
+  background-color: hsl(0, 0%, 12%) !important;
+  color: hsl(0, 0%, 90%) !important;
+  border: 1px solid hsl(0, 0%, 25%) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.rpv-search__input:focus {
+  border-color: hsl(210, 10%, 30%) !important;
+  box-shadow: 0 0 0 2px hsl(210, 10%, 25%, 0.3) !important;
+  outline: none !important;
+}
+
+/* Spinner: Subtle, dark */
+.rpv-core__spinner {
+  border-color: hsl(0, 0%, 20%) !important;
+  border-top-color: hsl(210, 10%, 30%) !important;
+}
+
+/* Page nav input: Clean form */
+.rpv-page-navigation__input {
+  background-color: hsl(0, 0%, 12%) !important;
+  color: hsl(0, 0%, 90%) !important;
+  border: 1px solid hsl(0, 0%, 25%) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Zoom popover: Same as search */
+.rpv-zoom__popover {
+  background: linear-gradient(to bottom, hsl(0, 0%, 10%), hsl(0, 0%, 12%)) !important;
+  border: 1px solid hsl(0, 0%, 20%) !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px hsl(0, 0%, 0%, 0.4) !important;
+}
+
+.rpv-menu__item {
+  color: hsl(0, 0%, 80%) !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: all 0.15s ease !important;
+}
+
+.rpv-menu__item:hover {
+  background-color: hsl(210, 10%, 20%) !important;
+  color: hsl(0, 0%, 100%) !important;
+}
+
+/* Range slider: Sleek, dark */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px !important;
+  background: hsl(0, 0%, 20%) !important;
+  border-radius: 2px !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin-top: -4px !important;
+  background: hsl(0, 0%, 60%) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 2px hsl(0, 0%, 0%, 0.3) !important;
+  border: none !important;
+}
+
+/* Ensure inner pages inherit dark bg */
+.rpv-core__inner-page {
+  background-color: var(--rpv-core__inner-page-background-color) !important;
+}
+
+.rpv-default-layout__body {
+  background-color: var(--rpv-default-layout__body-background-color) !important;
+}
+
+.rpv-sidebar {
+  background-color: var(--rpv-default-layout__sidebar-content--opened-background-color) !important;
 }

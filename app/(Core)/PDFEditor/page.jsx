@@ -1,12 +1,9 @@
 "use client"
 import React, { useState } from 'react';
-// import PDFAnnotator from "../../../components/Core/PDFEditor/PDFAnnotator.jsx";
-import PDFEditorComplex from "../../../components/Core/PDFEditor/PDFEditorComplex.jsx";
 import Image from 'next/image.js';
 import dynamic from "next/dynamic";
-
-const PDFAnnotator = dynamic(() => import("../../../components/Core/PDFEditor/PDFAnnotator.jsx"), {
-  ssr: false,
+const PDFEditorComplex = dynamic(() => import( "../../../components/Core/PDFEditor/PDFEditorComplex.jsx"),{
+  ssr:false,
   loading: () => (
     <div className="flex items-center justify-center h-screen">
       <div className="flex flex-col items-center gap-3">
@@ -17,6 +14,8 @@ const PDFAnnotator = dynamic(() => import("../../../components/Core/PDFEditor/PD
   )
 });
 
+import PDFAnnotator from "../../../components/Core/PDFEditor/PDFAnnotator.jsx";
+ 
 function PDFEditor() {
   const [isAnnotation, setIsAnnotation] = useState(true);
   const toggleImplementation = (toggle) => {
